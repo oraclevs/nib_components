@@ -31,7 +31,7 @@ class NibDataTable<T> extends StatefulWidget {
     this.loading = false,
     this.emptyState,
     this.rowHeight = 48,
-    this.headerHeight = 44,
+    this.headerHeight = 48,
     this.stickyHeader = true,
     this.controller,
     this.animated = false,
@@ -79,7 +79,8 @@ class NibDataTable<T> extends StatefulWidget {
   /// The height of every row, in logical pixels.
   final double rowHeight;
 
-  /// The height of the header row, in logical pixels.
+  /// The height of the header row, in logical pixels. Defaults to `48` to
+  /// meet the 48x48 minimum tap-target size for sortable column headers.
   final double headerHeight;
 
   /// Whether the header stays pinned while the body scrolls.
@@ -250,10 +251,13 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
             if (widget.selectionMode == NibDataTableSelectionMode.multi)
               SizedBox(
                 width: 48,
-                child: Checkbox(
-                  value: allSelected ? true : (someSelected ? null : false),
-                  tristate: true,
-                  onChanged: (_) => _toggleSelectAll(rows, !allSelected),
+                child: Semantics(
+                  label: 'Select all rows',
+                  child: Checkbox(
+                    value: allSelected ? true : (someSelected ? null : false),
+                    tristate: true,
+                    onChanged: (_) => _toggleSelectAll(rows, !allSelected),
+                  ),
                 ),
               ),
             for (var i = 0; i < widget.columns.length; i++)
@@ -301,14 +305,31 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
     );
 
     if (!column.sortable) {
-      return Align(alignment: Alignment.centerLeft, child: label);
+      return Semantics(
+        header: true,
+        child: Align(alignment: Alignment.centerLeft, child: label),
+      );
     }
 
-    return Material(
-      type: MaterialType.transparency,
-      child: InkWell(
-        onTap: () => _cycleSort(columnIndex),
-        child: Align(alignment: Alignment.centerLeft, child: label),
+    final sortStateLabel = switch (isSorted ? sort.direction : NibSortDirection.none) {
+      NibSortDirection.ascending => 'sorted ascending',
+      NibSortDirection.descending => 'sorted descending',
+      NibSortDirection.none => 'not sorted',
+    };
+
+    return Semantics(
+      header: true,
+      button: true,
+      label: 'Sort by ${column.label}, $sortStateLabel',
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: () => _cycleSort(columnIndex),
+          excludeFromSemantics: true,
+          child: ExcludeSemantics(
+            child: Align(alignment: Alignment.centerLeft, child: label),
+          ),
+        ),
       ),
     );
   }
@@ -326,9 +347,12 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
         if (widget.selectionMode == NibDataTableSelectionMode.multi)
           SizedBox(
             width: 48,
-            child: Checkbox(
-              value: selected,
-              onChanged: (_) => _toggleRow(row),
+            child: Semantics(
+              label: 'Select row',
+              child: Checkbox(
+                value: selected,
+                onChanged: (_) => _toggleRow(row),
+              ),
             ),
           ),
         for (var i = 0; i < widget.columns.length; i++)
@@ -355,16 +379,19 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
       child: cells,
     );
 
-    final tappable = Material(
-      type: MaterialType.transparency,
-      child: InkWell(
-        onTap: () {
-          widget.onRowTap?.call(row);
-          if (widget.selectionMode == NibDataTableSelectionMode.single) {
-            _toggleRow(row);
-          }
-        },
-        child: content,
+    final tappable = Semantics(
+      selected: widget.selectionMode == NibDataTableSelectionMode.none ? null : selected,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: () {
+            widget.onRowTap?.call(row);
+            if (widget.selectionMode == NibDataTableSelectionMode.single) {
+              _toggleRow(row);
+            }
+          },
+          child: content,
+        ),
       ),
     );
 

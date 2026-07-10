@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
 import 'package:nib_motion/nib_motion.dart';
@@ -449,4 +451,82 @@ void main() {
           reason: 'Expected an Expanded with flex=300 (minWidth of wide column)');
     },
   );
+
+  testWidgets(
+    'sortable header announces its label and current sort state to screen readers',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      const people = [
+        _Person('Charlie', 'c@example.com'),
+        _Person('Ada', 'a@example.com'),
+      ];
+      await tester.pumpWidget(
+        _wrap(NibDataTable<_Person>(columns: _columns(), rows: people)),
+      );
+
+      expect(find.bySemanticsLabel('Sort by Name, not sorted'), findsOneWidget);
+
+      await tester.tap(find.text('Name'));
+      await tester.pumpAndSettle();
+
+      expect(find.bySemanticsLabel('Sort by Name, sorted ascending'), findsOneWidget);
+      handle.dispose();
+    },
+  );
+
+  testWidgets('selected row is announced as selected to screen readers', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    const people = [
+      _Person('Ada Lovelace', 'ada@example.com'),
+      _Person('Alan Turing', 'alan@example.com'),
+    ];
+    await tester.pumpWidget(
+      _wrap(
+        NibDataTable<_Person>(
+          columns: _columns(),
+          rows: people,
+          selectionMode: NibDataTableSelectionMode.single,
+        ),
+      ),
+    );
+
+    var adaNode = tester.getSemantics(find.text('Ada Lovelace'));
+    // ignore: deprecated_member_use
+    expect(adaNode.hasFlag(SemanticsFlag.isSelected), isFalse);
+
+    await tester.tap(find.text('Ada Lovelace'));
+    await tester.pumpAndSettle();
+
+    adaNode = tester.getSemantics(find.text('Ada Lovelace'));
+    // ignore: deprecated_member_use
+    expect(adaNode.hasFlag(SemanticsFlag.isSelected), isTrue);
+    handle.dispose();
+  });
+
+  testWidgets('arrow-down key moves focus from one row to the next', (
+    tester,
+  ) async {
+    const people = [
+      _Person('Ada', 'a@example.com'),
+      _Person('Bob', 'b@example.com'),
+      _Person('Cara', 'c@example.com'),
+    ];
+    await tester.pumpWidget(
+      _wrap(NibDataTable<_Person>(columns: _columns(), rows: people)),
+    );
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pumpAndSettle();
+    final firstFocus = FocusManager.instance.primaryFocus;
+    expect(firstFocus, isNotNull);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.pumpAndSettle();
+    final secondFocus = FocusManager.instance.primaryFocus;
+
+    expect(secondFocus, isNotNull);
+    expect(identical(firstFocus, secondFocus), isFalse);
+  });
 }
