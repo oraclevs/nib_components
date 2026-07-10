@@ -33,6 +33,11 @@ class NibDataColumn<T> {
   final double? width;
 
   /// Minimum width when this column is flexible (i.e. [width] is `null`).
+  /// Also weights this column's share of flexible space relative to other flexible
+  /// columns — a column with a larger [minWidth] gets proportionally more flex space.
+  /// Only a true floor once the viewport is too narrow to fit every column's
+  /// [minWidth] — [NibDataTable] then switches to horizontal scrolling instead of
+  /// compressing columns below it.
   final double minWidth;
 
   /// Whether tapping this column's header cycles its sort direction.

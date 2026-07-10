@@ -396,4 +396,57 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets(
+    'flexible columns with different minWidth render proportionally: wider minWidth gets more space',
+    (tester) async {
+      final columns = [
+        NibDataColumn<_Person>(
+          label: 'Narrow',
+          cellBuilder: (context, row) => const SizedBox(width: 0, child: Text('N')),
+          minWidth: 96,
+        ),
+        NibDataColumn<_Person>(
+          label: 'Wide',
+          cellBuilder: (context, row) => const SizedBox(width: 0, child: Text('W')),
+          minWidth: 300,
+        ),
+      ];
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData(extensions: const [NibTheme.light]),
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 400,
+              child: NibDataTable<_Person>(
+                columns: columns,
+                rows: const [_Person('Ada Lovelace', 'ada@example.com')],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      // Find all Expanded widgets (one per flexible column).
+      final expandedFinders = find.byType(Expanded);
+      expect(expandedFinders, findsWidgets);
+
+      // Collect flex values from all Expanded widgets in headers and rows.
+      final expandedWidgets = tester.widgetList<Expanded>(expandedFinders).toList();
+
+      // Filter to just the ones we care about (skip if there are any with width set).
+      // The Expanded widgets in flexible columns should have flex: 96 and flex: 300
+      final flexValues = expandedWidgets
+          .map((e) => e.flex)
+          .toList();
+
+      // Verify that we have flex values that reflect the minWidth ratio.
+      // With minWidth 96 and 300, we expect flex 96 and flex 300.
+      expect(flexValues.contains(96), isTrue,
+          reason: 'Expected an Expanded with flex=96 (minWidth of narrow column)');
+      expect(flexValues.contains(300), isTrue,
+          reason: 'Expected an Expanded with flex=300 (minWidth of wide column)');
+    },
+  );
 }

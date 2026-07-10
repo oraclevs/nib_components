@@ -180,6 +180,7 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
       return SizedBox(width: column.minWidth, child: child);
     }
     return Expanded(
+      flex: column.minWidth.round(),
       child: ConstrainedBox(
         constraints: BoxConstraints(minWidth: column.minWidth),
         child: child,
