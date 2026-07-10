@@ -327,7 +327,7 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
       child: cells,
     );
 
-    return Material(
+    final tappable = Material(
       type: MaterialType.transparency,
       child: InkWell(
         onTap: () {
@@ -339,12 +339,23 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
         child: content,
       ),
     );
+
+    if (!widget.animated) return tappable;
+
+    return NibMotion(
+      key: _keyFor(row),
+      initial: const NibAnim(opacity: 0, y: 6),
+      animate: const NibAnim(opacity: 1, y: 0),
+      transition:
+          widget.transition ?? const NibTransition(duration: Duration(milliseconds: 220)),
+      child: tappable,
+    );
   }
 
   Widget _buildSkeletonRow(NibTheme theme) {
     final blockCount =
         widget.columns.length + (widget.selectionMode == NibDataTableSelectionMode.multi ? 1 : 0);
-    return SizedBox(
+    final row = SizedBox(
       key: const ValueKey('nib-data-table-skeleton-row'),
       height: widget.rowHeight,
       child: Row(
@@ -364,6 +375,8 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
         ],
       ),
     );
+    if (!widget.animated) return row;
+    return NibShimmer(enabled: true, child: row);
   }
 
   @override

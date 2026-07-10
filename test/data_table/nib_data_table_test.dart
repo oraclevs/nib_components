@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
+import 'package:nib_motion/nib_motion.dart';
 
 class _Person {
   const _Person(this.name, this.email);
@@ -298,5 +299,38 @@ void main() {
     // nowhere near the viewport and must not have been built.
     expect(find.text('Person 400'), findsNothing);
     expect(find.text('Person 0'), findsOneWidget);
+  });
+
+  testWidgets('animated: false builds zero NibMotion widgets', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        NibDataTable<_Person>(
+          columns: _columns(),
+          rows: const [
+            _Person('Ada Lovelace', 'ada@example.com'),
+            _Person('Alan Turing', 'alan@example.com'),
+          ],
+        ),
+      ),
+    );
+    expect(find.byType(NibMotion), findsNothing);
+  });
+
+  testWidgets('animated: true wraps each visible row in NibMotion', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        NibDataTable<_Person>(
+          columns: _columns(),
+          rows: const [
+            _Person('Ada Lovelace', 'ada@example.com'),
+            _Person('Alan Turing', 'alan@example.com'),
+          ],
+          animated: true,
+        ),
+      ),
+    );
+    expect(find.byType(NibMotion), findsNWidgets(2));
   });
 }
