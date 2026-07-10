@@ -32,12 +32,14 @@ void main() {
     late NibTheme resolvedDark;
     await tester.pumpWidget(
       MaterialApp(
-        theme: ThemeData(brightness: Brightness.light),
-        home: Builder(
-          builder: (context) {
-            resolvedLight = NibTheme.of(context);
-            return const SizedBox();
-          },
+        home: Theme(
+          data: ThemeData(brightness: Brightness.light),
+          child: Builder(
+            builder: (context) {
+              resolvedLight = NibTheme.of(context);
+              return const SizedBox();
+            },
+          ),
         ),
       ),
     );
@@ -45,12 +47,14 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        theme: ThemeData(brightness: Brightness.dark),
-        home: Builder(
-          builder: (context) {
-            resolvedDark = NibTheme.of(context);
-            return const SizedBox();
-          },
+        home: Theme(
+          data: ThemeData(brightness: Brightness.dark),
+          child: Builder(
+            builder: (context) {
+              resolvedDark = NibTheme.of(context);
+              return const SizedBox();
+            },
+          ),
         ),
       ),
     );
