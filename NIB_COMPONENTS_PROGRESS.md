@@ -7,6 +7,14 @@ section 3. Status values: `not started` / `in progress` / `built` / `tested`
 Setup infra (git repo, `nib_motion` wiring, `example/` demo app with
 Linux+web platforms) completed 2026-07-10.
 
+## Known gaps (deferred, not silently dropped)
+
+| Component | Gap | Notes |
+|---|---|---|
+| Data Table | No screen-reader grid semantics or arrow-key row traversal | Master prompt section 1.1 baseline not yet met. Basic keyboard activation (Tab + Enter/Space on headers/rows/checkboxes) works via native `InkWell`/`Checkbox`; missing: table/row/cell `Semantics` roles and arrow-key grid navigation. Close before calling Data Table fully done against 1.1, or accept as a tracked follow-up. |
+| Data Table | Pagination hook not wired | Pagination (#20) doesn't exist yet; `rows: List<T>` is already page-slice-friendly for when it lands. |
+| Data Table | No sticky first column while horizontally scrolled | Plain horizontal scroll (Task 9) covers the actual "doesn't fit on a phone" case; pinning a column during that scroll is deferred, comparable in complexity to Resizable Panels (#3). |
+
 ## Tier A — Hardest
 
 | # | Component | Status | Date |
