@@ -139,14 +139,18 @@ class _DataTableAdvancedExampleState extends State<DataTableAdvancedExample> {
   }
 }
 
-/// 4. Wide table with many columns — demonstrates the horizontal-scroll fallback
-/// when viewport is too narrow to fit all columns.
+/// 4. Wide table with many columns — demonstrates the horizontal-scroll
+/// fallback when viewport is too narrow to fit all columns. Pinned to a
+/// 500px-wide box (deliberately narrower than the table's ~1220px total
+/// column width) so the scroll always triggers, regardless of how wide the
+/// host window/screen actually is.
 class DataTableWideExample extends StatelessWidget {
   const DataTableWideExample({super.key});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
+      width: 500,
       height: 320,
       child: NibDataTable<_Employee>(
         columns: [
