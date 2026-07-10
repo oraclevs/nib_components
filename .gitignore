@@ -33,8 +33,10 @@ build/
 coverage/
 
 # Package convention: do not commit the lockfile for a library (consumers
-# resolve their own). The example/ app below is the opposite convention.
-pubspec.lock
+# resolve their own). Anchored to the repo root so it doesn't also match
+# example/pubspec.lock (the example/ app below is the opposite convention —
+# app lockfiles ARE committed).
+/pubspec.lock
 
 # Symbolication related
 app.*.symbols
