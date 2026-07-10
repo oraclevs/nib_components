@@ -176,7 +176,29 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
     );
   }
 
+  void _cycleSort(int columnIndex) {
+    final current = _controller.sort;
+    final NibSortDirection nextDirection;
+    if (current.columnIndex != columnIndex) {
+      nextDirection = NibSortDirection.ascending;
+    } else {
+      nextDirection = switch (current.direction) {
+        NibSortDirection.none => NibSortDirection.ascending,
+        NibSortDirection.ascending => NibSortDirection.descending,
+        NibSortDirection.descending => NibSortDirection.none,
+      };
+    }
+    _controller.setSort(
+      NibDataTableSort(
+        columnIndex: nextDirection == NibSortDirection.none ? null : columnIndex,
+        direction: nextDirection,
+      ),
+    );
+    widget.onSort?.call(columnIndex, nextDirection);
+  }
+
   Widget _buildHeaderRow(BuildContext context, NibTheme theme) {
+    final sort = _controller.sort;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: theme.card,
@@ -187,25 +209,54 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
         child: Row(
           children: [
             for (var i = 0; i < widget.columns.length; i++)
-              _sizedCell(
-                widget.columns[i],
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      widget.columns[i].label,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: theme.mutedForeground,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              _sizedCell(widget.columns[i], _buildHeaderCell(theme, i, sort)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderCell(NibTheme theme, int columnIndex, NibDataTableSort sort) {
+    final column = widget.columns[columnIndex];
+    final isSorted = sort.columnIndex == columnIndex && sort.direction != NibSortDirection.none;
+    final label = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              column.label,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: theme.mutedForeground,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          if (isSorted) ...[
+            const SizedBox(width: 4),
+            Icon(
+              sort.direction == NibSortDirection.ascending
+                  ? Icons.arrow_upward
+                  : Icons.arrow_downward,
+              size: 14,
+              color: theme.mutedForeground,
+            ),
+          ],
+        ],
+      ),
+    );
+
+    if (!column.sortable) {
+      return Align(alignment: Alignment.centerLeft, child: label);
+    }
+
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: () => _cycleSort(columnIndex),
+        child: Align(alignment: Alignment.centerLeft, child: label),
       ),
     );
   }
