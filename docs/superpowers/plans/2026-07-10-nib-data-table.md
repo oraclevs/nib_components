@@ -2202,12 +2202,374 @@ Do not proceed to the next component (Navigation Menu, Tier A #2) until the user
 
 ## Known gaps vs. master prompt section 5.1 (deliberate deviations, not silent drops)
 
-Section 5.1 lists two features this plan does not implement, both explicitly marked "optional" in the spec text:
-
-- **Optional sticky first column on horizontal scroll** — this plan's columns flex/fix-width within the available width but the table never scrolls horizontally, so there's no horizontal-scroll axis for a column to stick within. Implementing it means a second, independent scroll axis synchronized with the vertical one — comparable in complexity to Resizable Panels (Tier A #3) — and is deferred to a follow-up task rather than bolted on here.
 - **Pagination hook** ("works with the Nib Pagination component but not required") — Pagination is Tier B #20 and doesn't exist yet in this build order, so there is nothing to hook up to. Deferred until Pagination lands; `NibDataTable`'s `rows: List<T>` is already page-slice-friendly (caller can pass just the current page) so no rework is expected then.
+- **Sticky first column while horizontally scrolled** — Task 9 adds plain horizontal scrolling (the actual user-facing need: columns that don't fit a narrow/mobile viewport are reachable by scrolling instead of being crushed below `minWidth`), but does not pin a first column in place during that scroll. True column-pinning during horizontal scroll needs a synchronized second scroll region — comparable in complexity to Resizable Panels (Tier A #3) — and stays deferred to a follow-up task. Raise before starting Navigation Menu if this turns out to be load-bearing sooner than expected.
 
-Both are called out here so they don't quietly vanish from scope — raise before starting Navigation Menu if either turns out to be load-bearing sooner than expected.
+---
+
+### Task 9: Responsive horizontal scroll for narrow viewports
+
+**Added 2026-07-10** after user feedback during Task 8 review: the table had no fallback when a viewport (e.g. a phone-width screen) is narrower than the sum of the columns' widths — columns were only ever flexed/compressed via `Expanded`+`ConstrainedBox(minWidth:...)`, which on a narrow enough viewport produces a contradictory `BoxConstraints` (the Flex-allotted width is tighter than the column's own `minWidth`) and either overflows or throws. This also promotes master prompt section 1.7 (new standing rule: every component must be responsive — mobile/tablet/desktop/web — added to `NIB_COMPONENTS_MASTER_PROMPT.md` in the same sitting) from a future-looking rule into something Data Table itself must satisfy before being considered done.
+
+**Files:**
+- Modify: `lib/src/data_table/nib_data_table.dart`
+- Modify: `test/data_table/nib_data_table_test.dart`
+
+**Interfaces:**
+- No public API changes — `NibDataTable<T>`'s constructor is unchanged. This task changes only internal layout: a `LayoutBuilder` now wraps `build()`'s output, and `_sizedCell`/`_buildHeaderRow`/`_buildRow`/`_buildSkeletonRow` each gain a `fixedWidth`/`needsHorizontalScroll` bool parameter threaded from that `LayoutBuilder`.
+
+- [ ] **Step 1: Write the failing tests**
+
+Append to `test/data_table/nib_data_table_test.dart`:
+
+```dart
+testWidgets('wide viewport: renders without horizontal scroll, no overflow', (
+  tester,
+) async {
+  final columns = [
+    for (final label in ['A', 'B', 'C', 'D'])
+      NibDataColumn<_Person>(
+        label: label,
+        cellBuilder: (context, row) => Text(row.name),
+        minWidth: 100,
+      ),
+  ];
+  await tester.pumpWidget(
+    MaterialApp(
+      theme: ThemeData(extensions: const [NibTheme.light]),
+      home: Scaffold(
+        body: SizedBox(
+          width: 800,
+          height: 400,
+          child: NibDataTable<_Person>(
+            columns: columns,
+            rows: const [_Person('Ada Lovelace', 'ada@example.com')],
+          ),
+        ),
+      ),
+    ),
+  );
+  expect(find.byType(SingleChildScrollView), findsNothing);
+  expect(tester.takeException(), isNull);
+});
+
+testWidgets(
+  'narrow viewport: wraps in horizontal scroll, all columns still present, no overflow',
+  (tester) async {
+    final columns = [
+      for (final label in ['A', 'B', 'C', 'D'])
+        NibDataColumn<_Person>(
+          label: label,
+          cellBuilder: (context, row) => Text(row.name),
+          minWidth: 100,
+        ),
+    ];
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(extensions: const [NibTheme.light]),
+        home: Scaffold(
+          body: SizedBox(
+            width: 150,
+            height: 400,
+            child: NibDataTable<_Person>(
+              columns: columns,
+              rows: const [_Person('Ada Lovelace', 'ada@example.com')],
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(find.byType(SingleChildScrollView), findsOneWidget);
+    expect(find.text('A'), findsOneWidget);
+    expect(find.text('D'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  },
+);
+```
+
+- [ ] **Step 2: Run tests to verify they fail**
+
+Run: `flutter test test/data_table/nib_data_table_test.dart`
+Expected: the wide-viewport test PASSES already (nothing changed yet, no `SingleChildScrollView` exists anywhere, so `findsNothing` trivially holds). The narrow-viewport test FAILS — `find.byType(SingleChildScrollView)` finds nothing (`findsOneWidget` fails), and depending on Flutter's exact constraint-violation behavior at this viewport size, `tester.takeException()` may also be non-null (a `BoxConstraints` assertion from the `Expanded`+`ConstrainedBox(minWidth: 100)` combination being squeezed into ~37px each across 4 columns in a 150px-wide `Row`). Either failure mode confirms the pre-fix bug.
+
+- [ ] **Step 3: Implement responsive horizontal scroll**
+
+In `lib/src/data_table/nib_data_table.dart`, add this getter to `_NibDataTableState<T>` (near `_displayedRows`):
+
+```dart
+double get _intrinsicColumnsWidth {
+  var total = widget.selectionMode == NibDataTableSelectionMode.multi ? 48.0 : 0.0;
+  for (final column in widget.columns) {
+    total += column.width ?? column.minWidth;
+  }
+  return total;
+}
+```
+
+Replace `_sizedCell` with:
+
+```dart
+Widget _sizedCell(NibDataColumn<T> column, Widget child, {required bool fixedWidth}) {
+  if (column.width != null) {
+    return SizedBox(width: column.width, child: child);
+  }
+  if (fixedWidth) {
+    return SizedBox(width: column.minWidth, child: child);
+  }
+  return Expanded(
+    child: ConstrainedBox(
+      constraints: BoxConstraints(minWidth: column.minWidth),
+      child: child,
+    ),
+  );
+}
+```
+
+Replace `_buildHeaderRow`'s signature and its `_sizedCell` call:
+
+```dart
+Widget _buildHeaderRow(
+  BuildContext context,
+  NibTheme theme,
+  List<T> rows,
+  bool fixedWidth,
+) {
+  final sort = _controller.sort;
+  final selected = _controller.selected;
+  final allSelected = rows.isNotEmpty && rows.every(selected.contains);
+  final someSelected = rows.any(selected.contains);
+
+  return DecoratedBox(
+    decoration: BoxDecoration(
+      color: theme.card,
+      border: Border(bottom: BorderSide(color: theme.border)),
+    ),
+    child: SizedBox(
+      height: widget.headerHeight,
+      child: Row(
+        children: [
+          if (widget.selectionMode == NibDataTableSelectionMode.multi)
+            SizedBox(
+              width: 48,
+              child: Checkbox(
+                value: allSelected ? true : (someSelected ? null : false),
+                tristate: true,
+                onChanged: (_) => _toggleSelectAll(rows, !allSelected),
+              ),
+            ),
+          for (var i = 0; i < widget.columns.length; i++)
+            _sizedCell(
+              widget.columns[i],
+              _buildHeaderCell(theme, i, sort),
+              fixedWidth: fixedWidth,
+            ),
+        ],
+      ),
+    ),
+  );
+}
+```
+
+Replace `_buildRow`'s signature and its `_sizedCell` call (the rest of the method — `content`/`tappable`/`NibMotion` wrap — is unchanged from Task 7, keep it exactly as-is below the shown part):
+
+```dart
+Widget _buildRow(
+  BuildContext context,
+  NibTheme theme,
+  T row,
+  int index,
+  bool fixedWidth,
+) {
+  final selected = _controller.selected.contains(row);
+  final cells = Row(
+    children: [
+      if (widget.selectionMode == NibDataTableSelectionMode.multi)
+        SizedBox(
+          width: 48,
+          child: Checkbox(
+            value: selected,
+            onChanged: (_) => _toggleRow(row),
+          ),
+        ),
+      for (var i = 0; i < widget.columns.length; i++)
+        _sizedCell(
+          widget.columns[i],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: DefaultTextStyle.merge(
+                style: TextStyle(color: theme.foreground),
+                child: widget.columns[i].cellBuilder(context, row),
+              ),
+            ),
+          ),
+          fixedWidth: fixedWidth,
+        ),
+    ],
+  );
+
+  final content = Container(
+    height: widget.rowHeight,
+    color: selected ? theme.secondary : null,
+    child: cells,
+  );
+
+  final tappable = Material(
+    type: MaterialType.transparency,
+    child: InkWell(
+      onTap: () {
+        widget.onRowTap?.call(row);
+        if (widget.selectionMode == NibDataTableSelectionMode.single) {
+          _toggleRow(row);
+        }
+      },
+      child: content,
+    ),
+  );
+
+  if (!widget.animated) return tappable;
+
+  return NibMotion(
+    key: _keyFor(row),
+    initial: const NibAnim(opacity: 0, y: 6),
+    animate: const NibAnim(opacity: 1, y: 0),
+    transition:
+        widget.transition ?? const NibTransition(duration: Duration(milliseconds: 220)),
+    child: tappable,
+  );
+}
+```
+
+Replace `_buildSkeletonRow`:
+
+```dart
+Widget _buildSkeletonRow(NibTheme theme, bool fixedWidth) {
+  final blockCount =
+      widget.columns.length + (widget.selectionMode == NibDataTableSelectionMode.multi ? 1 : 0);
+  final block = Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.muted,
+        borderRadius: BorderRadius.circular(theme.radiusSm),
+      ),
+    ),
+  );
+  final blockWidth = fixedWidth ? _intrinsicColumnsWidth / blockCount : null;
+  final row = SizedBox(
+    key: const ValueKey('nib-data-table-skeleton-row'),
+    height: widget.rowHeight,
+    child: Row(
+      children: [
+        for (var i = 0; i < blockCount; i++)
+          blockWidth != null
+              ? SizedBox(width: blockWidth, child: block)
+              : Expanded(child: block),
+      ],
+    ),
+  );
+  if (!widget.animated) return row;
+  return NibShimmer(enabled: true, child: row);
+}
+```
+
+Replace `build()`:
+
+```dart
+@override
+Widget build(BuildContext context) {
+  final theme = NibTheme.of(context);
+  final rows = _displayedRows;
+
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final needsHorizontalScroll = constraints.maxWidth < _intrinsicColumnsWidth;
+
+      final table = Semantics(
+        label: widget.semanticLabel,
+        container: true,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border.all(color: theme.border),
+            borderRadius: BorderRadius.circular(theme.radiusDefault),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(theme.radiusDefault),
+            child: CustomScrollView(
+              slivers: [
+                SliverPersistentHeader(
+                  pinned: widget.stickyHeader,
+                  delegate: _NibDataTableHeaderDelegate(
+                    height: widget.headerHeight,
+                    child: _buildHeaderRow(context, theme, rows, needsHorizontalScroll),
+                  ),
+                ),
+                if (widget.loading)
+                  SliverFixedExtentList.builder(
+                    itemExtent: widget.rowHeight,
+                    itemCount: 8,
+                    itemBuilder: (context, index) =>
+                        _buildSkeletonRow(theme, needsHorizontalScroll),
+                  )
+                else if (rows.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child:
+                        widget.emptyState ??
+                        Center(
+                          child: Text(
+                            'No data',
+                            style: TextStyle(color: theme.mutedForeground),
+                          ),
+                        ),
+                  )
+                else
+                  SliverFixedExtentList.builder(
+                    itemExtent: widget.rowHeight,
+                    itemCount: rows.length,
+                    itemBuilder: (context, index) =>
+                        _buildRow(context, theme, rows[index], index, needsHorizontalScroll),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      if (!needsHorizontalScroll) return table;
+
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(width: _intrinsicColumnsWidth, child: table),
+      );
+    },
+  );
+}
+```
+
+- [ ] **Step 4: Run tests to verify they pass**
+
+Run: `flutter test test/data_table/nib_data_table_test.dart`
+Expected: PASS (16 tests total). Also re-run the full suite to confirm zero regressions in the 12 pre-existing data-table tests, which all use narrow (1-2 column) tables well under any default test-viewport width and so should still hit the `needsHorizontalScroll == false` path unchanged.
+
+- [ ] **Step 5: Run the full suite and analyzer**
+
+Run: `flutter test && flutter analyze`
+Expected: all tests PASS, analyzer clean of anything new (the `invalid_dependency`/`prefer_initializing_formals` pre-existing items are still fine).
+
+- [ ] **Step 6: Update NIB_COMPONENTS_PROGRESS.md and commit**
+
+Leave the Data Table row as `built — awaiting visual confirm` (unchanged — still gated on the user's own check in `example/`, per Task 8 Step 7; this task doesn't close that gate, it fixes a defect found before that check completed).
+
+```bash
+git add lib/src/data_table/nib_data_table.dart test/data_table/nib_data_table_test.dart
+git commit -m "feat(data-table): scroll horizontally on viewports narrower than total column width"
+```
+
+- [ ] **Step 7: Hand off for visual confirmation (unchanged from Task 8 Step 7)**
+
+Still waiting on the user's own check in the running `example/` app — this task doesn't change that gate, it fixes a defect found before that check completed. Suggest the user specifically try narrowing the OS window (or resizing if the Linux desktop window supports it) to confirm the horizontal scroll behaves as expected on the Advanced example (3 columns) and doesn't look broken.
 
 ## Evidence checklist (master prompt section 1.6)
 
