@@ -75,7 +75,8 @@ class DataTableAdvancedExample extends StatefulWidget {
   const DataTableAdvancedExample({super.key});
 
   @override
-  State<DataTableAdvancedExample> createState() => _DataTableAdvancedExampleState();
+  State<DataTableAdvancedExample> createState() =>
+      _DataTableAdvancedExampleState();
 }
 
 class _DataTableAdvancedExampleState extends State<DataTableAdvancedExample> {

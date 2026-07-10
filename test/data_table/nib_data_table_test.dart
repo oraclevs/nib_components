@@ -333,4 +333,67 @@ void main() {
     );
     expect(find.byType(NibMotion), findsNWidgets(2));
   });
+
+  testWidgets('wide viewport: renders without horizontal scroll, no overflow', (
+    tester,
+  ) async {
+    final columns = [
+      for (final label in ['A', 'B', 'C', 'D'])
+        NibDataColumn<_Person>(
+          label: label,
+          cellBuilder: (context, row) => Text(row.name),
+          minWidth: 100,
+        ),
+    ];
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(extensions: const [NibTheme.light]),
+        home: Scaffold(
+          body: SizedBox(
+            width: 800,
+            height: 400,
+            child: NibDataTable<_Person>(
+              columns: columns,
+              rows: const [_Person('Ada Lovelace', 'ada@example.com')],
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(find.byType(SingleChildScrollView), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'narrow viewport: wraps in horizontal scroll, all columns still present, no overflow',
+    (tester) async {
+      final columns = [
+        for (final label in ['A', 'B', 'C', 'D'])
+          NibDataColumn<_Person>(
+            label: label,
+            cellBuilder: (context, row) => Text(row.name),
+            minWidth: 100,
+          ),
+      ];
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData(extensions: const [NibTheme.light]),
+          home: Scaffold(
+            body: SizedBox(
+              width: 150,
+              height: 400,
+              child: NibDataTable<_Person>(
+                columns: columns,
+                rows: const [_Person('Ada Lovelace', 'ada@example.com')],
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(find.byType(SingleChildScrollView), findsOneWidget);
+      expect(find.text('A'), findsOneWidget);
+      expect(find.text('D'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

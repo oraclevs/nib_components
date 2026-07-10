@@ -164,9 +164,20 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
     return sorted;
   }
 
-  Widget _sizedCell(NibDataColumn<T> column, Widget child) {
+  double get _intrinsicColumnsWidth {
+    var total = widget.selectionMode == NibDataTableSelectionMode.multi ? 48.0 : 0.0;
+    for (final column in widget.columns) {
+      total += column.width ?? column.minWidth;
+    }
+    return total;
+  }
+
+  Widget _sizedCell(NibDataColumn<T> column, Widget child, {required bool fixedWidth}) {
     if (column.width != null) {
       return SizedBox(width: column.width, child: child);
+    }
+    if (fixedWidth) {
+      return SizedBox(width: column.minWidth, child: child);
     }
     return Expanded(
       child: ConstrainedBox(
@@ -215,7 +226,12 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
     widget.onSelectionChanged?.call(_controller.selected);
   }
 
-  Widget _buildHeaderRow(BuildContext context, NibTheme theme, List<T> rows) {
+  Widget _buildHeaderRow(
+    BuildContext context,
+    NibTheme theme,
+    List<T> rows,
+    bool fixedWidth,
+  ) {
     final sort = _controller.sort;
     final selected = _controller.selected;
     final allSelected = rows.isNotEmpty && rows.every(selected.contains);
@@ -240,7 +256,11 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
                 ),
               ),
             for (var i = 0; i < widget.columns.length; i++)
-              _sizedCell(widget.columns[i], _buildHeaderCell(theme, i, sort)),
+              _sizedCell(
+                widget.columns[i],
+                _buildHeaderCell(theme, i, sort),
+                fixedWidth: fixedWidth,
+              ),
           ],
         ),
       ),
@@ -292,7 +312,13 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
     );
   }
 
-  Widget _buildRow(BuildContext context, NibTheme theme, T row, int index) {
+  Widget _buildRow(
+    BuildContext context,
+    NibTheme theme,
+    T row,
+    int index,
+    bool fixedWidth,
+  ) {
     final selected = _controller.selected.contains(row);
     final cells = Row(
       children: [
@@ -317,6 +343,7 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
                 ),
               ),
             ),
+            fixedWidth: fixedWidth,
           ),
       ],
     );
@@ -352,26 +379,28 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
     );
   }
 
-  Widget _buildSkeletonRow(NibTheme theme) {
+  Widget _buildSkeletonRow(NibTheme theme, bool fixedWidth) {
     final blockCount =
         widget.columns.length + (widget.selectionMode == NibDataTableSelectionMode.multi ? 1 : 0);
+    final block = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: theme.muted,
+          borderRadius: BorderRadius.circular(theme.radiusSm),
+        ),
+      ),
+    );
+    final blockWidth = fixedWidth ? _intrinsicColumnsWidth / blockCount : null;
     final row = SizedBox(
       key: const ValueKey('nib-data-table-skeleton-row'),
       height: widget.rowHeight,
       child: Row(
         children: [
           for (var i = 0; i < blockCount; i++)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: theme.muted,
-                    borderRadius: BorderRadius.circular(theme.radiusSm),
-                  ),
-                ),
-              ),
-            ),
+            blockWidth != null
+                ? SizedBox(width: blockWidth, child: block)
+                : Expanded(child: block),
         ],
       ),
     );
@@ -384,54 +413,68 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
     final theme = NibTheme.of(context);
     final rows = _displayedRows;
 
-    return Semantics(
-      label: widget.semanticLabel,
-      container: true,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border.all(color: theme.border),
-          borderRadius: BorderRadius.circular(theme.radiusDefault),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(theme.radiusDefault),
-          child: CustomScrollView(
-            slivers: [
-              SliverPersistentHeader(
-                pinned: widget.stickyHeader,
-                delegate: _NibDataTableHeaderDelegate(
-                  height: widget.headerHeight,
-                  child: _buildHeaderRow(context, theme, rows),
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final needsHorizontalScroll = constraints.maxWidth < _intrinsicColumnsWidth;
+
+        final table = Semantics(
+          label: widget.semanticLabel,
+          container: true,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border.all(color: theme.border),
+              borderRadius: BorderRadius.circular(theme.radiusDefault),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(theme.radiusDefault),
+              child: CustomScrollView(
+                slivers: [
+                  SliverPersistentHeader(
+                    pinned: widget.stickyHeader,
+                    delegate: _NibDataTableHeaderDelegate(
+                      height: widget.headerHeight,
+                      child: _buildHeaderRow(context, theme, rows, needsHorizontalScroll),
+                    ),
+                  ),
+                  if (widget.loading)
+                    SliverFixedExtentList.builder(
+                      itemExtent: widget.rowHeight,
+                      itemCount: 8,
+                      itemBuilder: (context, index) =>
+                          _buildSkeletonRow(theme, needsHorizontalScroll),
+                    )
+                  else if (rows.isEmpty)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child:
+                          widget.emptyState ??
+                          Center(
+                            child: Text(
+                              'No data',
+                              style: TextStyle(color: theme.mutedForeground),
+                            ),
+                          ),
+                    )
+                  else
+                    SliverFixedExtentList.builder(
+                      itemExtent: widget.rowHeight,
+                      itemCount: rows.length,
+                      itemBuilder: (context, index) =>
+                          _buildRow(context, theme, rows[index], index, needsHorizontalScroll),
+                    ),
+                ],
               ),
-              if (widget.loading)
-                SliverFixedExtentList.builder(
-                  itemExtent: widget.rowHeight,
-                  itemCount: 8,
-                  itemBuilder: (context, index) => _buildSkeletonRow(theme),
-                )
-              else if (rows.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child:
-                      widget.emptyState ??
-                      Center(
-                        child: Text(
-                          'No data',
-                          style: TextStyle(color: theme.mutedForeground),
-                        ),
-                      ),
-                )
-              else
-                SliverFixedExtentList.builder(
-                  itemExtent: widget.rowHeight,
-                  itemCount: rows.length,
-                  itemBuilder: (context, index) =>
-                      _buildRow(context, theme, rows[index], index),
-                ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+
+        if (!needsHorizontalScroll) return table;
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(width: _intrinsicColumnsWidth, child: table),
+        );
+      },
     );
   }
 }
