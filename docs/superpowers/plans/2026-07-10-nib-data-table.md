@@ -68,16 +68,23 @@ void main() {
   testWidgets('NibTheme.of falls back to brightness when not registered', (
     tester,
   ) async {
+    // Nests an explicit Theme override directly, rather than relying on
+    // MaterialApp's theme/darkTheme/themeMode picking logic (which does not
+    // reliably propagate a bare ThemeData(brightness: ...) passed to
+    // `theme:` through to Theme.of(context).brightness). This isolates the
+    // test to exactly what NibTheme.of needs to guarantee.
     late NibTheme resolvedLight;
     late NibTheme resolvedDark;
     await tester.pumpWidget(
       MaterialApp(
-        theme: ThemeData(brightness: Brightness.light),
-        home: Builder(
-          builder: (context) {
-            resolvedLight = NibTheme.of(context);
-            return const SizedBox();
-          },
+        home: Theme(
+          data: ThemeData(brightness: Brightness.light),
+          child: Builder(
+            builder: (context) {
+              resolvedLight = NibTheme.of(context);
+              return const SizedBox();
+            },
+          ),
         ),
       ),
     );
@@ -85,12 +92,14 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        theme: ThemeData(brightness: Brightness.dark),
-        home: Builder(
-          builder: (context) {
-            resolvedDark = NibTheme.of(context);
-            return const SizedBox();
-          },
+        home: Theme(
+          data: ThemeData(brightness: Brightness.dark),
+          child: Builder(
+            builder: (context) {
+              resolvedDark = NibTheme.of(context);
+              return const SizedBox();
+            },
+          ),
         ),
       ),
     );
