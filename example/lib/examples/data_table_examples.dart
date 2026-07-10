@@ -138,3 +138,61 @@ class _DataTableAdvancedExampleState extends State<DataTableAdvancedExample> {
     );
   }
 }
+
+/// 4. Wide table with many columns — demonstrates the horizontal-scroll fallback
+/// when viewport is too narrow to fit all columns.
+class DataTableWideExample extends StatelessWidget {
+  const DataTableWideExample({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 320,
+      child: NibDataTable<_Employee>(
+        columns: [
+          NibDataColumn(
+            label: 'Name',
+            cellBuilder: (context, row) => Text(row.name),
+            width: 200,
+          ),
+          NibDataColumn(
+            label: 'Role',
+            cellBuilder: (context, row) => Text(row.role),
+            width: 160,
+          ),
+          NibDataColumn(
+            label: 'Email',
+            cellBuilder: (context, row) => Text(row.email),
+            width: 200,
+          ),
+          NibDataColumn(
+            label: 'Team',
+            cellBuilder: (context, row) => const Text('Engineering'),
+            width: 150,
+          ),
+          NibDataColumn(
+            label: 'Location',
+            cellBuilder: (context, row) => const Text('Remote'),
+            width: 150,
+          ),
+          NibDataColumn(
+            label: 'Status',
+            cellBuilder: (context, row) => const Text('Active'),
+            width: 120,
+          ),
+          NibDataColumn(
+            label: 'Joined',
+            cellBuilder: (context, row) => const Text('2024'),
+            width: 140,
+          ),
+          NibDataColumn(
+            label: 'ID',
+            cellBuilder: (context, row) => const Text('#001'),
+            width: 100,
+          ),
+        ],
+        rows: _employees,
+      ),
+    );
+  }
+}

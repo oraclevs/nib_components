@@ -27,4 +27,8 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
     name: 'Data Table — advanced',
     builder: (context) => const DataTableAdvancedExample(),
   ),
+  CatalogEntry(
+    name: 'Data Table — wide (scrolls horizontally)',
+    builder: (context) => const DataTableWideExample(),
+  ),
 ];
