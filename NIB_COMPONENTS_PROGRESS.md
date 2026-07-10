@@ -19,7 +19,7 @@ Linux+web platforms) completed 2026-07-10.
 
 | # | Component | Status | Date |
 |---|---|---|---|
-| 1 | Data Table | built — awaiting visual confirm | 2026-07-10 |
+| 1 | Data Table | verified | 2026-07-10 |
 | 2 | Navigation Menu | not started | |
 | 3 | Resizable Panels | not started | |
 | 4 | Command Palette | not started | |
