@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nib_components/nib_components.dart';
 
 import 'catalog.dart';
 
@@ -13,10 +14,14 @@ class NibComponentsExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'nib_components',
-      theme: ThemeData(colorSchemeSeed: const Color(0xFF02569B)),
+      theme: ThemeData(
+        colorSchemeSeed: const Color(0xFF02569B),
+        extensions: const [NibTheme.light],
+      ),
       darkTheme: ThemeData(
         colorSchemeSeed: const Color(0xFF54C5F8),
         brightness: Brightness.dark,
+        extensions: const [NibTheme.dark],
       ),
       home: const CatalogHomePage(),
     );
