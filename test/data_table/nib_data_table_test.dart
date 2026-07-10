@@ -178,4 +178,92 @@ void main() {
         .toList();
     expect(texts.indexOf('Charlie') < texts.indexOf('Ada'), isTrue);
   });
+
+  testWidgets('multi selection: per-row checkbox toggles selection and calls onSelectionChanged', (
+    tester,
+  ) async {
+    const people = [
+      _Person('Ada Lovelace', 'ada@example.com'),
+      _Person('Alan Turing', 'alan@example.com'),
+    ];
+    Set<_Person>? lastSelection;
+    await tester.pumpWidget(
+      _wrap(
+        NibDataTable<_Person>(
+          columns: _columns(),
+          rows: people,
+          selectionMode: NibDataTableSelectionMode.multi,
+          onSelectionChanged: (selection) => lastSelection = selection,
+        ),
+      ),
+    );
+
+    final rowCheckboxes = find.byType(Checkbox);
+    // First checkbox is the header select-all; row checkboxes follow.
+    await tester.tap(rowCheckboxes.at(1));
+    await tester.pumpAndSettle();
+    expect(lastSelection, {people[0]});
+
+    await tester.tap(rowCheckboxes.at(1));
+    await tester.pumpAndSettle();
+    expect(lastSelection, isEmpty);
+  });
+
+  testWidgets('multi selection: header checkbox selects/deselects all', (
+    tester,
+  ) async {
+    const people = [
+      _Person('Ada Lovelace', 'ada@example.com'),
+      _Person('Alan Turing', 'alan@example.com'),
+    ];
+    Set<_Person>? lastSelection;
+    await tester.pumpWidget(
+      _wrap(
+        NibDataTable<_Person>(
+          columns: _columns(),
+          rows: people,
+          selectionMode: NibDataTableSelectionMode.multi,
+          onSelectionChanged: (selection) => lastSelection = selection,
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(Checkbox).first);
+    await tester.pumpAndSettle();
+    expect(lastSelection, people.toSet());
+
+    await tester.tap(find.byType(Checkbox).first);
+    await tester.pumpAndSettle();
+    expect(lastSelection, isEmpty);
+  });
+
+  testWidgets('single selection: tapping a row selects it and replaces prior selection', (
+    tester,
+  ) async {
+    const people = [
+      _Person('Ada Lovelace', 'ada@example.com'),
+      _Person('Alan Turing', 'alan@example.com'),
+    ];
+    Set<_Person>? lastSelection;
+    await tester.pumpWidget(
+      _wrap(
+        NibDataTable<_Person>(
+          columns: _columns(),
+          rows: people,
+          selectionMode: NibDataTableSelectionMode.single,
+          onSelectionChanged: (selection) => lastSelection = selection,
+        ),
+      ),
+    );
+
+    expect(find.byType(Checkbox), findsNothing);
+
+    await tester.tap(find.text('Ada Lovelace'));
+    await tester.pumpAndSettle();
+    expect(lastSelection, {people[0]});
+
+    await tester.tap(find.text('Alan Turing'));
+    await tester.pumpAndSettle();
+    expect(lastSelection, {people[1]});
+  });
 }

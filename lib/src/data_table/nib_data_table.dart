@@ -197,8 +197,30 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
     widget.onSort?.call(columnIndex, nextDirection);
   }
 
-  Widget _buildHeaderRow(BuildContext context, NibTheme theme) {
+  void _toggleRow(T row) {
+    switch (widget.selectionMode) {
+      case NibDataTableSelectionMode.none:
+        return;
+      case NibDataTableSelectionMode.single:
+        final already = _controller.selected.contains(row);
+        _controller.setSelected(already ? <T>{} : {row});
+      case NibDataTableSelectionMode.multi:
+        _controller.toggleSelected(row);
+    }
+    widget.onSelectionChanged?.call(_controller.selected);
+  }
+
+  void _toggleSelectAll(List<T> visibleRows, bool selectAll) {
+    _controller.setSelected(selectAll ? visibleRows.toSet() : <T>{});
+    widget.onSelectionChanged?.call(_controller.selected);
+  }
+
+  Widget _buildHeaderRow(BuildContext context, NibTheme theme, List<T> rows) {
     final sort = _controller.sort;
+    final selected = _controller.selected;
+    final allSelected = rows.isNotEmpty && rows.every(selected.contains);
+    final someSelected = rows.any(selected.contains);
+
     return DecoratedBox(
       decoration: BoxDecoration(
         color: theme.card,
@@ -208,6 +230,15 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
         height: widget.headerHeight,
         child: Row(
           children: [
+            if (widget.selectionMode == NibDataTableSelectionMode.multi)
+              SizedBox(
+                width: 48,
+                child: Checkbox(
+                  value: allSelected ? true : (someSelected ? null : false),
+                  tristate: true,
+                  onChanged: (_) => _toggleSelectAll(rows, !allSelected),
+                ),
+              ),
             for (var i = 0; i < widget.columns.length; i++)
               _sizedCell(widget.columns[i], _buildHeaderCell(theme, i, sort)),
           ],
@@ -262,32 +293,49 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
   }
 
   Widget _buildRow(BuildContext context, NibTheme theme, T row, int index) {
-    final content = SizedBox(
-      height: widget.rowHeight,
-      child: Row(
-        children: [
-          for (var i = 0; i < widget.columns.length; i++)
-            _sizedCell(
-              widget.columns[i],
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: DefaultTextStyle.merge(
-                    style: TextStyle(color: theme.foreground),
-                    child: widget.columns[i].cellBuilder(context, row),
-                  ),
+    final selected = _controller.selected.contains(row);
+    final cells = Row(
+      children: [
+        if (widget.selectionMode == NibDataTableSelectionMode.multi)
+          SizedBox(
+            width: 48,
+            child: Checkbox(
+              value: selected,
+              onChanged: (_) => _toggleRow(row),
+            ),
+          ),
+        for (var i = 0; i < widget.columns.length; i++)
+          _sizedCell(
+            widget.columns[i],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: DefaultTextStyle.merge(
+                  style: TextStyle(color: theme.foreground),
+                  child: widget.columns[i].cellBuilder(context, row),
                 ),
               ),
             ),
-        ],
-      ),
+          ),
+      ],
+    );
+
+    final content = Container(
+      height: widget.rowHeight,
+      color: selected ? theme.secondary : null,
+      child: cells,
     );
 
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
-        onTap: () => widget.onRowTap?.call(row),
+        onTap: () {
+          widget.onRowTap?.call(row);
+          if (widget.selectionMode == NibDataTableSelectionMode.single) {
+            _toggleRow(row);
+          }
+        },
         child: content,
       ),
     );
@@ -314,7 +362,7 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
                 pinned: widget.stickyHeader,
                 delegate: _NibDataTableHeaderDelegate(
                   height: widget.headerHeight,
-                  child: _buildHeaderRow(context, theme),
+                  child: _buildHeaderRow(context, theme, rows),
                 ),
               ),
               if (rows.isEmpty)
