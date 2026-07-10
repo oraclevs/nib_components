@@ -55,6 +55,13 @@ Per our existing convention: no component is marked done without concrete eviden
 - A short written note of what was actually tested and the output (test run results), not just "tests added."
 - If the component touches overlay/positioning logic (Dialog, Popover, Select, Command Palette, Context Menu, Hover Card, Bottom Sheet), a manual verification note describing what was checked on-device/in the preview app (e.g., "verified it clamps to screen bounds when triggered near the right edge").
 
+### 1.7 Responsive by default (added 2026-07-10, applies to every component from here on)
+Every component must work at mobile, tablet, desktop, and web viewport widths without the consumer writing any responsive plumbing themselves. Concretely:
+- Never let content silently clip, overflow, or squish illegibly when the viewport is narrower than the content's natural size. The default fallback is a scrollable axis (e.g. Data Table: columns that don't fit the viewport width scroll horizontally instead of being crushed below their `minWidth`) — pick whichever axis/mechanism fits the component, but there must always be a working fallback, not just a `Flexible`/`Expanded` squeeze.
+- Prefer `LayoutBuilder`/`MediaQuery` to adapt structure at real breakpoints (e.g. a nav rail collapsing to a bottom bar, a multi-column grid collapsing to one column) over purely elastic/flex layouts that "technically fit" but become unusable at small widths.
+- This is not an excuse to add pub dependencies (e.g. a responsive-layout package) — compose Flutter's own `LayoutBuilder`/`MediaQuery`/`Wrap`/scrollables per section 1.1's "build native, not wrapped" rule, same as everything else.
+- Test at more than one width where the component's spec implies multi-column/wide content (a widget test pumping the component inside a narrow `SizedBox` and a wide one, asserting the narrow case doesn't overflow/clip) — add this to section 1.6's evidence requirement for any component where width is a real constraint (tables, nav, toolbars, multi-column layouts); not meaningful for inherently small/fixed-size components (Badge, Toggle, Switch, etc.).
+
 ---
 
 ## 2. Design Token & Theming Rules
