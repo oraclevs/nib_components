@@ -266,4 +266,37 @@ void main() {
     await tester.pumpAndSettle();
     expect(lastSelection, {people[1]});
   });
+
+  testWidgets('loading shows skeleton rows instead of data, hides empty state', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        NibDataTable<_Person>(
+          columns: _columns(),
+          rows: const [_Person('Ada Lovelace', 'ada@example.com')],
+          loading: true,
+        ),
+      ),
+    );
+    expect(find.text('Ada Lovelace'), findsNothing);
+    expect(find.text('No data'), findsNothing);
+    expect(find.byKey(const ValueKey('nib-data-table-skeleton-row')), findsWidgets);
+  });
+
+  testWidgets('virtualizes: a row far outside the viewport is never built', (
+    tester,
+  ) async {
+    final people = List.generate(
+      500,
+      (i) => _Person('Person $i', 'p$i@example.com'),
+    );
+    await tester.pumpWidget(
+      _wrap(NibDataTable<_Person>(columns: _columns(), rows: people)),
+    );
+    // The viewport is 400px tall / 48px rows -> ~8 rows visible. Row 400 is
+    // nowhere near the viewport and must not have been built.
+    expect(find.text('Person 400'), findsNothing);
+    expect(find.text('Person 0'), findsOneWidget);
+  });
 }

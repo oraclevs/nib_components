@@ -341,6 +341,31 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
     );
   }
 
+  Widget _buildSkeletonRow(NibTheme theme) {
+    final blockCount =
+        widget.columns.length + (widget.selectionMode == NibDataTableSelectionMode.multi ? 1 : 0);
+    return SizedBox(
+      key: const ValueKey('nib-data-table-skeleton-row'),
+      height: widget.rowHeight,
+      child: Row(
+        children: [
+          for (var i = 0; i < blockCount; i++)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: theme.muted,
+                    borderRadius: BorderRadius.circular(theme.radiusSm),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = NibTheme.of(context);
@@ -365,7 +390,13 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
                   child: _buildHeaderRow(context, theme, rows),
                 ),
               ),
-              if (rows.isEmpty)
+              if (widget.loading)
+                SliverFixedExtentList.builder(
+                  itemExtent: widget.rowHeight,
+                  itemCount: 8,
+                  itemBuilder: (context, index) => _buildSkeletonRow(theme),
+                )
+              else if (rows.isEmpty)
                 SliverFillRemaining(
                   hasScrollBody: false,
                   child:
