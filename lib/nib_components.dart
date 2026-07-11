@@ -1,6 +1,7 @@
 export 'src/command_palette/nib_command_action.dart';
 export 'src/command_palette/nib_command_palette.dart';
 export 'src/command_palette/nib_command_palette_controller.dart';
+export 'src/combobox/nib_combobox.dart';
 export 'src/combobox/nib_combobox_controller.dart';
 export 'src/combobox/nib_combobox_option.dart';
 export 'src/data_table/nib_data_column.dart';
