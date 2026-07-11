@@ -313,4 +313,93 @@ void main() {
     expect(find.text('Hardware'), findsOneWidget);
     expect(find.text('Software'), findsOneWidget);
   });
+
+  testWidgets('vertical: tapping a branch item expands its children inline', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          orientation: NibNavMenuOrientation.vertical,
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+            ),
+          ],
+        ),
+      ),
+    );
+    expect(find.text('Widgets'), findsNothing);
+
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsOneWidget);
+
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsNothing);
+  });
+
+  testWidgets('vertical: single-open by default closes a sibling when a new one opens', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          orientation: NibNavMenuOrientation.vertical,
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+            ),
+            NibNavItem(
+              id: 'company',
+              label: 'Company',
+              children: [NibNavItem(id: 'about', label: 'About')],
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsOneWidget);
+
+    await tester.tap(find.text('Company'));
+    await tester.pumpAndSettle();
+    expect(find.text('About'), findsOneWidget);
+    expect(find.text('Widgets'), findsNothing);
+  });
+
+  testWidgets('vertical: allowMultipleOpen keeps both siblings expanded', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          orientation: NibNavMenuOrientation.vertical,
+          allowMultipleOpen: true,
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+            ),
+            NibNavItem(
+              id: 'company',
+              label: 'Company',
+              children: [NibNavItem(id: 'about', label: 'About')],
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Company'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsOneWidget);
+    expect(find.text('About'), findsOneWidget);
+  });
 }

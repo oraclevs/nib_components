@@ -134,8 +134,14 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
     }
     if (widget.orientation == NibNavMenuOrientation.horizontal) {
       _toggleFlyout(item, path);
+    } else {
+      _toggleInline(item, siblingIds);
     }
-    // Vertical inline-expand branch behavior lands in Task 6.
+  }
+
+  void _toggleInline(NibNavItem item, List<String> siblingIds) {
+    final exclusive = widget.allowMultipleOpen ? null : (siblingIds.toSet()..remove(item.id));
+    _controller.toggleOpenId(item.id, exclusiveSiblings: exclusive);
   }
 
   void _toggleFlyout(NibNavItem item, List<String> path) {
@@ -257,13 +263,46 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
     );
   }
 
+  Widget _buildVerticalNode(
+    BuildContext context,
+    NibTheme theme,
+    NibNavItem item,
+    List<String> path,
+    List<String> siblingIds,
+  ) {
+    final header = _buildItem(context, theme, item, path, siblingIds);
+    if (!item.hasChildren) return header;
+
+    final isOpen = _controller.openIds.contains(item.id);
+    final childSiblingIds = [for (final c in item.children) c.id];
+    final childList = Padding(
+      padding: const EdgeInsets.only(left: 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final child in item.children)
+            _buildItem(context, theme, child, [...path, child.id], childSiblingIds),
+        ],
+      ),
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [header, if (isOpen) childList],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = NibTheme.of(context);
     final topSiblingIds = [for (final i in widget.items) i.id];
     final nodes = [
       for (final item in widget.items)
-        _buildItem(context, theme, item, [item.id], topSiblingIds),
+        widget.orientation == NibNavMenuOrientation.horizontal
+            ? _buildItem(context, theme, item, [item.id], topSiblingIds)
+            : _buildVerticalNode(context, theme, item, [item.id], topSiblingIds),
     ];
 
     return Semantics(
