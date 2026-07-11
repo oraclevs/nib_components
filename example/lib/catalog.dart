@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import 'examples/data_table_examples.dart';
+import 'examples/navigation_menu_examples.dart';
 
 /// One entry in the component catalog shown by the example app.
 class CatalogEntry {
@@ -30,5 +31,21 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Data Table — wide (scrolls horizontally)',
     builder: (context) => const DataTableWideExample(),
+  ),
+  CatalogEntry(
+    name: 'Navigation Menu — minimal',
+    builder: (context) => const NavigationMenuMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Navigation Menu — cascading flyout',
+    builder: (context) => const NavigationMenuFlyoutExample(),
+  ),
+  CatalogEntry(
+    name: 'Navigation Menu — advanced (vertical, controller, animated)',
+    builder: (context) => const NavigationMenuAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Navigation Menu — overflow (narrow, "More" menu)',
+    builder: (context) => const NavigationMenuOverflowExample(),
   ),
 ];

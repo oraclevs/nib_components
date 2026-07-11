@@ -14,13 +14,15 @@ Linux+web platforms) completed 2026-07-10.
 | Data Table | Screen-reader labels + tap targets fixed (2026-07-10); formal table/row/cell `SemanticsRole` still open | Arrow-key row traversal works for free (native focusable `InkWell`s + Flutter's default directional focus shortcuts — verified by test). Sortable headers now announce label+sort state, selected rows/checkboxes announce selected/checked, header height meets 48px minimum. Not done: Flutter exposes `SemanticsRole.table/row/cell/columnHeader` with debug-mode structural validation this SDK version supports — adopting it would give a screen reader a real "table" reading, but needs its own careful pass to satisfy that validation correctly. Low risk as deferred (current labels are a genuine improvement, not a stub). |
 | Data Table | Pagination hook not wired | Pagination (#20) doesn't exist yet; `rows: List<T>` is already page-slice-friendly for when it lands. |
 | Data Table | No sticky first column while horizontally scrolled | Plain horizontal scroll (Task 9) covers the actual "doesn't fit on a phone" case; pinning a column during that scroll is deferred, comparable in complexity to Resizable Panels (#3). |
+| Navigation Menu | No hover-to-open for horizontal flyouts on desktop | Tap/click-only on every platform per the locked design spec — hover-intent timing (open/close delay tuning to avoid flicker) is explicitly Hover Card's (#12) problem space, not duplicated here. |
+| Navigation Menu | No sticky/scroll-into-view for the active item in very long vertical menus | Purely a nice-to-have polish item, not required by any tested behavior; deferred rather than adding untested scroll-position logic. |
 
 ## Tier A — Hardest
 
 | # | Component | Status | Date |
 |---|---|---|---|
 | 1 | Data Table | verified | 2026-07-10 |
-| 2 | Navigation Menu | not started | |
+| 2 | Navigation Menu | built — awaiting visual confirm | 2026-07-11 |
 | 3 | Resizable Panels | not started | |
 | 4 | Command Palette | not started | |
 | 5 | Combobox | not started | |
