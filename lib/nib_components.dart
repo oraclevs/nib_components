@@ -3,6 +3,7 @@ export 'src/data_table/nib_data_table.dart';
 export 'src/data_table/nib_data_table_controller.dart';
 export 'src/data_table/nib_data_table_types.dart';
 export 'src/navigation_menu/nib_nav_item.dart';
+export 'src/navigation_menu/nib_navigation_menu.dart';
 export 'src/navigation_menu/nib_navigation_menu_controller.dart';
 export 'src/navigation_menu/nib_navigation_menu_types.dart';
 export 'src/theme/nib_theme.dart';
