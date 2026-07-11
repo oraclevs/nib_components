@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import 'examples/command_palette_examples.dart';
 import 'examples/data_table_examples.dart';
 import 'examples/navigation_menu_examples.dart';
 import 'examples/resizable_panels_examples.dart';
@@ -64,5 +65,17 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Resizable Panels — narrow (scrollable fallback)',
     builder: (context) => const ResizablePanelsNarrowExample(),
+  ),
+  CatalogEntry(
+    name: 'Command Palette — minimal',
+    builder: (context) => const CommandPaletteMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Command Palette — grouped, icons, trigger button',
+    builder: (context) => const CommandPaletteGroupedExample(),
+  ),
+  CatalogEntry(
+    name: 'Command Palette — advanced (nested, custom filter, animated)',
+    builder: (context) => const CommandPaletteAdvancedExample(),
   ),
 ];
