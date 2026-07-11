@@ -135,12 +135,18 @@ Responsibilities:
 A `LayoutBuilder` wraps `_RenderResizablePanels`. If the available main-axis
 extent is below `panels.length * 160px` (the same "would squish below a
 usable size" check Data Table uses, with 160px as this component's usable-
-panel floor), the group renders as a plain `SingleChildScrollView` (main-axis
-matching `direction`) stacking each panel at its natural/full cross-axis size
-with **no handles, no dragging** — resize interaction is meaningless once
-panels can't share the available space at a usable size. Above the threshold,
-normal resizable behavior applies. This mirrors Data Table's LayoutBuilder→
-scrollable-fallback pattern (§1.7) rather than introducing a new mechanism.
+panel floor), the group renders as a plain, **always vertically-scrolling**
+`SingleChildScrollView` stacking each panel full-width, one per row, with
+**no handles, no dragging** — resize interaction is meaningless once panels
+can't share the available space at a usable size. For a `vertical` group
+this is the same axis it already uses (it just gains scrolling instead of
+squishing). For a `horizontal` group this is an axis pivot: side-by-side
+panels collapse into a single vertical column, matching the locked decision
+from brainstorming ("collapse to stacked/scrollable single-column") rather
+than merely making the horizontal row scrollable sideways. Above the
+threshold, normal resizable behavior applies. This mirrors Data Table's
+LayoutBuilder→scrollable-fallback pattern (§1.7) rather than introducing a
+new mechanism.
 
 ## NibMotion integration
 
