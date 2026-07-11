@@ -23,7 +23,7 @@ Linux+web platforms) completed 2026-07-10.
 |---|---|---|---|
 | 1 | Data Table | verified | 2026-07-10 |
 | 2 | Navigation Menu | verified | 2026-07-11 |
-| 3 | Resizable Panels | built — awaiting visual confirm | 2026-07-11 |
+| 3 | Resizable Panels | verified | 2026-07-11 |
 | 4 | Command Palette | not started | |
 | 5 | Combobox | not started | |
 | 6 | Date Picker / Calendar | not started | |
