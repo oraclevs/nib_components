@@ -99,4 +99,108 @@ void main() {
     expect(aboutNode.hasFlag(SemanticsFlag.isSelected), isFalse);
     handle.dispose();
   });
+
+  testWidgets('tapping a horizontal branch item opens a flyout with its children', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [
+                NibNavItem(id: 'widgets', label: 'Widgets'),
+                NibNavItem(id: 'gadgets', label: 'Gadgets'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    expect(find.text('Widgets'), findsNothing);
+
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsOneWidget);
+    expect(find.text('Gadgets'), findsOneWidget);
+  });
+
+  testWidgets('tapping the same branch item again closes the flyout', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsOneWidget);
+
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsNothing);
+  });
+
+  testWidgets('selecting a leaf inside a flyout calls onItemSelected and closes it', (
+    tester,
+  ) async {
+    String? selected;
+    await tester.pumpWidget(
+      _wrap(
+        NibNavigationMenu(
+          items: const [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+            ),
+          ],
+          onItemSelected: (id) => selected = id,
+        ),
+      ),
+    );
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Widgets'));
+    await tester.pumpAndSettle();
+    expect(selected, 'widgets');
+    expect(find.text('Widgets'), findsNothing);
+  });
+
+  testWidgets('tapping outside the flyout closes it', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        const Align(
+          alignment: Alignment.topLeft,
+          child: NibNavigationMenu(
+            items: [
+              NibNavItem(
+                id: 'products',
+                label: 'Products',
+                children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsOneWidget);
+
+    // Far bottom-right corner of the 800x600 test surface — guaranteed
+    // clear of both the trigger (top-left) and its flyout beneath it.
+    await tester.tapAt(const Offset(780, 580));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsNothing);
+  });
 }

@@ -59,8 +59,15 @@ class NibAnchoredOverlay {
     final targetSize = targetRenderBox.size;
 
     late OverlayEntry entry;
+    late NibAnchoredOverlayHandle handle;
+    // Routed through `handle.remove()` (idempotent via its `_removed` flag)
+    // rather than `entry.remove()` directly — a caller's `onDismissed` may
+    // also hold and remove the same handle (e.g. to close a whole chain of
+    // nested flyouts), and the two removal paths must share one guard or
+    // the second call hits Flutter's "OverlayEntry removed only once"
+    // assertion.
     void dismiss() {
-      entry.remove();
+      handle.remove();
       onDismissed?.call();
     }
 
@@ -74,8 +81,9 @@ class NibAnchoredOverlay {
         contentBuilder: contentBuilder,
       ),
     );
+    handle = NibAnchoredOverlayHandle._(entry);
     overlayState.insert(entry);
-    return NibAnchoredOverlayHandle._(entry);
+    return handle;
   }
 }
 
@@ -173,9 +181,13 @@ class _NibAnchoredOverlayContentState extends State<_NibAnchoredOverlayContent> 
       child: widget.contentBuilder(context),
     );
 
+    // Opaque, not translucent: a tap on the barrier must not also reach
+    // whatever sits beneath it in the base app (e.g. the trigger button
+    // itself), which would otherwise double-fire dismiss-on-outside-tap
+    // and the trigger's own re-toggle logic for the same tap.
     final barrier = Positioned.fill(
       child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
+        behavior: HitTestBehavior.opaque,
         onTap: widget.onDismissed,
       ),
     );

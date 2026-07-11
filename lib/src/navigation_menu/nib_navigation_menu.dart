@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nib_motion/nib_motion.dart' show NibTransition;
 
+import '../overlay/nib_anchored_overlay.dart';
 import '../theme/nib_theme.dart';
 import 'nib_nav_item.dart';
 import 'nib_navigation_menu_controller.dart';
@@ -82,6 +83,7 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
 
   final Map<String, LayerLink> _links = {};
   final Map<String, GlobalKey> _itemKeys = {};
+  final Map<String, NibAnchoredOverlayHandle> _flyoutHandles = {};
 
   @override
   void initState() {
@@ -100,6 +102,9 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
 
   @override
   void dispose() {
+    for (final handle in _flyoutHandles.values) {
+      handle.remove();
+    }
     _unbindController();
     super.dispose();
   }
@@ -124,9 +129,64 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
     if (item.disabled) return;
     if (!item.hasChildren) {
       widget.onItemSelected?.call(item.id);
+      _closeFlyoutsFrom(0);
       return;
     }
-    // Branch-item open/close behavior (flyout/inline) lands in Task 4/6.
+    if (widget.orientation == NibNavMenuOrientation.horizontal) {
+      _toggleFlyout(item, path);
+    }
+    // Vertical inline-expand branch behavior lands in Task 6.
+  }
+
+  void _toggleFlyout(NibNavItem item, List<String> path) {
+    final depth = path.length - 1;
+    final chain = _controller.openChain;
+    final alreadyOpenHere = chain.length > depth && chain[depth] == item.id;
+    if (alreadyOpenHere) {
+      _closeFlyoutsFrom(depth);
+      return;
+    }
+    _closeFlyoutsFrom(depth);
+    final renderBox = _keyFor(item.id).currentContext!.findRenderObject() as RenderBox;
+    final handle = NibAnchoredOverlay.show(
+      context,
+      link: _linkFor(item.id),
+      targetRenderBox: renderBox,
+      placement: depth == 0 ? NibOverlayPlacement.bottom : NibOverlayPlacement.end,
+      contentBuilder: (overlayContext) => _buildFlyoutContent(item.children, path),
+      onDismissed: () => _closeFlyoutsFrom(depth),
+    );
+    _flyoutHandles[item.id] = handle;
+    _controller.openChainTo(path);
+  }
+
+  void _closeFlyoutsFrom(int depth) {
+    final chain = _controller.openChain;
+    for (var i = chain.length - 1; i >= depth && i >= 0; i--) {
+      _flyoutHandles.remove(chain[i])?.remove();
+    }
+    _controller.closeFromDepth(depth);
+  }
+
+  Widget _buildFlyoutContent(List<NibNavItem> items, List<String> parentPath) {
+    final theme = NibTheme.of(context);
+    final siblingIds = [for (final i in items) i.id];
+    return Material(
+      color: theme.card,
+      elevation: 4,
+      borderRadius: BorderRadius.circular(theme.radiusDefault),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 160),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final child in items)
+              _buildItem(context, theme, child, [...parentPath, child.id], siblingIds),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildItem(
