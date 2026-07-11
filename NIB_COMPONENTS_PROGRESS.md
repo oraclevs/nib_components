@@ -25,7 +25,7 @@ Linux+web platforms) completed 2026-07-10.
 | 2 | Navigation Menu | verified | 2026-07-11 |
 | 3 | Resizable Panels | verified | 2026-07-11 |
 | 4 | Command Palette | verified | 2026-07-11 |
-| 5 | Combobox | not started | |
+| 5 | Combobox | verified | 2026-07-11 |
 | 6 | Date Picker / Calendar | not started | |
 | 7 | Select / Dropdown | not started | |
 | 8 | Dialog / Modal | not started | |

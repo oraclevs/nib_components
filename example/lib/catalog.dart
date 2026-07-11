@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import 'examples/combobox_examples.dart';
 import 'examples/command_palette_examples.dart';
 import 'examples/data_table_examples.dart';
 import 'examples/navigation_menu_examples.dart';
@@ -77,5 +78,17 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Command Palette — advanced (nested, custom filter, animated)',
     builder: (context) => const CommandPaletteAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Combobox — minimal (single-select)',
+    builder: (context) => const ComboboxMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Combobox — multi-select + async loader',
+    builder: (context) => const ComboboxMultiSelectAsyncExample(),
+  ),
+  CatalogEntry(
+    name: 'Combobox — advanced (free text, animated, controller)',
+    builder: (context) => const ComboboxAdvancedExample(),
   ),
 ];
