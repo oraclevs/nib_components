@@ -155,6 +155,10 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
       placement: depth == 0 ? NibOverlayPlacement.bottom : NibOverlayPlacement.end,
       contentBuilder: (overlayContext) => _buildFlyoutContent(item.children, path),
       onDismissed: () => _closeFlyoutsFrom(depth),
+      // Only the root (depth 0) flyout in a cascade installs a barrier —
+      // see NibAnchoredOverlay's withBarrier doc. Its onDismissed above
+      // closes from depth 0, collapsing the whole chain in one tap.
+      withBarrier: depth == 0,
     );
     _flyoutHandles[item.id] = handle;
     _controller.openChainTo(path);

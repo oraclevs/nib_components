@@ -53,6 +53,7 @@ class NibAnchoredOverlay {
     required WidgetBuilder contentBuilder,
     NibOverlayPlacement placement = NibOverlayPlacement.bottom,
     VoidCallback? onDismissed,
+    bool withBarrier = true,
   }) {
     final overlayState = Overlay.of(context);
     final targetGlobalTopLeft = targetRenderBox.localToGlobal(Offset.zero);
@@ -78,6 +79,7 @@ class NibAnchoredOverlay {
         targetGlobalTopLeft: targetGlobalTopLeft,
         placement: placement,
         onDismissed: dismiss,
+        withBarrier: withBarrier,
         contentBuilder: contentBuilder,
       ),
     );
@@ -102,6 +104,7 @@ class _NibAnchoredOverlayContent extends StatefulWidget {
     required this.targetGlobalTopLeft,
     required this.placement,
     required this.onDismissed,
+    required this.withBarrier,
     required this.contentBuilder,
   });
 
@@ -110,6 +113,16 @@ class _NibAnchoredOverlayContent extends StatefulWidget {
   final Offset targetGlobalTopLeft;
   final NibOverlayPlacement placement;
   final VoidCallback onDismissed;
+
+  /// Whether this entry installs its own full-screen dismiss-on-outside-tap
+  /// barrier. A caller chaining several `show()` calls into one cascade
+  /// (each anchored to content shown by the previous call) should only set
+  /// this `true` on the first/outermost call — a barrier on every level
+  /// would each independently absorb any tap outside its own bounds,
+  /// preventing a tap from ever reaching an already-open shallower level's
+  /// own sibling content, and preventing a single outside tap from
+  /// collapsing the whole cascade at once.
+  final bool withBarrier;
   final WidgetBuilder contentBuilder;
 
   @override
@@ -185,15 +198,17 @@ class _NibAnchoredOverlayContentState extends State<_NibAnchoredOverlayContent> 
     // whatever sits beneath it in the base app (e.g. the trigger button
     // itself), which would otherwise double-fire dismiss-on-outside-tap
     // and the trigger's own re-toggle logic for the same tap.
-    final barrier = Positioned.fill(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: widget.onDismissed,
-      ),
-    );
+    final barrier = widget.withBarrier
+        ? Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: widget.onDismissed,
+            ),
+          )
+        : null;
 
     if (_contentSize == null) {
-      return Stack(children: [barrier, Opacity(opacity: 0, child: content)]);
+      return Stack(children: [?barrier, Opacity(opacity: 0, child: content)]);
     }
 
     final screen = MediaQuery.sizeOf(context);
@@ -203,7 +218,7 @@ class _NibAnchoredOverlayContentState extends State<_NibAnchoredOverlayContent> 
 
     return Stack(
       children: [
-        barrier,
+        ?barrier,
         CompositedTransformFollower(
           link: widget.link,
           targetAnchor: anchors.target,

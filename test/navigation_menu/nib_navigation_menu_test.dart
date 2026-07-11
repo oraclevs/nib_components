@@ -203,4 +203,114 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Widgets'), findsNothing);
   });
+
+  testWidgets('an item inside an open flyout with its own children opens a cascading second flyout', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [
+                NibNavItem(
+                  id: 'hardware',
+                  label: 'Hardware',
+                  children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.text('Hardware'), findsOneWidget);
+    expect(find.text('Widgets'), findsNothing);
+
+    await tester.tap(find.text('Hardware'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsOneWidget);
+  });
+
+  testWidgets('closing the first-level flyout also closes any open cascade beneath it', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const Align(
+          alignment: Alignment.topLeft,
+          child: NibNavigationMenu(
+            items: [
+              NibNavItem(
+                id: 'products',
+                label: 'Products',
+                children: [
+                  NibNavItem(
+                    id: 'hardware',
+                    label: 'Hardware',
+                    children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Hardware'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsOneWidget);
+
+    await tester.tapAt(const Offset(780, 580));
+    await tester.pumpAndSettle();
+    expect(find.text('Hardware'), findsNothing);
+    expect(find.text('Widgets'), findsNothing);
+  });
+
+  testWidgets('switching to a sibling at the same depth replaces the deeper cascade', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [
+                NibNavItem(
+                  id: 'hardware',
+                  label: 'Hardware',
+                  children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+                ),
+                NibNavItem(
+                  id: 'software',
+                  label: 'Software',
+                  children: [NibNavItem(id: 'licenses', label: 'Licenses')],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Hardware'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsOneWidget);
+
+    await tester.tap(find.text('Software'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsNothing);
+    expect(find.text('Licenses'), findsOneWidget);
+    expect(find.text('Hardware'), findsOneWidget);
+    expect(find.text('Software'), findsOneWidget);
+  });
 }
