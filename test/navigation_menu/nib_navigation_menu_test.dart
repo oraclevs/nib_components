@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
 
@@ -443,5 +444,102 @@ void main() {
       findsOneWidget,
       reason: 'collapsing a grandchild does not collapse its parent',
     );
+  });
+
+  testWidgets('tab focuses the first item, then arrow-right moves to the next sibling', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          items: [
+            NibNavItem(id: 'home', label: 'Home'),
+            NibNavItem(id: 'about', label: 'About'),
+          ],
+        ),
+      ),
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pumpAndSettle();
+    final firstFocus = FocusManager.instance.primaryFocus;
+    expect(firstFocus, isNotNull);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pumpAndSettle();
+    final secondFocus = FocusManager.instance.primaryFocus;
+    expect(secondFocus, isNotNull);
+    expect(identical(firstFocus, secondFocus), isFalse);
+  });
+
+  testWidgets('enter activates the focused horizontal branch item, opening its flyout', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsNothing);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsOneWidget);
+  });
+
+  testWidgets('enter activates a focused vertical branch item, expanding it inline', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          orientation: NibNavMenuOrientation.vertical,
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsOneWidget);
+  });
+
+  testWidgets('escape closes an open horizontal flyout', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsOneWidget);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsNothing);
   });
 }

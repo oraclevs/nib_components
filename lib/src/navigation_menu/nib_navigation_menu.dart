@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:nib_motion/nib_motion.dart' show NibTransition;
 
 import '../overlay/nib_anchored_overlay.dart';
@@ -84,6 +85,7 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
   final Map<String, LayerLink> _links = {};
   final Map<String, GlobalKey> _itemKeys = {};
   final Map<String, NibAnchoredOverlayHandle> _flyoutHandles = {};
+  final Map<String, FocusNode> _focusNodes = {};
 
   @override
   void initState() {
@@ -105,6 +107,9 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
     for (final handle in _flyoutHandles.values) {
       handle.remove();
     }
+    for (final node in _focusNodes.values) {
+      node.dispose();
+    }
     _unbindController();
     super.dispose();
   }
@@ -124,9 +129,17 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
 
   LayerLink _linkFor(String id) => _links.putIfAbsent(id, LayerLink.new);
   GlobalKey _keyFor(String id) => _itemKeys.putIfAbsent(id, GlobalKey.new);
+  FocusNode _focusNodeFor(String id) =>
+      _focusNodes.putIfAbsent(id, () => FocusNode(debugLabel: id));
 
   void _handleItemTap(NibNavItem item, List<String> path, List<String> siblingIds) {
     if (item.disabled) return;
+    // A mouse/touch tap on InkWell does not request focus by itself, so
+    // without this, pressing Escape right after clicking an item to open
+    // its flyout would find focus still sitting on the ambient route scope
+    // (an ancestor of this whole menu) rather than anywhere inside it,
+    // and never reach the Escape handler below.
+    _focusNodeFor(item.id).requestFocus();
     if (!item.hasChildren) {
       widget.onItemSelected?.call(item.id);
       _closeFlyoutsFrom(0);
@@ -249,6 +262,7 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
           child: Material(
             type: MaterialType.transparency,
             child: InkWell(
+              focusNode: _focusNodeFor(item.id),
               onTap: item.disabled ? null : () => _handleItemTap(item, path, siblingIds),
               borderRadius: BorderRadius.circular(theme.radiusSm),
               excludeFromSemantics: true,
@@ -305,7 +319,7 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
             : _buildVerticalNode(context, theme, item, [item.id], topSiblingIds),
     ];
 
-    return Semantics(
+    final content = Semantics(
       label: widget.semanticLabel,
       container: true,
       child: widget.orientation == NibNavMenuOrientation.horizontal
@@ -316,5 +330,27 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
               children: nodes,
             ),
     );
+
+    return Shortcuts(
+      shortcuts: {LogicalKeySet(LogicalKeyboardKey.escape): const _CloseFlyoutIntent()},
+      child: Actions(
+        actions: {
+          _CloseFlyoutIntent: CallbackAction<_CloseFlyoutIntent>(
+            onInvoke: (intent) {
+              if (widget.orientation == NibNavMenuOrientation.horizontal) {
+                final chain = _controller.openChain;
+                if (chain.isNotEmpty) _closeFlyoutsFrom(chain.length - 1);
+              }
+              return null;
+            },
+          ),
+        },
+        child: content,
+      ),
+    );
   }
+}
+
+class _CloseFlyoutIntent extends Intent {
+  const _CloseFlyoutIntent();
 }

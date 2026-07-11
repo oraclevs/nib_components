@@ -1917,10 +1917,56 @@ Expected: the tab/arrow and both Enter tests already PASS (default traversal + `
 
 - [ ] **Step 3: Implement Escape-to-close**
 
-Add near the top of `lib/src/navigation_menu/nib_navigation_menu.dart`:
+Add near the top of `lib/src/navigation_menu/nib_navigation_menu.dart` (`LogicalKeySet` itself comes from `flutter/widgets.dart`, already available via the existing `flutter/material.dart` import — only `LogicalKeyboardKey` needs an explicit import from `services.dart`):
 
 ```dart
-import 'package:flutter/services.dart' show LogicalKeySet;
+import 'package:flutter/services.dart' show LogicalKeyboardKey;
+```
+
+**A real gap surfaces here, not just a test artifact:** wiring `Shortcuts`/`Actions` alone isn't enough. A mouse/touch tap on `InkWell` does not request keyboard focus by itself (confirmed by probing `FocusManager.instance.primaryFocus` after a tap — it stays on the ambient route's `FocusScopeNode`, an *ancestor* of this whole menu). `Shortcuts` dispatches a key event by walking up from wherever focus currently is; if focus is stuck on an ancestor scope, it never reaches a `Shortcuts` node nested further down. Concretely: without a fix, a real user who clicks "Products" then presses Escape would see nothing happen — the exact scenario this task exists for. Fix: give every item its own `FocusNode` and explicitly request it on tap.
+
+Add a field, a lookup, and disposal to `_NibNavigationMenuState`:
+
+```dart
+final Map<String, FocusNode> _focusNodes = {};
+
+FocusNode _focusNodeFor(String id) =>
+    _focusNodes.putIfAbsent(id, () => FocusNode(debugLabel: id));
+```
+
+In `dispose()`, dispose them alongside the existing flyout-handle cleanup:
+
+```dart
+@override
+void dispose() {
+  for (final handle in _flyoutHandles.values) {
+    handle.remove();
+  }
+  for (final node in _focusNodes.values) {
+    node.dispose();
+  }
+  _unbindController();
+  super.dispose();
+}
+```
+
+At the top of `_handleItemTap`, request focus for the tapped item before dispatching to select/toggle logic:
+
+```dart
+void _handleItemTap(NibNavItem item, List<String> path, List<String> siblingIds) {
+  if (item.disabled) return;
+  _focusNodeFor(item.id).requestFocus();
+  // ...existing body unchanged
+```
+
+And pass that node into the item's `InkWell` in `_buildItem`:
+
+```dart
+child: InkWell(
+  focusNode: _focusNodeFor(item.id),
+  onTap: item.disabled ? null : () => _handleItemTap(item, path, siblingIds),
+  borderRadius: BorderRadius.circular(theme.radiusSm),
+  // ...rest unchanged
 ```
 
 Add a private intent class at the bottom of the file:
@@ -1963,7 +2009,7 @@ final content = Semantics(
 );
 
 return Shortcuts(
-  shortcuts: const {LogicalKeySet(LogicalKeyboardKey.escape): _CloseFlyoutIntent()},
+  shortcuts: {LogicalKeySet(LogicalKeyboardKey.escape): const _CloseFlyoutIntent()},
   child: Actions(
     actions: {
       _CloseFlyoutIntent: CallbackAction<_CloseFlyoutIntent>(
@@ -1980,6 +2026,8 @@ return Shortcuts(
   ),
 );
 ```
+
+(The `shortcuts` map itself can't be `const` — `LogicalKeySet`'s constructor isn't `const` — but the `_CloseFlyoutIntent()` value inside it still is.)
 
 - [ ] **Step 4: Run tests to verify they pass**
 
