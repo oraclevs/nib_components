@@ -6,4 +6,8 @@ export 'src/navigation_menu/nib_nav_item.dart';
 export 'src/navigation_menu/nib_navigation_menu.dart';
 export 'src/navigation_menu/nib_navigation_menu_controller.dart';
 export 'src/navigation_menu/nib_navigation_menu_types.dart';
+export 'src/resizable_panels/nib_resizable_panel.dart';
+export 'src/resizable_panels/nib_resizable_panels.dart';
+export 'src/resizable_panels/nib_resizable_panels_controller.dart';
+export 'src/resizable_panels/nib_resizable_panels_handle.dart';
 export 'src/theme/nib_theme.dart';
