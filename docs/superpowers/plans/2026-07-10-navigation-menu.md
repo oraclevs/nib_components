@@ -2198,7 +2198,7 @@ Add the packing function:
 }
 ```
 
-Add a dedicated horizontal-row builder:
+Add a dedicated horizontal-row builder. **A real gap surfaces here too:** on the very first build nothing is measured yet, so `_packItems` doesn't know what fits. The obvious fallback — render every item in a plain `Row` until measurements arrive — throws a hard `RenderFlex overflowed` layout error in a narrow container (confirmed by the narrow-viewport test below failing with exactly that error), since a `Row` doesn't clip/scroll on its own. Wrapping that *transient, pre-measurement* render in a horizontally scrolling `SingleChildScrollView` avoids the crash while still rendering every item immediately (so no other test's tap/`find.text` sequence needs an extra `pump()` to see content) — the packed, non-scrolling `Row` with a `"More"` trigger takes over one frame later, once `_recordWidth`'s `setState` calls land:
 
 ```dart
 Widget _buildHorizontalRow(BuildContext context, NibTheme theme) {
@@ -2219,8 +2219,32 @@ Widget _buildHorizontalRow(BuildContext context, NibTheme theme) {
     ),
   );
 
+  final allMeasured =
+      widget.items.every((i) => _measuredWidths.containsKey(i.id)) &&
+      _measuredWidths.containsKey('__more__');
+
   return LayoutBuilder(
     builder: (context, constraints) {
+      if (!allMeasured) {
+        final rawSiblingIds = [for (final i in widget.items) i.id];
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            measuringPass,
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final item in widget.items)
+                    _buildItem(context, theme, item, [item.id], rawSiblingIds),
+                ],
+              ),
+            ),
+          ],
+        );
+      }
+
       final moreWidth = _measuredWidths['__more__'] ?? 72.0;
       final packed = _packItems(constraints.maxWidth, moreWidth);
       final displayItems = packed.overflow.isEmpty

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:nib_motion/nib_motion.dart' show NibTransition;
 
+import '../overlay/measure_size.dart';
 import '../overlay/nib_anchored_overlay.dart';
 import '../theme/nib_theme.dart';
 import 'nib_nav_item.dart';
@@ -86,6 +87,7 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
   final Map<String, GlobalKey> _itemKeys = {};
   final Map<String, NibAnchoredOverlayHandle> _flyoutHandles = {};
   final Map<String, FocusNode> _focusNodes = {};
+  final Map<String, double> _measuredWidths = {};
 
   @override
   void initState() {
@@ -100,6 +102,8 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
       _unbindController();
       _bindController(widget.controller);
     }
+    final currentIds = {for (final i in widget.items) i.id};
+    _measuredWidths.removeWhere((id, _) => id != '__more__' && !currentIds.contains(id));
   }
 
   @override
@@ -308,22 +312,151 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
     );
   }
 
+  void _recordWidth(String id, double width) {
+    if (_measuredWidths[id] == width) return;
+    setState(() => _measuredWidths[id] = width);
+  }
+
+  Widget _measureVisual(NibNavItem item) {
+    final theme = NibTheme.of(context);
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (item.icon != null) ...[item.icon!, const SizedBox(width: 8)],
+            Text(item.label, style: TextStyle(color: theme.foreground)),
+            if (item.badge != null) ...[const SizedBox(width: 6), item.badge!],
+          ],
+        ),
+      ),
+    );
+  }
+
+  ({List<NibNavItem> visible, List<NibNavItem> overflow}) _packItems(
+    double maxWidth,
+    double moreWidth,
+  ) {
+    var used = 0.0;
+    final visible = <NibNavItem>[];
+    final overflow = <NibNavItem>[];
+    for (var i = 0; i < widget.items.length; i++) {
+      final item = widget.items[i];
+      final width = _measuredWidths[item.id];
+      if (width == null) {
+        // Not measured yet this frame — show everything until we know better.
+        visible.add(item);
+        continue;
+      }
+      final hasMoreAfter = i < widget.items.length - 1;
+      final reserve = hasMoreAfter ? moreWidth : 0.0;
+      if (visible.isEmpty || used + width + reserve <= maxWidth) {
+        used += width;
+        visible.add(item);
+      } else {
+        overflow.addAll(widget.items.sublist(i));
+        break;
+      }
+    }
+    return (visible: visible, overflow: overflow);
+  }
+
+  Widget _buildHorizontalRow(BuildContext context, NibTheme theme) {
+    final measuringPass = Offstage(
+      offstage: true,
+      child: Row(
+        children: [
+          for (final item in widget.items)
+            MeasureSize(
+              onChange: (size) => _recordWidth(item.id, size.width),
+              child: _measureVisual(item),
+            ),
+          MeasureSize(
+            onChange: (size) => _recordWidth('__more__', size.width),
+            child: _measureVisual(const NibNavItem(id: '__more__', label: 'More')),
+          ),
+        ],
+      ),
+    );
+
+    final allMeasured =
+        widget.items.every((i) => _measuredWidths.containsKey(i.id)) &&
+        _measuredWidths.containsKey('__more__');
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Nothing is measured yet on the very first build, so we don't yet
+        // know what actually fits. Rendering every item directly in a plain
+        // Row here could overflow (a hard layout error) before the first
+        // measurement round-trips back via _recordWidth's setState one frame
+        // later — so this transient pass wraps them in a horizontally
+        // scrollable fallback instead of the final non-scrolling, packed
+        // Row. Every item is still immediately present and tappable; only
+        // the "does it need a More menu" decision is one frame behind.
+        if (!allMeasured) {
+          final rawSiblingIds = [for (final i in widget.items) i.id];
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              measuringPass,
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final item in widget.items)
+                      _buildItem(context, theme, item, [item.id], rawSiblingIds),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }
+
+        final moreWidth = _measuredWidths['__more__'] ?? 72.0;
+        final packed = _packItems(constraints.maxWidth, moreWidth);
+        final displayItems = packed.overflow.isEmpty
+            ? packed.visible
+            : [
+                ...packed.visible,
+                NibNavItem(id: '__more__', label: 'More', children: packed.overflow),
+              ];
+        final topSiblingIds = [for (final i in displayItems) i.id];
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            measuringPass,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final item in displayItems)
+                  _buildItem(context, theme, item, [item.id], topSiblingIds),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = NibTheme.of(context);
     final topSiblingIds = [for (final i in widget.items) i.id];
-    final nodes = [
-      for (final item in widget.items)
-        widget.orientation == NibNavMenuOrientation.horizontal
-            ? _buildItem(context, theme, item, [item.id], topSiblingIds)
-            : _buildVerticalNode(context, theme, item, [item.id], topSiblingIds),
-    ];
+    final nodes = widget.orientation == NibNavMenuOrientation.vertical
+        ? [
+            for (final item in widget.items)
+              _buildVerticalNode(context, theme, item, [item.id], topSiblingIds),
+          ]
+        : const <Widget>[];
 
     final content = Semantics(
       label: widget.semanticLabel,
       container: true,
       child: widget.orientation == NibNavMenuOrientation.horizontal
-          ? Row(mainAxisSize: MainAxisSize.min, children: nodes)
+          ? _buildHorizontalRow(context, theme)
           : Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,

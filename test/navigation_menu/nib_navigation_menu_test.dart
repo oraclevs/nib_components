@@ -542,4 +542,53 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Widgets'), findsNothing);
   });
+
+  testWidgets('horizontal: items that do not fit collapse into a trailing "More" flyout', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        SizedBox(
+          width: 220,
+          child: const NibNavigationMenu(
+            items: [
+              NibNavItem(id: 'home', label: 'Home'),
+              NibNavItem(id: 'products', label: 'Products'),
+              NibNavItem(id: 'about', label: 'About Us'),
+              NibNavItem(id: 'contact', label: 'Contact'),
+              NibNavItem(id: 'careers', label: 'Careers'),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('More'), findsOneWidget);
+    expect(find.text('Careers'), findsNothing);
+
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    expect(find.text('Careers'), findsOneWidget);
+  });
+
+  testWidgets('horizontal: a wide viewport shows every item with no "More" trigger', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          items: [
+            NibNavItem(id: 'home', label: 'Home'),
+            NibNavItem(id: 'about', label: 'About'),
+          ],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('More'), findsNothing);
+    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('About'), findsOneWidget);
+  });
 }
