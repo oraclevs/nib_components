@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
+import 'package:nib_motion/nib_motion.dart';
 
 Widget _wrap(Widget child, {double width = 400, double height = 300}) {
   return MaterialApp(
@@ -310,5 +311,36 @@ void main() {
       ),
     );
     handle.dispose();
+  });
+
+  testWidgets('animated: false builds zero NibMotion widgets', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        NibResizablePanels(
+          direction: Axis.horizontal,
+          panels: [NibResizablePanel(child: const SizedBox.expand()), NibResizablePanel(child: const SizedBox.expand())],
+        ),
+      ),
+    );
+
+    expect(find.byType(NibMotion), findsNothing);
+  });
+
+  testWidgets('animated: true wraps each handle line in NibMotion', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        NibResizablePanels(
+          direction: Axis.horizontal,
+          animated: true,
+          panels: [
+            NibResizablePanel(child: const SizedBox.expand()),
+            NibResizablePanel(child: const SizedBox.expand()),
+            NibResizablePanel(child: const SizedBox.expand()),
+          ],
+        ),
+      ),
+    );
+
+    expect(find.byType(NibMotion), findsNWidgets(2));
   });
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:nib_motion/nib_motion.dart' show NibTransition;
+import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
 
 import '../theme/nib_theme.dart';
 
@@ -121,10 +121,18 @@ class _NibResizablePanelsHandleState extends State<NibResizablePanelsHandle> {
     final color = _hovered ? theme.ring : theme.border;
     final percent = (widget.sizeFraction * 100).round();
 
-    final line = SizedBox(
+    final baseLine = SizedBox(
       width: horizontal ? widget.handleThickness : double.infinity,
       height: horizontal ? double.infinity : widget.handleThickness,
     );
+
+    final line = widget.animated
+        ? NibMotion(
+            animate: NibAnim(color: color),
+            transition: widget.transition ?? const NibTransition(duration: Duration(milliseconds: 120)),
+            child: baseLine,
+          )
+        : ColoredBox(color: color, child: baseLine);
 
     return Focus(
       focusNode: _focusNode,
@@ -155,7 +163,7 @@ class _NibResizablePanelsHandleState extends State<NibResizablePanelsHandle> {
               onVerticalDragUpdate: horizontal ? null : (DragUpdateDetails d) => _handleDragUpdate(d.delta.dy),
               onVerticalDragEnd: horizontal ? null : (_) => widget.onDragEnd(),
               onDoubleTap: widget.onReset,
-              child: Center(child: ColoredBox(color: color, child: line)),
+              child: Center(child: line),
             ),
           ),
         ),
