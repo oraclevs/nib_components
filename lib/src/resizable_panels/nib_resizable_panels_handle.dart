@@ -1,7 +1,12 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nib_motion/nib_motion.dart' show NibTransition;
 
 import '../theme/nib_theme.dart';
+
+/// The fraction (of the group's main-axis extent) a keyboard arrow-key
+/// nudge moves a handle by.
+const double kNibResizablePanelsKeyboardStep = 0.02;
 
 /// The divider between two adjacent panels in a `NibResizablePanels` group.
 /// Built and positioned by `NibResizablePanels`/`NibResizablePanelsLayout` —
@@ -65,11 +70,48 @@ class NibResizablePanelsHandle extends StatefulWidget {
 }
 
 class _NibResizablePanelsHandleState extends State<NibResizablePanelsHandle> {
+  final FocusNode _focusNode = FocusNode(debugLabel: 'NibResizablePanelsHandle');
   bool _hovered = false;
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   void _handleDragUpdate(double primaryDelta) {
     if (widget.groupMainExtent <= 0) return;
     widget.onDeltaFraction(primaryDelta / widget.groupMainExtent);
+  }
+
+  void _nudge(double delta) {
+    widget.onDeltaFraction(delta);
+    widget.onDragEnd();
+  }
+
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) return KeyEventResult.ignored;
+    final horizontal = widget.direction == Axis.horizontal;
+    final key = event.logicalKey;
+
+    double? delta;
+    if (key == LogicalKeyboardKey.home) {
+      delta = -1.0;
+    } else if (key == LogicalKeyboardKey.end) {
+      delta = 1.0;
+    } else if (horizontal && key == LogicalKeyboardKey.arrowLeft) {
+      delta = -kNibResizablePanelsKeyboardStep;
+    } else if (horizontal && key == LogicalKeyboardKey.arrowRight) {
+      delta = kNibResizablePanelsKeyboardStep;
+    } else if (!horizontal && key == LogicalKeyboardKey.arrowUp) {
+      delta = -kNibResizablePanelsKeyboardStep;
+    } else if (!horizontal && key == LogicalKeyboardKey.arrowDown) {
+      delta = kNibResizablePanelsKeyboardStep;
+    }
+
+    if (delta == null) return KeyEventResult.ignored;
+    _nudge(delta);
+    return KeyEventResult.handled;
   }
 
   @override
@@ -77,23 +119,46 @@ class _NibResizablePanelsHandleState extends State<NibResizablePanelsHandle> {
     final theme = NibTheme.of(context);
     final horizontal = widget.direction == Axis.horizontal;
     final color = _hovered ? theme.ring : theme.border;
+    final percent = (widget.sizeFraction * 100).round();
 
     final line = SizedBox(
       width: horizontal ? widget.handleThickness : double.infinity,
       height: horizontal ? double.infinity : widget.handleThickness,
     );
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onHorizontalDragUpdate: horizontal ? (DragUpdateDetails d) => _handleDragUpdate(d.delta.dx) : null,
-        onHorizontalDragEnd: horizontal ? (_) => widget.onDragEnd() : null,
-        onVerticalDragUpdate: horizontal ? null : (DragUpdateDetails d) => _handleDragUpdate(d.delta.dy),
-        onVerticalDragEnd: horizontal ? null : (_) => widget.onDragEnd(),
-        onDoubleTap: widget.onReset,
-        child: Center(child: ColoredBox(color: color, child: line)),
+    return Focus(
+      focusNode: _focusNode,
+      onKeyEvent: _handleKeyEvent,
+      child: Semantics(
+        label: 'Resize handle',
+        value: '$percent%',
+        increasedValue: '${((widget.sizeFraction + kNibResizablePanelsKeyboardStep) * 100).round()}%',
+        decreasedValue: '${((widget.sizeFraction - kNibResizablePanelsKeyboardStep) * 100).round()}%',
+        onIncrease: () => _nudge(kNibResizablePanelsKeyboardStep),
+        onDecrease: () => _nudge(-kNibResizablePanelsKeyboardStep),
+        child: MouseRegion(
+          onEnter: (_) => setState(() => _hovered = true),
+          onExit: (_) => setState(() => _hovered = false),
+          child: Listener(
+            // A raw pointer listener, not a gesture recognizer: fires on
+            // every pointer down unconditionally, regardless of how the
+            // gesture arena below ends up resolving (tap vs double-tap vs
+            // drag) — `GestureDetector.onTapDown` does not reliably fire
+            // when `onDoubleTap` and drag callbacks are registered on the
+            // same detector, since the double-tap recognizer holds the
+            // arena open past the point a plain tap would normally resolve.
+            onPointerDown: (_) => _focusNode.requestFocus(),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onHorizontalDragUpdate: horizontal ? (DragUpdateDetails d) => _handleDragUpdate(d.delta.dx) : null,
+              onHorizontalDragEnd: horizontal ? (_) => widget.onDragEnd() : null,
+              onVerticalDragUpdate: horizontal ? null : (DragUpdateDetails d) => _handleDragUpdate(d.delta.dy),
+              onVerticalDragEnd: horizontal ? null : (_) => widget.onDragEnd(),
+              onDoubleTap: widget.onReset,
+              child: Center(child: ColoredBox(color: color, child: line)),
+            ),
+          ),
+        ),
       ),
     );
   }

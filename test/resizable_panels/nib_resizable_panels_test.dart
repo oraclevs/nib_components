@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart' show kDoubleTapMinTime;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
 
@@ -221,5 +222,93 @@ void main() {
     expect(controller.sizes[0], closeTo(0.2, 0.01));
     expect(controller.sizes[1], closeTo(0.3, 0.01));
     expect(controller.sizes[2], closeTo(0.5, 1e-9)); // untouched
+  });
+
+  testWidgets('arrow-key nudge on a focused handle resizes the adjacent pair by the fixed step', (tester) async {
+    final controller = NibResizablePanelsController(initialSizes: [0.5, 0.5]);
+    addTearDown(controller.dispose);
+    List<double>? lastLayout;
+
+    await tester.pumpWidget(
+      _wrap(
+        NibResizablePanels(
+          direction: Axis.horizontal,
+          controller: controller,
+          panels: [NibResizablePanel(child: const SizedBox.expand()), NibResizablePanel(child: const SizedBox.expand())],
+          onLayoutChanged: (sizes) => lastLayout = sizes,
+        ),
+      ),
+    );
+
+    final handleFinder = find.byKey(const ValueKey('nib-resizable-handle-0'));
+    await tester.tap(handleFinder);
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pumpAndSettle();
+
+    expect(controller.sizes[0], closeTo(0.5 + kNibResizablePanelsKeyboardStep, 1e-9));
+    expect(lastLayout, isNotNull);
+  });
+
+  testWidgets('Home/End jump the focused handle to its adjacent pair extremes', (tester) async {
+    final controller = NibResizablePanelsController(initialSizes: [0.5, 0.5]);
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      _wrap(
+        NibResizablePanels(
+          direction: Axis.horizontal,
+          controller: controller,
+          panels: [
+            NibResizablePanel(child: const SizedBox.expand(), minSize: 0.2, maxSize: 0.8),
+            NibResizablePanel(child: const SizedBox.expand(), minSize: 0.2, maxSize: 0.8),
+          ],
+        ),
+      ),
+    );
+
+    final handleFinder = find.byKey(const ValueKey('nib-resizable-handle-0'));
+    await tester.tap(handleFinder);
+    await tester.pumpAndSettle();
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.end);
+    await tester.pumpAndSettle();
+    expect(controller.sizes[0], closeTo(0.8, 0.01));
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.home);
+    await tester.pumpAndSettle();
+    expect(controller.sizes[0], closeTo(0.2, 0.01));
+  });
+
+  testWidgets('the handle exposes resize-handle semantics with a percentage value', (tester) async {
+    final handle = tester.ensureSemantics();
+
+    await tester.pumpWidget(
+      _wrap(
+        NibResizablePanels(
+          direction: Axis.horizontal,
+          controller: NibResizablePanelsController(initialSizes: [0.5, 0.5]),
+          panels: [NibResizablePanel(child: const SizedBox.expand()), NibResizablePanel(child: const SizedBox.expand())],
+        ),
+      ),
+    );
+
+    expect(
+      tester.getSemantics(find.byKey(const ValueKey('nib-resizable-handle-0'))),
+      matchesSemantics(
+        label: 'Resize handle',
+        value: '50%',
+        hasIncreaseAction: true,
+        hasDecreaseAction: true,
+        // `Focus` contributes the focus action; `GestureDetector`'s
+        // horizontal drag callbacks map to Flutter's default
+        // scrollLeft/scrollRight semantic actions.
+        hasFocusAction: true,
+        hasScrollLeftAction: true,
+        hasScrollRightAction: true,
+        isFocusable: true,
+      ),
+    );
+    handle.dispose();
   });
 }
