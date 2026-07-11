@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'examples/data_table_examples.dart';
 import 'examples/navigation_menu_examples.dart';
+import 'examples/resizable_panels_examples.dart';
 
 /// One entry in the component catalog shown by the example app.
 class CatalogEntry {
@@ -47,5 +48,21 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Navigation Menu — overflow (narrow, "More" menu)',
     builder: (context) => const NavigationMenuOverflowExample(),
+  ),
+  CatalogEntry(
+    name: 'Resizable Panels — minimal',
+    builder: (context) => const ResizablePanelsMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Resizable Panels — IDE layout (3 panels, min sizes)',
+    builder: (context) => const ResizablePanelsIdeLayoutExample(),
+  ),
+  CatalogEntry(
+    name: 'Resizable Panels — advanced (nested, controller, animated)',
+    builder: (context) => const ResizablePanelsAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Resizable Panels — narrow (scrollable fallback)',
+    builder: (context) => const ResizablePanelsNarrowExample(),
   ),
 ];
