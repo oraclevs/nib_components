@@ -3,6 +3,7 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
+import 'package:nib_motion/nib_motion.dart' show NibMotion, NibPresence;
 
 Widget _wrap(Widget child) {
   return MaterialApp(
@@ -590,5 +591,93 @@ void main() {
     expect(find.text('More'), findsNothing);
     expect(find.text('Home'), findsOneWidget);
     expect(find.text('About'), findsOneWidget);
+  });
+
+  testWidgets('animated: false builds zero NibMotion widgets for an open flyout', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.byType(NibMotion), findsNothing);
+  });
+
+  testWidgets('animated: true wraps an opened flyout in NibMotion', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          animated: true,
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.byType(NibMotion), findsWidgets);
+  });
+
+  testWidgets('animated: false builds zero NibMotion/NibPresence widgets for vertical inline reveal', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          orientation: NibNavMenuOrientation.vertical,
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.byType(NibMotion), findsNothing);
+    expect(find.byType(NibPresence), findsNothing);
+  });
+
+  testWidgets('animated: true wraps an opened vertical inline reveal in NibPresence + NibMotion', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          orientation: NibNavMenuOrientation.vertical,
+          animated: true,
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.byType(NibPresence), findsOneWidget);
+    expect(find.byType(NibMotion), findsOneWidget);
   });
 }

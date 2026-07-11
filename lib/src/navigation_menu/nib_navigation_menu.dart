@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
-import 'package:nib_motion/nib_motion.dart' show NibTransition;
+import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibPresence, NibTransition;
 
 import '../overlay/measure_size.dart';
 import '../overlay/nib_anchored_overlay.dart';
@@ -176,7 +176,16 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
       link: _linkFor(item.id),
       targetRenderBox: renderBox,
       placement: depth == 0 ? NibOverlayPlacement.bottom : NibOverlayPlacement.end,
-      contentBuilder: (overlayContext) => _buildFlyoutContent(item.children, path),
+      contentBuilder: (overlayContext) {
+        final built = _buildFlyoutContent(item.children, path);
+        if (!widget.animated) return built;
+        return NibMotion(
+          initial: const NibAnim(opacity: 0, scale: 0.95),
+          animate: const NibAnim(opacity: 1, scale: 1),
+          transition: widget.transition ?? const NibTransition(duration: Duration(milliseconds: 160)),
+          child: built,
+        );
+      },
       onDismissed: () => _closeFlyoutsFrom(depth),
       // Only the root (depth 0) flyout in a cascade installs a barrier —
       // see NibAnchoredOverlay's withBarrier doc. Its onDismissed above
@@ -305,10 +314,27 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
       ),
     );
 
+    final reveal = widget.animated
+        ? NibPresence(
+            children: [
+              if (isOpen)
+                NibMotion(
+                  key: ValueKey('nib-nav-inline-${item.id}'),
+                  initial: const NibAnim(opacity: 0, y: -6),
+                  animate: const NibAnim(opacity: 1, y: 0),
+                  exit: const NibAnim(opacity: 0, y: -6),
+                  transition:
+                      widget.transition ?? const NibTransition(duration: Duration(milliseconds: 180)),
+                  child: childList,
+                ),
+            ],
+          )
+        : (isOpen ? childList : const SizedBox.shrink());
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [header, if (isOpen) childList],
+      children: [header, reveal],
     );
   }
 
