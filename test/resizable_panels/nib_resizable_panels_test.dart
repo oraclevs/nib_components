@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart' show kDoubleTapMinTime;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
@@ -111,5 +112,114 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('A'), findsOneWidget);
+  });
+
+  testWidgets('dragging a handle resizes its two adjacent panels only', (tester) async {
+    final controller = NibResizablePanelsController(initialSizes: [1 / 3, 1 / 3, 1 / 3]);
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      _wrap(
+        NibResizablePanels(
+          direction: Axis.horizontal,
+          controller: controller,
+          panels: [
+            NibResizablePanel(child: const SizedBox.expand()),
+            NibResizablePanel(child: const SizedBox.expand()),
+            NibResizablePanel(child: const SizedBox.expand()),
+          ],
+        ),
+      ),
+    );
+
+    final before = controller.sizes;
+    await tester.drag(find.byKey(const ValueKey('nib-resizable-handle-0')), const Offset(40, 0));
+    await tester.pumpAndSettle();
+
+    expect(controller.sizes[0], greaterThan(before[0]));
+    expect(controller.sizes[1], lessThan(before[1]));
+    expect(controller.sizes[2], closeTo(before[2], 1e-9)); // untouched
+  });
+
+  testWidgets('dragging past a minSize stops at the limit instead of cascading into the next panel', (tester) async {
+    final controller = NibResizablePanelsController(initialSizes: [1 / 3, 1 / 3, 1 / 3]);
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      _wrap(
+        NibResizablePanels(
+          direction: Axis.horizontal,
+          controller: controller,
+          panels: [
+            NibResizablePanel(child: const SizedBox.expand(), minSize: 0.3),
+            NibResizablePanel(child: const SizedBox.expand(), minSize: 0.3),
+            NibResizablePanel(child: const SizedBox.expand(), minSize: 0.3),
+          ],
+        ),
+      ),
+    );
+
+    // Drag handle 0 far enough left that panel 0 would go well under 0.3 if uncapped.
+    await tester.drag(find.byKey(const ValueKey('nib-resizable-handle-0')), const Offset(-300, 0));
+    await tester.pumpAndSettle();
+
+    expect(controller.sizes[0], closeTo(0.3, 0.01));
+    expect(controller.sizes[2], closeTo(1 / 3, 1e-9)); // untouched
+  });
+
+  testWidgets('onLayoutChanged fires once when the drag ends, not per frame', (tester) async {
+    var callCount = 0;
+    List<double>? lastLayout;
+
+    await tester.pumpWidget(
+      _wrap(
+        NibResizablePanels(
+          direction: Axis.horizontal,
+          panels: [NibResizablePanel(child: const SizedBox.expand()), NibResizablePanel(child: const SizedBox.expand())],
+          onLayoutChanged: (sizes) {
+            callCount++;
+            lastLayout = sizes;
+          },
+        ),
+      ),
+    );
+
+    await tester.drag(find.byKey(const ValueKey('nib-resizable-handle-0')), const Offset(40, 0));
+    await tester.pumpAndSettle();
+
+    expect(callCount, 1);
+    expect(lastLayout, isNotNull);
+  });
+
+  testWidgets('double-tap a handle resets its adjacent pair, leaving other panels untouched', (tester) async {
+    final controller = NibResizablePanelsController(initialSizes: [0.2, 0.3, 0.5]);
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      _wrap(
+        NibResizablePanels(
+          direction: Axis.horizontal,
+          controller: controller,
+          panels: [
+            NibResizablePanel(child: const SizedBox.expand(), initialSize: 0.2),
+            NibResizablePanel(child: const SizedBox.expand(), initialSize: 0.3),
+            NibResizablePanel(child: const SizedBox.expand(), initialSize: 0.5),
+          ],
+        ),
+      ),
+    );
+
+    await tester.drag(find.byKey(const ValueKey('nib-resizable-handle-0')), const Offset(40, 0));
+    await tester.pumpAndSettle();
+    expect(controller.sizes[0], isNot(closeTo(0.2, 1e-9)));
+
+    await tester.tap(find.byKey(const ValueKey('nib-resizable-handle-0')));
+    await tester.pump(kDoubleTapMinTime);
+    await tester.tap(find.byKey(const ValueKey('nib-resizable-handle-0')));
+    await tester.pumpAndSettle();
+
+    expect(controller.sizes[0], closeTo(0.2, 0.01));
+    expect(controller.sizes[1], closeTo(0.3, 0.01));
+    expect(controller.sizes[2], closeTo(0.5, 1e-9)); // untouched
   });
 }

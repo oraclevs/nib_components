@@ -67,6 +67,11 @@ class NibResizablePanelsHandle extends StatefulWidget {
 class _NibResizablePanelsHandleState extends State<NibResizablePanelsHandle> {
   bool _hovered = false;
 
+  void _handleDragUpdate(double primaryDelta) {
+    if (widget.groupMainExtent <= 0) return;
+    widget.onDeltaFraction(primaryDelta / widget.groupMainExtent);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = NibTheme.of(context);
@@ -81,7 +86,15 @@ class _NibResizablePanelsHandleState extends State<NibResizablePanelsHandle> {
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
-      child: Center(child: ColoredBox(color: color, child: line)),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onHorizontalDragUpdate: horizontal ? (DragUpdateDetails d) => _handleDragUpdate(d.delta.dx) : null,
+        onHorizontalDragEnd: horizontal ? (_) => widget.onDragEnd() : null,
+        onVerticalDragUpdate: horizontal ? null : (DragUpdateDetails d) => _handleDragUpdate(d.delta.dy),
+        onVerticalDragEnd: horizontal ? null : (_) => widget.onDragEnd(),
+        onDoubleTap: widget.onReset,
+        child: Center(child: ColoredBox(color: color, child: line)),
+      ),
     );
   }
 }
