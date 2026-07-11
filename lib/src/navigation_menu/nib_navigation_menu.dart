@@ -282,7 +282,7 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (final child in item.children)
-            _buildItem(context, theme, child, [...path, child.id], childSiblingIds),
+            _buildVerticalNode(context, theme, child, [...path, child.id], childSiblingIds),
         ],
       ),
     );

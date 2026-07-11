@@ -402,4 +402,46 @@ void main() {
     expect(find.text('Widgets'), findsOneWidget);
     expect(find.text('About'), findsOneWidget);
   });
+
+  testWidgets('vertical: a grandchild branch item also expands inline, arbitrary depth', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibNavigationMenu(
+          orientation: NibNavMenuOrientation.vertical,
+          items: [
+            NibNavItem(
+              id: 'products',
+              label: 'Products',
+              children: [
+                NibNavItem(
+                  id: 'hardware',
+                  label: 'Hardware',
+                  children: [NibNavItem(id: 'widgets', label: 'Widgets')],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.text('Hardware'), findsOneWidget);
+    expect(find.text('Widgets'), findsNothing);
+
+    await tester.tap(find.text('Hardware'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsOneWidget);
+
+    await tester.tap(find.text('Hardware'));
+    await tester.pumpAndSettle();
+    expect(find.text('Widgets'), findsNothing);
+    expect(
+      find.text('Hardware'),
+      findsOneWidget,
+      reason: 'collapsing a grandchild does not collapse its parent',
+    );
+  });
 }
