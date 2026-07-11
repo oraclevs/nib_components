@@ -6,6 +6,20 @@ import 'nib_resizable_panels_controller.dart';
 import 'nib_resizable_panels_handle.dart';
 import 'render_resizable_panels.dart';
 
+/// Below `panels.length * kNibResizablePanelsNarrowFallbackPanelExtent`
+/// logical pixels along the main axis, `NibResizablePanels` renders a
+/// scrollable, handle-less stack of full-size panels instead of squishing
+/// them below a usable size (master prompt §1.7).
+///
+/// The fallback always stacks **vertically** and scrolls vertically,
+/// regardless of `direction` — for a `vertical` group this is the same axis
+/// it already uses (it just gains scrolling instead of squishing); for a
+/// `horizontal` group this is a deliberate axis pivot, collapsing
+/// side-by-side panels into a single scrollable column (the locked
+/// brainstorming decision — see the design doc's "Narrow-viewport fallback"
+/// section — not merely making the horizontal row scroll sideways).
+const double kNibResizablePanelsNarrowFallbackPanelExtent = 160.0;
+
 /// A horizontal or vertical group of resizable panels with draggable,
 /// keyboard-resizable, min/max-constrained dividers between them.
 ///
@@ -113,6 +127,21 @@ class _NibResizablePanelsState extends State<NibResizablePanels> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final groupMainExtent = widget.direction == Axis.horizontal ? constraints.maxWidth : constraints.maxHeight;
+        final narrowThreshold = widget.panels.length * kNibResizablePanelsNarrowFallbackPanelExtent;
+
+        if (groupMainExtent < narrowThreshold) {
+          // Always a vertical stack + vertical scroll, regardless of
+          // `direction` — a horizontal group pivots from side-by-side to
+          // stacked; a vertical group was already stacked and just gains
+          // scrolling. See the constant's doc comment above.
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [for (final panel in widget.panels) panel.child],
+            ),
+          );
+        }
 
         final children = <Widget>[];
         for (var i = 0; i < widget.panels.length; i++) {

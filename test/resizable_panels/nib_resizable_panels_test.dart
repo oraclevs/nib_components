@@ -24,6 +24,7 @@ void main() {
             NibResizablePanel(child: const Text('C')),
           ],
         ),
+        width: 500, // above 3 * 160 so this stays out of the narrow-viewport fallback
       ),
     );
 
@@ -131,6 +132,7 @@ void main() {
             NibResizablePanel(child: const SizedBox.expand()),
           ],
         ),
+        width: 500, // above 3 * 160 so this stays out of the narrow-viewport fallback
       ),
     );
 
@@ -158,6 +160,7 @@ void main() {
             NibResizablePanel(child: const SizedBox.expand(), minSize: 0.3),
           ],
         ),
+        width: 500, // above 3 * 160 so this stays out of the narrow-viewport fallback
       ),
     );
 
@@ -208,6 +211,7 @@ void main() {
             NibResizablePanel(child: const SizedBox.expand(), initialSize: 0.5),
           ],
         ),
+        width: 500, // above 3 * 160 so this stays out of the narrow-viewport fallback
       ),
     );
 
@@ -338,9 +342,92 @@ void main() {
             NibResizablePanel(child: const SizedBox.expand()),
           ],
         ),
+        width: 500, // above 3 * 160 so this stays out of the narrow-viewport fallback
       ),
     );
 
     expect(find.byType(NibMotion), findsNWidgets(2));
+  });
+
+  testWidgets('narrow viewport falls back to a scrollable stack with no handles, no overflow', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        NibResizablePanels(
+          direction: Axis.horizontal,
+          panels: [
+            NibResizablePanel(child: const SizedBox(height: 40, child: Text('A'))),
+            NibResizablePanel(child: const SizedBox(height: 40, child: Text('B'))),
+            NibResizablePanel(child: const SizedBox(height: 40, child: Text('C'))),
+          ],
+        ),
+        width: 300, // below 3 * 160
+        height: 200,
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(NibResizablePanelsHandle), findsNothing);
+    expect(find.byType(SingleChildScrollView), findsOneWidget);
+    expect(find.text('A'), findsOneWidget);
+    expect(find.text('B'), findsOneWidget);
+    expect(find.text('C'), findsOneWidget);
+  });
+
+  testWidgets('wide viewport keeps normal resizable behavior with handles present', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        NibResizablePanels(
+          direction: Axis.horizontal,
+          panels: [NibResizablePanel(child: const SizedBox.expand()), NibResizablePanel(child: const SizedBox.expand())],
+        ),
+        width: 400, // above 2 * 160
+      ),
+    );
+
+    expect(find.byType(NibResizablePanelsHandle), findsOneWidget);
+    expect(find.byType(SingleChildScrollView), findsNothing);
+  });
+
+  testWidgets('a NibResizablePanels nested inside another panel lays out and drags independently at both levels', (
+    tester,
+  ) async {
+    final outerController = NibResizablePanelsController(initialSizes: [0.5, 0.5]);
+    final innerController = NibResizablePanelsController(initialSizes: [0.5, 0.5]);
+    addTearDown(outerController.dispose);
+    addTearDown(innerController.dispose);
+
+    await tester.pumpWidget(
+      _wrap(
+        NibResizablePanels(
+          direction: Axis.vertical,
+          controller: outerController,
+          panels: [
+            NibResizablePanel(
+              child: NibResizablePanels(
+                direction: Axis.horizontal,
+                controller: innerController,
+                panels: [
+                  NibResizablePanel(child: const SizedBox.expand()),
+                  NibResizablePanel(child: const SizedBox.expand()),
+                ],
+              ),
+            ),
+            NibResizablePanel(child: const SizedBox.expand()),
+          ],
+        ),
+        width: 400,
+        height: 400,
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    // The inner group's handle-0 is nested inside the outer group's first
+    // panel subtree, which a depth-first widget-tree walk visits before the
+    // outer group's own (sibling) handle-0 — so `.first` is the inner one.
+    await tester.drag(find.byKey(const ValueKey('nib-resizable-handle-0')).first, const Offset(40, 0));
+    await tester.pumpAndSettle();
+
+    expect(innerController.sizes[0], isNot(closeTo(0.5, 1e-9)));
+    expect(outerController.sizes, [closeTo(0.5, 1e-9), closeTo(0.5, 1e-9)]); // outer untouched
   });
 }
