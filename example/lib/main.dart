@@ -38,6 +38,26 @@ class CatalogHomePage extends StatefulWidget {
 class _CatalogHomePageState extends State<CatalogHomePage> {
   int _selectedIndex = 0;
 
+  // Matches Material's standard compact/medium window-size-class boundary.
+  static const _compactBreakpoint = 600.0;
+
+  Widget _buildCatalogList({required bool closeDrawerOnTap}) {
+    return ListView.builder(
+      itemCount: nibCatalog.length,
+      itemBuilder: (itemContext, index) {
+        final entry = nibCatalog[index];
+        return ListTile(
+          title: Text(entry.name),
+          selected: index == _selectedIndex,
+          onTap: () {
+            setState(() => _selectedIndex = index);
+            if (closeDrawerOnTap) Navigator.of(itemContext).pop();
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (nibCatalog.isEmpty) {
@@ -47,32 +67,35 @@ class _CatalogHomePageState extends State<CatalogHomePage> {
     }
 
     final selected = nibCatalog[_selectedIndex];
-    return Scaffold(
-      body: Row(
-        children: [
-          SizedBox(
-            width: 220,
-            child: ListView.builder(
-              itemCount: nibCatalog.length,
-              itemBuilder: (context, index) {
-                final entry = nibCatalog[index];
-                return ListTile(
-                  title: Text(entry.name),
-                  selected: index == _selectedIndex,
-                  onTap: () => setState(() => _selectedIndex = index),
-                );
-              },
+    final content = Padding(
+      padding: const EdgeInsets.all(24),
+      child: Builder(builder: selected.builder),
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < _compactBreakpoint;
+
+        if (!compact) {
+          return Scaffold(
+            body: Row(
+              children: [
+                SizedBox(width: 220, child: _buildCatalogList(closeDrawerOnTap: false)),
+                const VerticalDivider(width: 1),
+                Expanded(child: content),
+              ],
             ),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(title: Text(selected.name)),
+          drawer: Drawer(
+            child: SafeArea(child: _buildCatalogList(closeDrawerOnTap: true)),
           ),
-          const VerticalDivider(width: 1),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Builder(builder: selected.builder),
-            ),
-          ),
-        ],
-      ),
+          body: content,
+        );
+      },
     );
   }
 }
