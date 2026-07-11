@@ -873,7 +873,12 @@ Expected: FAIL — `NibNavigationMenu` undefined.
 ```dart
 // lib/src/navigation_menu/nib_navigation_menu.dart
 import 'package:flutter/material.dart';
-import 'package:nib_motion/nib_motion.dart';
+import 'package:nib_motion/nib_motion.dart' show NibTransition;
+// nib_motion's own barrel also exports a `NibNavItem` (its unrelated
+// nav-bar animation model) which collides with ours — import nib_motion
+// with an explicit `show` clause, never the unqualified barrel. Extend
+// this list (NibMotion/NibAnim in Task 4/10, NibPresence in Task 10)
+// rather than switching back to an unqualified import.
 
 import '../theme/nib_theme.dart';
 import 'nib_nav_item.dart';
@@ -2247,12 +2252,12 @@ git commit -m "feat(navigation-menu): dynamic-measurement horizontal overflow \"
 - Modify: `test/navigation_menu/nib_navigation_menu_test.dart`
 
 **Interfaces:**
-- Consumes: `NibMotion`, `NibAnim`, `NibTransition`, `NibPresence` (`package:nib_motion/nib_motion.dart`, already imported since Task 3).
+- Consumes: `NibMotion`, `NibAnim`, `NibTransition`, `NibPresence` (`package:nib_motion/nib_motion.dart` — `NibTransition` already imported since Task 3 via a `show` clause that must be extended here to add `NibMotion`, `NibAnim`, `NibPresence`, since nib_motion's own barrel also exports an unrelated `NibNavItem` that collides with ours).
 - Produces: when `widget.animated` is `true`, an opened horizontal flyout fades+scales in via `NibMotion`; an opened vertical inline reveal fades+slides in/out via `NibPresence` + a keyed `NibMotion` with `exit`. When `false` (default), zero `NibMotion`/`NibPresence` widgets are built anywhere.
 
 - [ ] **Step 1: Write the failing tests**
 
-Append to `test/navigation_menu/nib_navigation_menu_test.dart` (add `import 'package:nib_motion/nib_motion.dart';` at the top alongside the existing imports):
+Append to `test/navigation_menu/nib_navigation_menu_test.dart` (add `import 'package:nib_motion/nib_motion.dart' show NibMotion, NibPresence;` at the top alongside the existing imports — a `show` clause, not the unqualified barrel, for the same `NibNavItem` collision reason as the component file):
 
 ```dart
 testWidgets('animated: false builds zero NibMotion widgets for an open flyout', (
@@ -2350,6 +2355,12 @@ Run: `flutter test test/navigation_menu/nib_navigation_menu_test.dart`
 Expected: FAIL — the two `animated: true` tests fail (no `NibMotion`/`NibPresence` built yet); the two `animated: false` tests already pass.
 
 - [ ] **Step 3: Implement animation**
+
+First, extend the `show` clause on `lib/src/navigation_menu/nib_navigation_menu.dart`'s existing `package:nib_motion/nib_motion.dart` import (added in Task 3 as `show NibTransition`) to also bring in `NibMotion`, `NibAnim`, and `NibPresence`:
+
+```dart
+import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibPresence, NibTransition;
+```
 
 In `_toggleFlyout` (Task 4), replace the `contentBuilder` argument to `NibAnchoredOverlay.show` with:
 
