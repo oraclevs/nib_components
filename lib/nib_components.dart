@@ -19,4 +19,8 @@ export 'src/resizable_panels/nib_resizable_panel.dart';
 export 'src/resizable_panels/nib_resizable_panels.dart';
 export 'src/resizable_panels/nib_resizable_panels_controller.dart';
 export 'src/resizable_panels/nib_resizable_panels_handle.dart';
+export 'src/select/nib_select.dart';
+export 'src/select/nib_select_animation.dart';
+export 'src/select/nib_select_controller.dart';
+export 'src/select/nib_select_option.dart';
 export 'src/theme/nib_theme.dart';

@@ -18,6 +18,8 @@ Linux+web platforms) completed 2026-07-10.
 | Navigation Menu | No sticky/scroll-into-view for the active item in very long vertical menus | Purely a nice-to-have polish item, not required by any tested behavior; deferred rather than adding untested scroll-position logic. |
 | Date Picker | Day-grid keyboard nav relies on Flutter's default directional focus traversal between focusable day `InkWell`s (Tab/arrows move focus, Enter/Space selects); no custom roving-tabindex or type-to-jump | Same approach Data Table took for row traversal. A bespoke arrow-key roving-focus handler (move ±1 day / ±7 for up-down, wrapping across month edges) would be a polish improvement but isn't required by any tested behavior. |
 | Date Picker | Tapping an adjacent-month day (shown faded in the grid) selects that date but does not auto-advance the displayed month | Low-impact; the date is still correctly selected. Auto-switching the visible month on out-of-month taps is a follow-up nicety. |
+| Select / Dropdown | No type-to-jump in the non-searchable trigger (typing a letter to jump to the next matching option) | Arrow-key nav + Enter/Space/Esc fully cover keyboard use (verified by test); `searchable: true` gives full typeahead. A bespoke printable-key type-ahead handler on the closed/open trigger is a polish nicety, same call Data Table/Date Picker made on roving-focus. |
+| Select / Dropdown | Animated exit unmounts the overlay on a duration *estimate* (`transition.duration` + buffer, or ~450ms for springs), not a real per-animation completion callback | `NibPresence` plays the exit; the overlay's `OverlayEntry` is then removed by a timer sized to that estimate. Tween exits are exact; a very slow/custom spring could unmount slightly early. Wiring a true completion signal out of `NibPresence`/`NibMotionAnimator` would remove the estimate — deferred as a small refinement. |
 
 ## Tier A — Hardest
 
@@ -29,7 +31,7 @@ Linux+web platforms) completed 2026-07-10.
 | 4 | Command Palette | verified | 2026-07-11 |
 | 5 | Combobox | verified | 2026-07-11 |
 | 6 | Date Picker / Calendar | verified | 2026-07-12 |
-| 7 | Select / Dropdown | not started | |
+| 7 | Select / Dropdown | verified | 2026-07-12 |
 | 8 | Dialog / Modal | not started | |
 | 9 | Bottom Sheet | not started | |
 | 10 | Popover | not started | |

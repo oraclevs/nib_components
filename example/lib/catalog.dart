@@ -6,6 +6,7 @@ import 'examples/data_table_examples.dart';
 import 'examples/date_picker_examples.dart';
 import 'examples/navigation_menu_examples.dart';
 import 'examples/resizable_panels_examples.dart';
+import 'examples/select_examples.dart';
 
 /// One entry in the component catalog shown by the example app.
 class CatalogEntry {
@@ -107,5 +108,25 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Date Picker — custom diamond cells + runtime range',
     builder: (context) => const DatePickerCustomCellExample(),
+  ),
+  CatalogEntry(
+    name: 'Select — minimal (single-select)',
+    builder: (context) => const SelectMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Select — grouped + searchable',
+    builder: (context) => const SelectSearchableGroupedExample(),
+  ),
+  CatalogEntry(
+    name: 'Select — advanced (multi, animated, staggered)',
+    builder: (context) => const SelectMultiAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Select — animation gallery (preset picker)',
+    builder: (context) => const SelectAnimationGalleryExample(),
+  ),
+  CatalogEntry(
+    name: 'Select — opens upward (bottom-pinned)',
+    builder: (context) => const SelectOpensUpwardExample(),
   ),
 ];
