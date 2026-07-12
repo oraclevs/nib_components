@@ -16,6 +16,8 @@ Linux+web platforms) completed 2026-07-10.
 | Data Table | No sticky first column while horizontally scrolled | Plain horizontal scroll (Task 9) covers the actual "doesn't fit on a phone" case; pinning a column during that scroll is deferred, comparable in complexity to Resizable Panels (#3). |
 | Navigation Menu | No hover-to-open for horizontal flyouts on desktop | Tap/click-only on every platform per the locked design spec — hover-intent timing (open/close delay tuning to avoid flicker) is explicitly Hover Card's (#12) problem space, not duplicated here. |
 | Navigation Menu | No sticky/scroll-into-view for the active item in very long vertical menus | Purely a nice-to-have polish item, not required by any tested behavior; deferred rather than adding untested scroll-position logic. |
+| Date Picker | Day-grid keyboard nav relies on Flutter's default directional focus traversal between focusable day `InkWell`s (Tab/arrows move focus, Enter/Space selects); no custom roving-tabindex or type-to-jump | Same approach Data Table took for row traversal. A bespoke arrow-key roving-focus handler (move ±1 day / ±7 for up-down, wrapping across month edges) would be a polish improvement but isn't required by any tested behavior. |
+| Date Picker | Tapping an adjacent-month day (shown faded in the grid) selects that date but does not auto-advance the displayed month | Low-impact; the date is still correctly selected. Auto-switching the visible month on out-of-month taps is a follow-up nicety. |
 
 ## Tier A — Hardest
 
@@ -26,7 +28,7 @@ Linux+web platforms) completed 2026-07-10.
 | 3 | Resizable Panels | verified | 2026-07-11 |
 | 4 | Command Palette | verified | 2026-07-11 |
 | 5 | Combobox | verified | 2026-07-11 |
-| 6 | Date Picker / Calendar | not started | |
+| 6 | Date Picker / Calendar | verified | 2026-07-12 |
 | 7 | Select / Dropdown | not started | |
 | 8 | Dialog / Modal | not started | |
 | 9 | Bottom Sheet | not started | |

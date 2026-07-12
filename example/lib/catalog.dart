@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'examples/combobox_examples.dart';
 import 'examples/command_palette_examples.dart';
 import 'examples/data_table_examples.dart';
+import 'examples/date_picker_examples.dart';
 import 'examples/navigation_menu_examples.dart';
 import 'examples/resizable_panels_examples.dart';
 
@@ -90,5 +91,21 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Combobox — advanced (free text, animated, controller)',
     builder: (context) => const ComboboxAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Date Picker — inline (single date)',
+    builder: (context) => const DatePickerInlineExample(),
+  ),
+  CatalogEntry(
+    name: 'Date Picker — range popover (min/max bounds)',
+    builder: (context) => const DatePickerRangePopoverExample(),
+  ),
+  CatalogEntry(
+    name: 'Date Picker — advanced (multi, dialog, weekends off, animated)',
+    builder: (context) => const DatePickerAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Date Picker — custom diamond cells + runtime range',
+    builder: (context) => const DatePickerCustomCellExample(),
   ),
 ];
