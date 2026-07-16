@@ -2,6 +2,8 @@ export 'src/carousel/nib_carousel.dart';
 export 'src/command_palette/nib_command_action.dart';
 export 'src/command_palette/nib_command_palette.dart';
 export 'src/command_palette/nib_command_palette_controller.dart';
+export 'src/accordion/nib_accordion.dart';
+export 'src/accordion/nib_accordion_controller.dart';
 export 'src/bottom_sheet/nib_bottom_sheet.dart';
 export 'src/bottom_sheet/nib_bottom_sheet_controller.dart';
 export 'src/bottom_sheet/nib_bottom_sheet_types.dart';

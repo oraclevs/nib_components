@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import 'examples/accordion_examples.dart';
 import 'examples/bottom_sheet_examples.dart';
 import 'examples/carousel_examples.dart';
 import 'examples/combobox_examples.dart';
@@ -275,5 +276,17 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'OTP Input — advanced (controller, validation, error)',
     builder: (context) => const OtpAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Accordion — minimal (single-open FAQ)',
+    builder: (context) => const AccordionMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Accordion — multi-open, animated, icons',
+    builder: (context) => const AccordionMultiExample(),
+  ),
+  CatalogEntry(
+    name: 'Accordion — advanced (controller, expand/collapse all)',
+    builder: (context) => const AccordionControllerExample(),
   ),
 ];
