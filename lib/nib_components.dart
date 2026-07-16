@@ -45,4 +45,6 @@ export 'src/select/nib_select.dart';
 export 'src/select/nib_select_animation.dart';
 export 'src/select/nib_select_controller.dart';
 export 'src/select/nib_select_option.dart';
+export 'src/tabs/nib_tabs.dart';
+export 'src/tabs/nib_tabs_controller.dart';
 export 'src/theme/nib_theme.dart';

@@ -63,6 +63,10 @@ auto-scrolls the selected component to centre when the drawer (re)opens.
 | Accordion | Expand/collapse **height** reveal is driven by a per-section `AnimationController` (ClipRect + `Align(heightFactor)`), not `nib_motion` (§1.4/§8.5 flagged deviation) | Layout height isn't a transform/opacity/rotate, so it can't route through `nib_motion`'s `NibAnim` model — same precedent as Bottom Sheet's gesture transform. The `nib_motion` contract is still honoured for the decorative part: the chevron rotation goes through `NibMotion` (`rotate`), so `animated:true` builds `NibMotion` and `animated:false` builds none (tested). Single-open coordination lives in `NibAccordionController` (the `ExpansionTile` gap). |
 | OTP Input | On-screen keypad is `NibOtpKeyboard.onScreen`; system keyboard is the default | Two varieties per the banking/ATM use case. Keypad is fully stylable (`NibOtpKeypadStyle`), has an overridable `confirmButton` slot (bottom-left, opposite backspace), a `loading` state (greys cells + keys, shows `NibCircularLoader` in the confirm slot), and `onConfirm`. Auto-verify = wire `onCompleted` → set `loading`. |
 | Carousel | Peek uses `PageView.viewportFraction`, computed once from the first-layout width | `peekExtent` (logical px) → fraction needs the width, so the `PageController` is created lazily on first `LayoutBuilder` pass and kept (recreating on width change would reset scroll). A hard viewport-width change (e.g. desktop resize) keeps the original peek fraction. Pass `viewportFraction:` directly to opt out of px-based peek. |
+| Tabs | Panels are **content-sized and built eagerly** (not lazily virtualized) — this is what lets everything live in one vertical scroll (`[header][pinned bar][panel][footer]`), which is exactly why the panel can never trap scroll. A single tab holding a *thousands-of-rows lazy list* is out of scope for this single-scroll model (would need a `NestedScrollView` variant, which breaks the shared footer-below). Documented on the widget; log here if a consumer hits it. |
+| Tabs | The indicator glide + pager slide + adaptive panel height are `AnimationController`-driven (flagged §1.4/§8.5 deviation, same precedent as **Accordion** height + **Bottom Sheet** transform) — layout size/position can't route through `nib_motion`'s transform/opacity model | The `nib_motion` contract is honoured for the decorative part: `animated:true` gives the newly-active **tab** a `NibMotion` scale-pop (so it builds `NibMotion`), `animated:false` builds **zero** (tested). The panel is **not** opacity-faded — it's revealed by the slide, so a second fade on settle would blink (see [[animation-reveal-no-double]]). Swipe/tap/height still move with `animated:false`. |
+| Tabs | Adaptive height of a **not-yet-visited** tab falls back to the current tab's height until it first renders | The incoming panel is in the transition Stack during the switch, so it measures itself mid-animation (`_MeasureSize` → post-frame) and the height corrects within that same animation — imperceptible. No fixed-height fallback was needed (user asked to hold the line on adaptive height). |
+| Tabs | Placed inside another **vertical** scroll it would reintroduce the nested-scroll bug it exists to prevent | By contract `NibTabs` **is** the page scroll: put "above" content in `header`, "below" in `footer`, and don't wrap it in a `ListView`/`SingleChildScrollView`. It expects a bounded height (fills its parent). Documented on the widget. |
 
 ## Tier A — Hardest
 
@@ -97,7 +101,7 @@ auto-scrolls the selected component to centre when the drawer (re)opens.
 | 13 | Carousel | verified | 2026-07-16 |
 | 14 | OTP Input | verified | 2026-07-16 |
 | 15 | Accordion | verified | 2026-07-16 |
-| 16 | Tabs | not started | |
+| 16 | Tabs | verified | 2026-07-16 |
 | 17 | Toast | not started | |
 | 18 | Button | not started | |
 | 19 | Slider | not started | |

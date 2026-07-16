@@ -19,6 +19,7 @@ import 'examples/otp_input_examples.dart';
 import 'examples/popover_examples.dart';
 import 'examples/resizable_panels_examples.dart';
 import 'examples/select_examples.dart';
+import 'examples/tabs_examples.dart';
 
 /// One entry in the component catalog shown by the example app.
 class CatalogEntry {
@@ -288,5 +289,21 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Accordion — advanced (controller, expand/collapse all)',
     builder: (context) => const AccordionControllerExample(),
+  ),
+  CatalogEntry(
+    name: 'Tabs — minimal (2 tabs, underline)',
+    builder: (context) => const TabsMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Tabs — icons + scrollable bar (pill indicator)',
+    builder: (context) => const TabsIconsScrollableExample(),
+  ),
+  CatalogEntry(
+    name: 'Tabs — advanced (header + footer, continuous scroll, no stuck)',
+    builder: (context) => const TabsAdvancedScrollExample(),
+  ),
+  CatalogEntry(
+    name: 'Tabs — custom styling (transparent bar, colors, compact)',
+    builder: (context) => const TabsCustomStyleExample(),
   ),
 ];
