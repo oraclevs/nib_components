@@ -14,6 +14,7 @@ import 'examples/liquid_glass_lens_test.dart';
 import 'examples/liquid_glass_showcase.dart';
 import 'examples/music_player.dart';
 import 'examples/navigation_menu_examples.dart';
+import 'examples/otp_input_examples.dart';
 import 'examples/popover_examples.dart';
 import 'examples/resizable_panels_examples.dart';
 import 'examples/select_examples.dart';
@@ -254,5 +255,25 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Carousel — advanced (controller + custom controls)',
     builder: (context) => const CarouselControllerExample(),
+  ),
+  CatalogEntry(
+    name: 'OTP Input — minimal (6-digit, autofocus)',
+    builder: (context) => const OtpMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'OTP Input — PIN (masked, animated)',
+    builder: (context) => const OtpPinExample(),
+  ),
+  CatalogEntry(
+    name: 'OTP Input — on-screen keypad (auto-verify + loader)',
+    builder: (context) => const OtpOnScreenExample(),
+  ),
+  CatalogEntry(
+    name: 'OTP Input — styled keypad (custom colors, font, confirm)',
+    builder: (context) => const OtpStyledKeypadExample(),
+  ),
+  CatalogEntry(
+    name: 'OTP Input — advanced (controller, validation, error)',
+    builder: (context) => const OtpAdvancedExample(),
   ),
 ];

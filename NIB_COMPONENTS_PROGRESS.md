@@ -59,6 +59,8 @@ auto-scrolls the selected component to centre when the drawer (re)opens.
 | Liquid Glass | With a custom `clipper` the shader's refraction is still computed from a **rounded-rect SDF**, not the custom path | The clip applies correctly (any shape), and blur/tint/rim look right, but the *lensing ring* follows a rounded rect, so on a very non-rectangular custom shape the refraction won't hug the true edges. Matching the SDF to an arbitrary path would need the path rasterised into the shader (a v2 nicety). Rounded-rect/capsule shapes (the common case) are exact. |
 | Liquid Glass | No chromatic aberration / animated caustics | The rim highlight + lens ring cover the core Apple look; per-channel refraction offset and flowing caustics are a v2 polish pass. |
 | Carousel | `NibCarouselController` is a `part of nib_carousel.dart` (not a standalone exported controller file like the other components) | Deliberate §8.5 deviation: the controller drives the live `PageController` in the widget's private `State` and must read/write its private members, which cross-file libraries can't do. `part`/`part of` shares the library so the private handshake stays private; the type is still exported transitively via the barrel's `nib_carousel.dart` export. |
+| OTP Input | `NibCircularLoader` (custom-painter indeterminate spinner) landed early with OTP, before #32 Progress — Circular | User-requested rich loader for the keypad's confirm-slot loading state. Lives in `lib/src/loader/nib_circular_loader.dart`, exported + reusable. Uses its own `AnimationController` (a continuous indeterminate spinner, like Flutter's `CircularProgressIndicator`) rather than the opt-in `nib_motion` transition contract — that contract is for enter/animate/exit, not a perpetual loop. When #32 Progress — Circular is built it should reuse/extend this rather than duplicate. |
+| OTP Input | On-screen keypad is `NibOtpKeyboard.onScreen`; system keyboard is the default | Two varieties per the banking/ATM use case. Keypad is fully stylable (`NibOtpKeypadStyle`), has an overridable `confirmButton` slot (bottom-left, opposite backspace), a `loading` state (greys cells + keys, shows `NibCircularLoader` in the confirm slot), and `onConfirm`. Auto-verify = wire `onCompleted` → set `loading`. |
 | Carousel | Peek uses `PageView.viewportFraction`, computed once from the first-layout width | `peekExtent` (logical px) → fraction needs the width, so the `PageController` is created lazily on first `LayoutBuilder` pass and kept (recreating on width change would reset scroll). A hard viewport-width change (e.g. desktop resize) keeps the original peek fraction. Pass `viewportFraction:` directly to opt out of px-based peek. |
 
 ## Tier A — Hardest
@@ -92,8 +94,8 @@ auto-scrolls the selected component to centre when the drawer (re)opens.
 | # | Component | Status | Date |
 |---|---|---|---|
 | 13 | Carousel | verified | 2026-07-16 |
-| 14 | OTP Input | in progress | 2026-07-16 |
-| 15 | Accordion | not started | |
+| 14 | OTP Input | verified | 2026-07-16 |
+| 15 | Accordion | in progress | 2026-07-16 |
 | 16 | Tabs | not started | |
 | 17 | Toast | not started | |
 | 18 | Button | not started | |
