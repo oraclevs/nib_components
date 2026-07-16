@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import 'examples/bottom_sheet_examples.dart';
+import 'examples/carousel_examples.dart';
 import 'examples/combobox_examples.dart';
 import 'examples/command_palette_examples.dart';
 import 'examples/context_menu_examples.dart';
@@ -241,5 +242,17 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Liquid Glass — FULL SCREEN showcase (+ glass bottom nav)',
     builder: (context) => const LiquidGlassShowcaseExample(),
+  ),
+  CatalogEntry(
+    name: 'Carousel — minimal (dots)',
+    builder: (context) => const CarouselMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Carousel — auto-play, loop, peek (line indicator)',
+    builder: (context) => const CarouselAutoPlayExample(),
+  ),
+  CatalogEntry(
+    name: 'Carousel — advanced (controller + custom controls)',
+    builder: (context) => const CarouselControllerExample(),
   ),
 ];

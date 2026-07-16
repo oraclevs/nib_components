@@ -69,6 +69,7 @@ flutter:
     # Drop your audio file(s) here (e.g. assets/audio/track.mp3). The music
     # player loads assets/audio/track.mp3 by default.
     - assets/audio/
+    - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
