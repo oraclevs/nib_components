@@ -55,3 +55,6 @@ example/.flutter-plugins-dependencies
 example/linux/flutter/ephemeral/
 example/linux/flutter/generated_plugin_registrant.*
 example/linux/flutter/generated_plugins.cmake
+
+# graphify knowledge graph (regenerable from source via /graphify)
+graphify-out/

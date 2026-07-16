@@ -57,3 +57,13 @@ Two pre-existing, expected analyzer findings that are NOT bugs — don't try to 
 - **Responsive by default** (MASTER_PROMPT §1.7, added after Data Table): components must not silently clip/overflow/squish when the viewport is narrower than their natural content size. `NibDataTable` sets the pattern — a `LayoutBuilder` checks available width against intrinsic content width and falls back to a scrollable axis (`SingleChildScrollView`) instead of compressing content below a usable size.
 - **`example/`** — a separate, standalone Flutter app (own `pubspec.yaml`, depends on `nib_components` via `path: ../` and on `nib_motion` directly) used for live visual confirmation. `example/lib/catalog.dart` holds a flat `List<CatalogEntry>` (name + builder) rendered as a sidebar list by `example/lib/main.dart`; `example/lib/examples/<component>_examples.dart` holds that component's demo widgets (by convention: minimal, a common variant, an advanced/fully-configured one, and any extra demo needed to reliably trigger a specific behavior — e.g. `DataTableWideExample` deterministically demonstrates horizontal scroll by using a fixed narrow container rather than relying on the host window being narrow). Register new demos in `catalog.dart` in build order.
 - Both `nib_components` and `example/` are Flutter **package**-vs-**app** pubspec conventions respectively: the package's `pubspec.lock` is gitignored (consumers resolve their own), `example/`'s is not (apps commit their lockfile).
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
