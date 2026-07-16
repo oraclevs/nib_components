@@ -41,13 +41,46 @@ class _CatalogHomePageState extends State<CatalogHomePage> {
   // Matches Material's standard compact/medium window-size-class boundary.
   static const _compactBreakpoint = 600.0;
 
+  // Fixed row height so we can jump straight to any index without the item
+  // needing to already be built (a plain builder list can't `ensureVisible` an
+  // off-screen row). Titles are single-line + ellipsis to honour it.
+  static const _tileExtent = 56.0;
+
+  final _listController = ScrollController();
+
+  @override
+  void dispose() {
+    _listController.dispose();
+    super.dispose();
+  }
+
+  /// Scrolls the catalog list so the currently-selected entry sits centred in
+  /// the viewport — used when the drawer (re)opens, so the last thing you tapped
+  /// is right there instead of scrolled off the bottom of a growing list.
+  void _scrollToSelected() {
+    if (!_listController.hasClients) return;
+    final position = _listController.position;
+    final centred =
+        (_selectedIndex * _tileExtent) - (position.viewportDimension - _tileExtent) / 2;
+    _listController.jumpTo(
+      centred.clamp(position.minScrollExtent, position.maxScrollExtent),
+    );
+  }
+
   Widget _buildCatalogList({required bool closeDrawerOnTap}) {
+    // The drawer is rebuilt each time it opens; centre on the selected row as
+    // soon as it's laid out so it's already in view when the drawer appears.
+    if (closeDrawerOnTap) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelected());
+    }
     return ListView.builder(
+      controller: _listController,
+      itemExtent: _tileExtent,
       itemCount: nibCatalog.length,
       itemBuilder: (itemContext, index) {
         final entry = nibCatalog[index];
         return ListTile(
-          title: Text(entry.name),
+          title: Text(entry.name, maxLines: 1, overflow: TextOverflow.ellipsis),
           selected: index == _selectedIndex,
           onTap: () {
             setState(() => _selectedIndex = index);

@@ -443,7 +443,13 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
   Widget _buildDropdownOverlay(BuildContext overlayContext) {
     final theme = NibTheme.of(context);
     final box = context.findRenderObject() as RenderBox?;
-    final screen = MediaQuery.sizeOf(overlayContext);
+    final mq = MediaQuery.of(overlayContext);
+    final screen = mq.size;
+    // Keep the dropdown clear of the status bar (top), and of the system nav bar
+    // or on-screen keyboard (bottom) — otherwise on a phone it opens under them.
+    final safeTop = mq.padding.top;
+    final safeBottom =
+        mq.padding.bottom > mq.viewInsets.bottom ? mq.padding.bottom : mq.viewInsets.bottom;
 
     var triggerWidth = 240.0;
     var available = widget.maxDropdownHeight;
@@ -451,8 +457,8 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
     if (box != null && box.hasSize) {
       triggerWidth = box.size.width;
       final topLeft = box.localToGlobal(Offset.zero);
-      final spaceBelow = screen.height - (topLeft.dy + box.size.height) - 8;
-      final spaceAbove = topLeft.dy - 8;
+      final spaceBelow = screen.height - safeBottom - (topLeft.dy + box.size.height) - 8;
+      final spaceAbove = topLeft.dy - safeTop - 8;
       openUp = spaceBelow < 160 && spaceAbove > spaceBelow;
       available = (openUp ? spaceAbove : spaceBelow).clamp(80.0, widget.maxDropdownHeight);
     }

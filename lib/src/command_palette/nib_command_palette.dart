@@ -218,7 +218,9 @@ class _NibCommandPaletteState extends State<NibCommandPalette> {
             onTap: _controller.close,
           ),
         ),
-        Align(
+        SafeArea(
+          minimum: const EdgeInsets.symmetric(vertical: 16),
+          child: Align(
           alignment: const Alignment(0, -0.6),
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
@@ -243,6 +245,7 @@ class _NibCommandPaletteState extends State<NibCommandPalette> {
               ),
             ),
           ),
+        ),
         ),
       ],
     );
