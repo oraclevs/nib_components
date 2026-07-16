@@ -35,6 +35,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # Real audio playback for the Liquid Glass music-player showcase.
+  audioplayers: ^6.1.0
+
   nib_components:
     path: ../
   nib_motion:
@@ -62,10 +65,10 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    # Drop your audio file(s) here (e.g. assets/audio/track.mp3). The music
+    # player loads assets/audio/track.mp3 by default.
+    - assets/audio/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

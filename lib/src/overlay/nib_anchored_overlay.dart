@@ -1,25 +1,12 @@
 import 'package:flutter/widgets.dart';
 
 import 'measure_size.dart';
+import 'overlay_positioning.dart';
 
-/// Which side of the trigger a [NibAnchoredOverlay]'s content prefers to
-/// open toward. Flips to the opposite side automatically if it doesn't fit
-/// in the viewport.
-enum NibOverlayPlacement {
-  /// Below the trigger, left-aligned. Flips to [top] if it doesn't fit.
-  bottom,
-
-  /// Above the trigger, left-aligned. Flips to [bottom] if it doesn't fit.
-  top,
-
-  /// To the right of the trigger, top-aligned. Flips to [start] if it
-  /// doesn't fit.
-  end,
-
-  /// To the left of the trigger, top-aligned. Flips to [end] if it doesn't
-  /// fit.
-  start,
-}
+// `NibOverlayPlacement` now lives in `overlay_positioning.dart` (shared with
+// `NibPopover`); re-exported here so existing importers (e.g.
+// `NibNavigationMenu`) keep resolving it from this file.
+export 'overlay_positioning.dart' show NibOverlayPlacement;
 
 /// A handle to a [NibAnchoredOverlay.show] call. Call [remove] to close it.
 class NibAnchoredOverlayHandle {
@@ -89,14 +76,6 @@ class NibAnchoredOverlay {
   }
 }
 
-class _Anchors {
-  const _Anchors(this.target, this.follower);
-  final Alignment target;
-  final Alignment follower;
-}
-
-enum _ResolvedSide { bottom, top, end, start }
-
 class _NibAnchoredOverlayContent extends StatefulWidget {
   const _NibAnchoredOverlayContent({
     required this.link,
@@ -132,58 +111,7 @@ class _NibAnchoredOverlayContent extends StatefulWidget {
 class _NibAnchoredOverlayContentState extends State<_NibAnchoredOverlayContent> {
   Size? _contentSize;
 
-  _ResolvedSide _resolveSide(Size contentSize, Size screen) {
-    switch (widget.placement) {
-      case NibOverlayPlacement.bottom:
-        final fits =
-            widget.targetGlobalTopLeft.dy + widget.targetSize.height + contentSize.height <=
-            screen.height;
-        return fits ? _ResolvedSide.bottom : _ResolvedSide.top;
-      case NibOverlayPlacement.top:
-        final fits = widget.targetGlobalTopLeft.dy - contentSize.height >= 0;
-        return fits ? _ResolvedSide.top : _ResolvedSide.bottom;
-      case NibOverlayPlacement.end:
-        final fits =
-            widget.targetGlobalTopLeft.dx + widget.targetSize.width + contentSize.width <=
-            screen.width;
-        return fits ? _ResolvedSide.end : _ResolvedSide.start;
-      case NibOverlayPlacement.start:
-        final fits = widget.targetGlobalTopLeft.dx - contentSize.width >= 0;
-        return fits ? _ResolvedSide.start : _ResolvedSide.end;
-    }
-  }
-
-  _Anchors _anchorsFor(_ResolvedSide side) {
-    switch (side) {
-      case _ResolvedSide.bottom:
-        return const _Anchors(Alignment.bottomLeft, Alignment.topLeft);
-      case _ResolvedSide.top:
-        return const _Anchors(Alignment.topLeft, Alignment.bottomLeft);
-      case _ResolvedSide.end:
-        return const _Anchors(Alignment.topRight, Alignment.topLeft);
-      case _ResolvedSide.start:
-        return const _Anchors(Alignment.topLeft, Alignment.topRight);
-    }
-  }
-
-  Offset _clampOffsetFor(_ResolvedSide side, Size contentSize, Size screen) {
-    switch (side) {
-      case _ResolvedSide.bottom:
-      case _ResolvedSide.top:
-        final overflow = (widget.targetGlobalTopLeft.dx + contentSize.width) - screen.width;
-        if (overflow <= 0) return Offset.zero;
-        final dx = -overflow;
-        final clamped = widget.targetGlobalTopLeft.dx + dx < 0 ? -widget.targetGlobalTopLeft.dx : dx;
-        return Offset(clamped, 0);
-      case _ResolvedSide.end:
-      case _ResolvedSide.start:
-        final overflow = (widget.targetGlobalTopLeft.dy + contentSize.height) - screen.height;
-        if (overflow <= 0) return Offset.zero;
-        final dy = -overflow;
-        final clamped = widget.targetGlobalTopLeft.dy + dy < 0 ? -widget.targetGlobalTopLeft.dy : dy;
-        return Offset(0, clamped);
-    }
-  }
+  Rect get _targetRect => widget.targetGlobalTopLeft & widget.targetSize;
 
   @override
   Widget build(BuildContext context) {
@@ -211,19 +139,23 @@ class _NibAnchoredOverlayContentState extends State<_NibAnchoredOverlayContent> 
       return Stack(children: [?barrier, Opacity(opacity: 0, child: content)]);
     }
 
-    final screen = MediaQuery.sizeOf(context);
-    final side = _resolveSide(_contentSize!, screen);
-    final anchors = _anchorsFor(side);
-    final clampOffset = _clampOffsetFor(side, _contentSize!, screen);
+    final mq = MediaQuery.of(context);
+    final geo = resolveOverlayGeometry(
+      placement: widget.placement,
+      target: _targetRect,
+      content: _contentSize!,
+      screen: mq.size,
+      safeInsets: nibOverlaySafeInsets(mq),
+    );
 
     return Stack(
       children: [
         ?barrier,
         CompositedTransformFollower(
           link: widget.link,
-          targetAnchor: anchors.target,
-          followerAnchor: anchors.follower,
-          offset: clampOffset,
+          targetAnchor: Alignment.topLeft,
+          followerAnchor: Alignment.topLeft,
+          offset: geo.offset,
           child: content,
         ),
       ],
