@@ -23,6 +23,8 @@ class NibComponentsExampleApp extends StatelessWidget {
         brightness: Brightness.dark,
         extensions: const [NibTheme.dark],
       ),
+      // Enables context-free showNibToast(...) anywhere in the app.
+      builder: (context, child) => NibToaster(child: child!),
       home: const CatalogHomePage(),
     );
   }

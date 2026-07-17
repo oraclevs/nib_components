@@ -20,6 +20,7 @@ import 'examples/popover_examples.dart';
 import 'examples/resizable_panels_examples.dart';
 import 'examples/select_examples.dart';
 import 'examples/tabs_examples.dart';
+import 'examples/toast_examples.dart';
 
 /// One entry in the component catalog shown by the example app.
 class CatalogEntry {
@@ -305,5 +306,21 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Tabs — custom styling (transparent bar, colors, compact)',
     builder: (context) => const TabsCustomStyleExample(),
+  ),
+  CatalogEntry(
+    name: 'Toast — trigger board',
+    builder: (context) => const ToastTriggerBoardExample(),
+  ),
+  CatalogEntry(
+    name: 'Toast — dedup + duplicate behavior',
+    builder: (context) => const ToastDedupExample(),
+  ),
+  CatalogEntry(
+    name: 'Toast — action + persistent',
+    builder: (context) => const ToastActionExample(),
+  ),
+  CatalogEntry(
+    name: 'Toast — custom content (shape, padding, color)',
+    builder: (context) => const ToastCustomContentExample(),
   ),
 ];

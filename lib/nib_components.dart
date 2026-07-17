@@ -47,4 +47,6 @@ export 'src/select/nib_select_controller.dart';
 export 'src/select/nib_select_option.dart';
 export 'src/tabs/nib_tabs.dart';
 export 'src/tabs/nib_tabs_controller.dart';
+export 'src/toast/nib_toast_types.dart';
+export 'src/toast/show_nib_toast.dart';
 export 'src/theme/nib_theme.dart';

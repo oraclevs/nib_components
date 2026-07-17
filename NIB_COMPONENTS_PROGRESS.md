@@ -67,6 +67,9 @@ auto-scrolls the selected component to centre when the drawer (re)opens.
 | Tabs | The indicator glide + pager slide + adaptive panel height are `AnimationController`-driven (flagged §1.4/§8.5 deviation, same precedent as **Accordion** height + **Bottom Sheet** transform) — layout size/position can't route through `nib_motion`'s transform/opacity model | The `nib_motion` contract is honoured for the decorative part: `animated:true` gives the newly-active **tab** a `NibMotion` scale-pop (so it builds `NibMotion`), `animated:false` builds **zero** (tested). The panel is **not** opacity-faded — it's revealed by the slide, so a second fade on settle would blink (see [[animation-reveal-no-double]]). Swipe/tap/height still move with `animated:false`. |
 | Tabs | Adaptive height of a **not-yet-visited** tab falls back to the current tab's height until it first renders | The incoming panel is in the transition Stack during the switch, so it measures itself mid-animation (`_MeasureSize` → post-frame) and the height corrects within that same animation — imperceptible. No fixed-height fallback was needed (user asked to hold the line on adaptive height). |
 | Tabs | Placed inside another **vertical** scroll it would reintroduce the nested-scroll bug it exists to prevent | By contract `NibTabs` **is** the page scroll: put "above" content in `header`, "below" in `footer`, and don't wrap it in a `ListView`/`SingleChildScrollView`. It expects a bounded height (fills its parent). Documented on the widget. |
+| Toast | Imperative service (`showNibToast`/`dismissNibToast`/`dismissAllNibToasts`), no declarative widget/controller — like `showNibDialog`. **Context-free** via a `NibToaster` root wrapper (registers its own Overlay); `context:` is an optional fallback | User-requested (toastify-style). `NibToaster` hosts **its own** `Overlay` (app as the base entry) since `MaterialApp.builder` sits above the Navigator's overlay. Consequence: that overlay becomes the outermost root, so `Overlay.of(rootOverlay:true)` inside the app resolves to it — toasts (and anything using the root overlay) float above the Navigator. Intended (toasts over dialogs). |
+| Toast | Animated exit removes the toast on a duration-**estimate** `Timer` (no true `NibPresence` completion signal) | Identical mechanism/caveat as Dialog/Select/Popover. `animated:false` removes synchronously (exact). Reflow is smooth because the exiting item collapses its height via an `AnimationController` (Accordion precedent). The dedup **shake** and **swipe** are also `AnimationController`/gesture-driven, so they work with `animated:false` (feedback). |
+| Toast | `maxVisible` (5) overflow FIFO-dismisses the oldest at that position (not a queue that re-shows later); semantic success/warning accents are constants (no `NibTheme` token, like `destructive`) | Both deliberate. Shape per-toast with `padding`/`borderRadius`/`backgroundColor` (added for custom `content`). |
 
 ## Tier A — Hardest
 
@@ -102,7 +105,7 @@ auto-scrolls the selected component to centre when the drawer (re)opens.
 | 14 | OTP Input | verified | 2026-07-16 |
 | 15 | Accordion | verified | 2026-07-16 |
 | 16 | Tabs | verified | 2026-07-16 |
-| 17 | Toast | not started | |
+| 17 | Toast | built — awaiting visual confirm | 2026-07-17 |
 | 18 | Button | not started | |
 | 19 | Slider | not started | |
 | 20 | Pagination | not started | |
