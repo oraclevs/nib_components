@@ -1,4 +1,5 @@
 export 'src/carousel/nib_carousel.dart';
+export 'src/checkbox/nib_checkbox.dart';
 export 'src/command_palette/nib_command_action.dart';
 export 'src/command_palette/nib_command_palette.dart';
 export 'src/command_palette/nib_command_palette_controller.dart';

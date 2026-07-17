@@ -5,6 +5,7 @@ import 'examples/bottom_sheet_examples.dart';
 import 'examples/breadcrumb_examples.dart';
 import 'examples/button_examples.dart';
 import 'examples/carousel_examples.dart';
+import 'examples/checkbox_examples.dart';
 import 'examples/combobox_examples.dart';
 import 'examples/command_palette_examples.dart';
 import 'examples/context_menu_examples.dart';
@@ -446,5 +447,21 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Radio Group — advanced (animated, custom card rows)',
     builder: (context) => const RadioGroupAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Checkbox — minimal',
+    builder: (context) => const CheckboxMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Checkbox — select-all (tristate, descriptions, disabled item)',
+    builder: (context) => const CheckboxCommonExample(),
+  ),
+  CatalogEntry(
+    name: 'Checkbox — advanced (animated, custom colour + size)',
+    builder: (context) => const CheckboxAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Checkbox — beside a Button (alignment check)',
+    builder: (context) => const CheckboxBesideButtonExample(),
   ),
 ];
