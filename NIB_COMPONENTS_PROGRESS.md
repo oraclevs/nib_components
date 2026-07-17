@@ -78,6 +78,9 @@ auto-scrolls the selected component to centre when the drawer (re)opens.
 | Slider | Controlled-only (`value`/`onChanged`, `values`/`onChanged` for `.range`); **no** uncontrolled `initialValue` mode and **no** separate `NibSliderController` | Deliberate (approved 2026-07-17 brainstorm, spec `docs/superpowers/plans/2026-07-17-slider.md`). A slider's entire state *is* its value, already externally owned by the `value`/`onChanged` pair — matching Material's slider and every other Nib input — so a controller would only duplicate that surface. Uncontrolled mode is a follow-up nicety if a consumer needs a self-tracking slider. |
 | Slider | Value-label bubble appears **on drag** (constant reserved lane, so no geometry change on drag-state per [[component-customization-mandate]]); range keyboard moves whichever thumb has focus (two `Focus`es → free Tab traversal) | Both intentional. The lane is always reserved when `showValueLabel:true` so the box never resizes when the bubble fades in. `animated:false` builds **zero** `NibMotion` (thumb pop + label fade are the only motion; drag/fill/tap/keyboard are native and always on) — verified `findsNothing`. Vertical puts `min` at the bottom. |
 
+| Pagination | Cells are `NibButton`s, so each has a **≥48px hit target** — the real cell footprint is `max(itemSize, 48)`; `itemSize` defaults to 48 so visual == footprint and the sliding pill's pitch/offset stay aligned. A smaller `itemSize` still lays out at 48 (pill centred within it) | Deliberate reuse (approved 2026-07-17 brainstorm, spec `docs/superpowers/plans/2026-07-17-pagination.md`): reusing the tested button gives free focus/ripple/keyboard/tap-target/semantics rather than re-implementing them. The active look is a separate **pill behind** ghost buttons (not the button's own fill) so it can glide; the active number uses `primaryForeground` to read on it. `animated:false` builds **zero** `NibMotion` (pill = plain `Positioned`, no pop); `animated:true` adds the glide + a keyed scale-pop. Controlled `currentPage`/`onPageChanged` (no controller), same call as Slider. |
+| Pagination | No bespoke arrow-key roving between page cells; no page-size selector / "jump to page" input | Tab + Enter/Space already navigate/activate via the `NibButton` cells (same roving-focus deferral as Data Table / Date Picker). A page-size selector / jump-input is out of the numbered/compact spec — a Data-Table-pager concern if one ever needs it. `paginationRange` (the MUI ellipsis algorithm) is a pure, unit-tested function reusable by that future pager. |
+
 ## Tier A — Hardest
 
 | # | Component | Status | Date |
@@ -115,7 +118,7 @@ auto-scrolls the selected component to centre when the drawer (re)opens.
 | 17 | Toast | verified | 2026-07-17 |
 | 18 | Button | verified | 2026-07-17 |
 | 19 | Slider | verified | 2026-07-17 |
-| 20 | Pagination | not started | |
+| 20 | Pagination | verified | 2026-07-17 |
 | 21 | Breadcrumb | not started | |
 | 22 | Textarea | not started | |
 | 23 | Input | not started | |

@@ -17,6 +17,7 @@ import 'examples/liquid_glass_showcase.dart';
 import 'examples/music_player.dart';
 import 'examples/navigation_menu_examples.dart';
 import 'examples/otp_input_examples.dart';
+import 'examples/pagination_examples.dart';
 import 'examples/popover_examples.dart';
 import 'examples/resizable_panels_examples.dart';
 import 'examples/select_examples.dart';
@@ -372,5 +373,17 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Slider — vertical + custom (animated)',
     builder: (context) => const SliderVerticalCustomExample(),
+  ),
+  CatalogEntry(
+    name: 'Pagination — minimal (numbered)',
+    builder: (context) => const PaginationMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Pagination — large (ellipsis, first/last, animated)',
+    builder: (context) => const PaginationLargeExample(),
+  ),
+  CatalogEntry(
+    name: 'Pagination — compact (Page X of Y)',
+    builder: (context) => const PaginationCompactExample(),
   ),
 ];
