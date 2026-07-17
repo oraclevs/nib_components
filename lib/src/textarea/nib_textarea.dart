@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
 
 import '../theme/nib_theme.dart';
+import '../validation/nib_validators.dart';
 
 /// A native, token-driven multi-line text field.
 ///
@@ -11,27 +12,65 @@ import '../theme/nib_theme.dart';
 /// scrolling), with optional [label]/[helperText]/[errorText]/character
 /// counter chrome.
 ///
+/// Extends [FormField], so it works inside a Flutter [Form] exactly like
+/// [TextFormField] does: `Form(key: formKey, child: Column(children: [
+/// NibTextarea(validator: ...), ...]))`, then `formKey.currentState!.validate()`
+/// / `.save()` / `.reset()`.
+///
 /// ```dart
 /// NibTextarea(label: 'Bio', onChanged: (v) {})
 /// NibTextarea(maxLength: 280, showCounter: true, onChanged: (v) {})
+/// NibTextarea(label: 'Bio', validator: NibValidators.required())
 /// ```
-class NibTextarea extends StatefulWidget {
-  const NibTextarea({
+class NibTextarea extends FormField<String> {
+  NibTextarea({
     super.key,
     this.controller,
-    this.initialValue,
+    String? initialValue,
     this.onChanged,
     this.focusNode,
     this.autofocus = false,
     this.label,
     this.placeholder,
     this.helperText,
-    this.errorText,
+
+    /// Error message shown below the field (in [NibTheme.destructive]),
+    /// overriding [helperText] and tinting the border/counter. Takes
+    /// precedence over any error `validator` computes (passed straight
+    /// through as [FormField.forceErrorText]) — use this for errors that
+    /// can't be expressed as a pure function of the current text (e.g. a
+    /// server-side/async validation result).
+    String? errorText,
+
+    /// Computes an error from the current text — `null` for valid, a
+    /// message to show for invalid. See [NibValidators] for predefined
+    /// checks (`email`, `password`, `name`, `required`, ...) and
+    /// [NibValidators.compose] to chain several. Also runs (bypassing
+    /// [autovalidateMode]) whenever an ancestor [Form]'s `validate()`/
+    /// `save()` is called.
+    NibValidator? validator,
+
+    /// When the [validator]'s error is shown. Defaults to
+    /// [AutovalidateMode.onUserInteraction] (validates from the first edit).
+    /// [AutovalidateMode.onUnfocus] validates once the field loses focus;
+    /// [AutovalidateMode.always] validates immediately, including on initial
+    /// mount; [AutovalidateMode.disabled] only validates when explicitly
+    /// triggered (e.g. `Form.validate()`, or a `GlobalKey<FormFieldState>`).
+    AutovalidateMode autovalidateMode = AutovalidateMode.onUserInteraction,
+
+    /// Called with the current text when an ancestor [Form] is saved via
+    /// `Form.save()`/`FormState.save()`.
+    super.onSaved,
+
+    /// Called when this field is reset — directly via a
+    /// `GlobalKey<FormFieldState>`, or when an ancestor [Form] is reset via
+    /// `Form.reset()`.
+    super.onReset,
     this.minLines = 3,
     this.maxLines,
     this.maxLength,
     this.showCounter = false,
-    this.disabled = false,
+    bool disabled = false,
     this.padding,
     this.borderRadius,
     this.style,
@@ -51,14 +90,20 @@ class NibTextarea extends StatefulWidget {
         assert(
           maxLines == null || maxLines >= minLines,
           'NibTextarea: maxLines must be >= minLines when set.',
+        ),
+        disabled = disabled,
+        super(
+          initialValue: controller?.text ?? initialValue,
+          validator: validator,
+          forceErrorText: errorText,
+          autovalidateMode: autovalidateMode,
+          enabled: !disabled,
+          builder: (field) => (field as _NibTextareaState)._build(),
         );
 
   /// Optional external controller. When `null`, the widget creates and owns
-  /// its own, seeded with [initialValue].
+  /// its own, seeded with the constructor's `initialValue`.
   final TextEditingController? controller;
-
-  /// Seeds the internally-owned controller. Ignored when [controller] is set.
-  final String? initialValue;
 
   /// Fires on every text change, from either an internal or external
   /// controller.
@@ -77,12 +122,8 @@ class NibTextarea extends StatefulWidget {
   /// Hint text shown inside the field while empty.
   final String? placeholder;
 
-  /// Helper text shown below the field. Replaced by [errorText] when set.
+  /// Helper text shown below the field. Replaced by the error text when set.
   final String? helperText;
-
-  /// Error message shown below the field (in [NibTheme.destructive]),
-  /// overriding [helperText] and tinting the border/counter.
-  final String? errorText;
 
   /// The field's height floor, in text lines.
   final int minLines;
@@ -117,11 +158,11 @@ class NibTextarea extends StatefulWidget {
   /// Style of the [placeholder] hint. Merged onto the default.
   final TextStyle? hintStyle;
 
-  /// Style of [helperText]. Merged onto the default. Has no effect while
-  /// [errorText] is showing — see [errorStyle].
+  /// Style of [helperText]. Merged onto the default. Has no effect while the
+  /// error text is showing — see [errorStyle].
   final TextStyle? helperStyle;
 
-  /// Style of [errorText]. Merged onto the default (which includes
+  /// Style of the error text. Merged onto the default (which includes
   /// [NibTheme.destructive] as the color).
   final TextStyle? errorStyle;
 
@@ -144,14 +185,17 @@ class NibTextarea extends StatefulWidget {
   final NibTransition? transition;
 
   @override
-  State<NibTextarea> createState() => _NibTextareaState();
+  FormFieldState<String> createState() => _NibTextareaState();
 }
 
-class _NibTextareaState extends State<NibTextarea> {
+class _NibTextareaState extends FormFieldState<String> {
   TextEditingController? _internalController;
   FocusNode? _internalFocusNode;
   bool _focused = false;
   int _length = 0;
+
+  @override
+  NibTextarea get widget => super.widget as NibTextarea;
 
   TextEditingController get _effectiveController =>
       widget.controller ??
@@ -194,19 +238,29 @@ class _NibTextareaState extends State<NibTextarea> {
     super.dispose();
   }
 
+  @override
+  void reset() {
+    super.reset();
+    setState(() {
+      _effectiveController.text = widget.initialValue ?? '';
+      _length = _effectiveController.text.length;
+    });
+  }
+
   void _handleFocusChange() {
     setState(() => _focused = _effectiveFocusNode.hasFocus);
   }
 
   void _handleChanged(String value) {
     setState(() => _length = value.length);
+    didChange(value);
     widget.onChanged?.call(value);
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _build() {
     final theme = NibTheme.of(context);
-    final hasError = widget.errorText != null;
+    final String? errorMessage = errorText;
+    final hasError = errorMessage != null;
     final atLimit = widget.maxLength != null && _length >= widget.maxLength!;
 
     // Border color/width stay constant across focus states — the focus
@@ -293,7 +347,12 @@ class _NibTextareaState extends State<NibTextarea> {
         ],
         box,
         if (_showFootRow(hasError))
-          _buildFootRow(theme, hasError: hasError, atLimit: atLimit),
+          _buildFootRow(
+            theme,
+            hasError: hasError,
+            atLimit: atLimit,
+            errorMessage: errorMessage,
+          ),
       ],
     );
   }
@@ -301,8 +360,13 @@ class _NibTextareaState extends State<NibTextarea> {
   bool _showFootRow(bool hasError) =>
       hasError || widget.helperText != null || widget.showCounter;
 
-  Widget _buildFootRow(NibTheme theme, {required bool hasError, required bool atLimit}) {
-    final String? message = hasError ? widget.errorText : widget.helperText;
+  Widget _buildFootRow(
+    NibTheme theme, {
+    required bool hasError,
+    required bool atLimit,
+    required String? errorMessage,
+  }) {
+    final String? message = hasError ? errorMessage : widget.helperText;
 
     final TextStyle messageStyle = const TextStyle(fontSize: 12)
         .copyWith(color: hasError ? theme.destructive : theme.mutedForeground)

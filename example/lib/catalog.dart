@@ -11,7 +11,9 @@ import 'examples/context_menu_examples.dart';
 import 'examples/data_table_examples.dart';
 import 'examples/date_picker_examples.dart';
 import 'examples/dialog_examples.dart';
+import 'examples/form_examples.dart';
 import 'examples/hover_card_examples.dart';
+import 'examples/input_examples.dart';
 import 'examples/liquid_glass_examples.dart';
 import 'examples/liquid_glass_lens_test.dart';
 import 'examples/liquid_glass_showcase.dart';
@@ -415,5 +417,21 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Textarea — advanced (animated validation, custom shape)',
     builder: (context) => const TextareaAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Input — minimal',
+    builder: (context) => const InputMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Input — search (prefix icon + clearable)',
+    builder: (context) => const InputSearchExample(),
+  ),
+  CatalogEntry(
+    name: 'Input — advanced (password, animated validation, custom shape)',
+    builder: (context) => const InputAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Form — sign up (Input + Textarea, real Flutter Form)',
+    builder: (context) => const SignUpFormExample(),
   ),
 ];

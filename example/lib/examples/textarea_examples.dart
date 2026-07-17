@@ -41,12 +41,12 @@ class TextareaCounterExample extends StatefulWidget {
 class _TextareaCounterExampleState extends State<TextareaCounterExample> {
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Counter — maxLength 140, grows from 2 to 6 lines then scrolls'),
-        SizedBox(height: 16),
+        const Text('Counter — maxLength 140, grows from 2 to 6 lines then scrolls'),
+        const SizedBox(height: 16),
         NibTextarea(
           label: 'Tweet',
           placeholder: "What's happening?",
@@ -70,35 +70,25 @@ class TextareaAdvancedExample extends StatefulWidget {
 }
 
 class _TextareaAdvancedExampleState extends State<TextareaAdvancedExample> {
-  String _value = '';
-  bool _submitted = false;
-
-  bool get _hasError => _submitted && _value.trim().isEmpty;
-
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Advanced — animated validation, custom radius/padding'),
+        const Text('Advanced — predefined validator, animated, custom radius/padding'),
         const SizedBox(height: 16),
         NibTextarea(
           label: 'Feedback',
           placeholder: 'What could be better?',
           animated: true,
-          errorText: _hasError ? 'Feedback is required' : null,
-          helperText: 'Shown when there is no error.',
+          validator: NibValidators.required('Feedback is required.'),
+          helperText: 'Shown while there is no error.',
           borderRadius: BorderRadius.circular(16),
           padding: const EdgeInsets.all(16),
-          onChanged: (v) => setState(() => _value = v),
-        ),
-        const SizedBox(height: 12),
-        NibButton(
-          label: 'Submit',
-          onPressed: () => setState(() => _submitted = true),
         ),
       ],
     );
   }
 }
+

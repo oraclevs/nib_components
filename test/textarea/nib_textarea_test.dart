@@ -15,25 +15,25 @@ void main() {
   group('NibTextarea — basic render', () {
     testWidgets('renders with an internal controller and no NibMotion by default',
         (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea()));
+      await tester.pumpWidget(_wrap(NibTextarea()));
       expect(tester.takeException(), isNull);
       expect(find.byType(TextField), findsOneWidget);
       expect(find.byType(NibMotion), findsNothing);
     });
 
     testWidgets('shows label above the field when set', (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(label: 'Bio')));
+      await tester.pumpWidget(_wrap(NibTextarea(label: 'Bio')));
       expect(find.text('Bio'), findsOneWidget);
     });
 
     testWidgets('shows placeholder as hint text', (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(placeholder: 'Tell us more')));
+      await tester.pumpWidget(_wrap(NibTextarea(placeholder: 'Tell us more')));
       final field = tester.widget<TextField>(find.byType(TextField));
       expect(field.decoration?.hintText, 'Tell us more');
     });
 
     testWidgets('does not overflow in a narrow width', (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(label: 'Bio'), width: 120));
+      await tester.pumpWidget(_wrap(NibTextarea(label: 'Bio'), width: 120));
       expect(tester.takeException(), isNull);
     });
   });
@@ -48,7 +48,7 @@ void main() {
     });
 
     testWidgets('initialValue seeds the internal controller', (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(initialValue: 'seeded')));
+      await tester.pumpWidget(_wrap(NibTextarea(initialValue: 'seeded')));
       expect(find.text('seeded'), findsOneWidget);
     });
 
@@ -73,7 +73,7 @@ void main() {
     testWidgets('passes minLines/maxLines through to the native TextField',
         (tester) async {
       await tester.pumpWidget(
-        _wrap(const NibTextarea(minLines: 2, maxLines: 5)),
+        _wrap(NibTextarea(minLines: 2, maxLines: 5)),
       );
       final field = tester.widget<TextField>(find.byType(TextField));
       expect(field.minLines, 2);
@@ -81,14 +81,14 @@ void main() {
     });
 
     testWidgets('defaults to minLines: 3 and unbounded maxLines', (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea()));
+      await tester.pumpWidget(_wrap(NibTextarea()));
       final field = tester.widget<TextField>(find.byType(TextField));
       expect(field.minLines, 3);
       expect(field.maxLines, isNull);
     });
 
     testWidgets('grows taller with more wrapped lines of text', (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(minLines: 2), width: 120));
+      await tester.pumpWidget(_wrap(NibTextarea(minLines: 2), width: 120));
       final shortHeight = tester.getSize(find.byType(NibTextarea)).height;
 
       await tester.enterText(
@@ -114,21 +114,21 @@ void main() {
 
     testWidgets('showCounter renders current/max', (tester) async {
       await tester.pumpWidget(
-        _wrap(const NibTextarea(maxLength: 10, showCounter: true, initialValue: 'abc')),
+        _wrap(NibTextarea(maxLength: 10, showCounter: true, initialValue: 'abc')),
       );
       expect(find.text('3/10'), findsOneWidget);
     });
 
     testWidgets('showCounter without maxLength renders just the count', (tester) async {
       await tester.pumpWidget(
-        _wrap(const NibTextarea(showCounter: true, initialValue: 'abc')),
+        _wrap(NibTextarea(showCounter: true, initialValue: 'abc')),
       );
       expect(find.text('3'), findsOneWidget);
     });
 
     testWidgets('counter is absent when showCounter is false', (tester) async {
       await tester.pumpWidget(
-        _wrap(const NibTextarea(maxLength: 10, initialValue: 'abc')),
+        _wrap(NibTextarea(maxLength: 10, initialValue: 'abc')),
       );
       expect(find.text('3/10'), findsNothing);
     });
@@ -136,12 +136,12 @@ void main() {
 
   group('NibTextarea — helper & error text', () {
     testWidgets('shows helperText when there is no error', (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(helperText: 'Max 500 characters')));
+      await tester.pumpWidget(_wrap(NibTextarea(helperText: 'Max 500 characters')));
       expect(find.text('Max 500 characters'), findsOneWidget);
     });
 
     testWidgets('errorText overrides helperText', (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(
+      await tester.pumpWidget(_wrap(NibTextarea(
         helperText: 'Max 500 characters',
         errorText: 'Bio is required',
       )));
@@ -164,7 +164,7 @@ void main() {
 
   group('NibTextarea — style escape hatches', () {
     testWidgets('labelStyle merges onto the default label style', (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(
+      await tester.pumpWidget(_wrap(NibTextarea(
         label: 'Bio',
         labelStyle: TextStyle(fontStyle: FontStyle.italic, color: Colors.red),
       )));
@@ -176,7 +176,7 @@ void main() {
     });
 
     testWidgets('hintStyle merges onto the default hint style', (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(
+      await tester.pumpWidget(_wrap(NibTextarea(
         placeholder: 'Tell us more',
         hintStyle: TextStyle(color: Colors.red),
       )));
@@ -186,7 +186,7 @@ void main() {
     });
 
     testWidgets('style merges onto the default input text style', (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(
+      await tester.pumpWidget(_wrap(NibTextarea(
         style: TextStyle(color: Colors.red, fontFamily: 'Mono'),
       )));
       final field = tester.widget<TextField>(find.byType(TextField));
@@ -196,13 +196,13 @@ void main() {
     });
 
     testWidgets('helperStyle and errorStyle style independently', (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(
+      await tester.pumpWidget(_wrap(NibTextarea(
         helperText: 'Helper',
         helperStyle: TextStyle(color: Colors.blue),
       )));
       expect(tester.widget<Text>(find.text('Helper')).style?.color, Colors.blue);
 
-      await tester.pumpWidget(_wrap(const NibTextarea(
+      await tester.pumpWidget(_wrap(NibTextarea(
         helperText: 'Helper',
         helperStyle: TextStyle(color: Colors.blue),
         errorText: 'Oops',
@@ -212,7 +212,7 @@ void main() {
     });
 
     testWidgets('counterStyle merges onto the default counter style', (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(
+      await tester.pumpWidget(_wrap(NibTextarea(
         showCounter: true,
         initialValue: 'abc',
         counterStyle: TextStyle(color: Colors.purple),
@@ -222,12 +222,12 @@ void main() {
 
     testWidgets('labelSpacing widens the gap between label and field',
         (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(label: 'Bio')));
+      await tester.pumpWidget(_wrap(NibTextarea(label: 'Bio')));
       final defaultGap = tester.getTopLeft(find.byType(TextField)).dy -
           tester.getBottomLeft(find.text('Bio')).dy;
 
       await tester.pumpWidget(
-        _wrap(const NibTextarea(label: 'Bio', labelSpacing: 24)),
+        _wrap(NibTextarea(label: 'Bio', labelSpacing: 24)),
       );
       final widenedGap = tester.getTopLeft(find.byType(TextField)).dy -
           tester.getBottomLeft(find.text('Bio')).dy;
@@ -237,12 +237,12 @@ void main() {
 
     testWidgets('footerSpacing widens the gap between field and helper text',
         (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(helperText: 'Helper')));
+      await tester.pumpWidget(_wrap(NibTextarea(helperText: 'Helper')));
       final defaultGap = tester.getTopLeft(find.text('Helper')).dy -
           tester.getBottomLeft(find.byType(TextField)).dy;
 
       await tester.pumpWidget(
-        _wrap(const NibTextarea(helperText: 'Helper', footerSpacing: 24)),
+        _wrap(NibTextarea(helperText: 'Helper', footerSpacing: 24)),
       );
       final widenedGap = tester.getTopLeft(find.text('Helper')).dy -
           tester.getBottomLeft(find.byType(TextField)).dy;
@@ -251,24 +251,135 @@ void main() {
     });
   });
 
+  group('NibTextarea — validator', () {
+    testWidgets('onUserInteraction (default) hides the error until first interaction',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(NibTextarea(validator: NibValidators.required())),
+      );
+      expect(find.text('This field is required.'), findsNothing);
+
+      await tester.enterText(find.byType(TextField), 'x');
+      await tester.enterText(find.byType(TextField), '');
+      await tester.pump();
+      expect(find.text('This field is required.'), findsOneWidget);
+    });
+
+    testWidgets('AutovalidateMode.always shows the error immediately',
+        (tester) async {
+      await tester.pumpWidget(_wrap(NibTextarea(
+        validator: NibValidators.required(),
+        autovalidateMode: AutovalidateMode.always,
+      )));
+      expect(find.text('This field is required.'), findsOneWidget);
+    });
+
+    testWidgets('AutovalidateMode.disabled never shows the error', (tester) async {
+      await tester.pumpWidget(_wrap(NibTextarea(
+        validator: NibValidators.required(),
+        autovalidateMode: AutovalidateMode.disabled,
+      )));
+      await tester.enterText(find.byType(TextField), 'x');
+      await tester.enterText(find.byType(TextField), '');
+      await tester.pump();
+      expect(find.text('This field is required.'), findsNothing);
+    });
+
+    testWidgets('explicit errorText takes precedence over the validator',
+        (tester) async {
+      await tester.pumpWidget(_wrap(NibTextarea(
+        errorText: 'Server says no',
+        autovalidateMode: AutovalidateMode.always,
+        validator: NibValidators.required(),
+      )));
+      expect(find.text('Server says no'), findsOneWidget);
+      expect(find.text('This field is required.'), findsNothing);
+    });
+  });
+
+  group('NibTextarea — Form integration', () {
+    testWidgets('Form.validate() shows an untouched field\'s error immediately',
+        (tester) async {
+      final formKey = GlobalKey<FormState>();
+      await tester.pumpWidget(_wrap(Form(
+        key: formKey,
+        child: NibTextarea(label: 'Bio', validator: NibValidators.required()),
+      )));
+      expect(find.text('This field is required.'), findsNothing);
+
+      final isValid = formKey.currentState!.validate();
+      await tester.pump();
+
+      expect(isValid, isFalse);
+      expect(find.text('This field is required.'), findsOneWidget);
+    });
+
+    testWidgets('Form.save() calls onSaved with the current text', (tester) async {
+      String? saved;
+      final formKey = GlobalKey<FormState>();
+      await tester.pumpWidget(_wrap(Form(
+        key: formKey,
+        child: NibTextarea(initialValue: 'hello there', onSaved: (v) => saved = v),
+      )));
+
+      formKey.currentState!.save();
+      expect(saved, 'hello there');
+    });
+
+    testWidgets('Form.reset() restores the initial text and clears the error',
+        (tester) async {
+      final formKey = GlobalKey<FormState>();
+      await tester.pumpWidget(_wrap(Form(
+        key: formKey,
+        child: NibTextarea(
+          initialValue: 'a valid bio',
+          validator: NibValidators.minLength(5),
+          autovalidateMode: AutovalidateMode.always,
+        ),
+      )));
+
+      await tester.enterText(find.byType(TextField), 'hi');
+      await tester.pump();
+      expect(find.text('Must be at least 5 characters.'), findsOneWidget);
+
+      formKey.currentState!.reset();
+      await tester.pump();
+
+      expect(find.text('a valid bio'), findsOneWidget);
+      expect(find.text('Must be at least 5 characters.'), findsNothing);
+    });
+
+    testWidgets('a GlobalKey<FormFieldState> can validate a single field directly',
+        (tester) async {
+      final fieldKey = GlobalKey<FormFieldState<String>>();
+      await tester.pumpWidget(_wrap(
+        NibTextarea(key: fieldKey, validator: NibValidators.required()),
+      ));
+
+      expect(fieldKey.currentState!.validate(), isFalse);
+      await tester.pump();
+      expect(find.text('This field is required.'), findsOneWidget);
+    });
+  });
+
   group('NibTextarea — animated', () {
     testWidgets('animated:false never builds NibMotion, even with an error',
         (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(errorText: 'Required')));
+      await tester.pumpWidget(_wrap(NibTextarea(errorText: 'Required')));
       expect(find.byType(NibMotion), findsNothing);
     });
 
     testWidgets('animated:true wraps the error/helper row in NibMotion',
         (tester) async {
       await tester.pumpWidget(
-        _wrap(const NibTextarea(animated: true, errorText: 'Required')),
+        _wrap(NibTextarea(animated: true, errorText: 'Required')),
       );
       expect(find.byType(NibMotion), findsOneWidget);
     });
 
     testWidgets('animated:true with no helper/error text builds no NibMotion',
         (tester) async {
-      await tester.pumpWidget(_wrap(const NibTextarea(animated: true)));
+      await tester.pumpWidget(_wrap(NibTextarea(animated: true)));
       expect(find.byType(NibMotion), findsNothing);
     });
   });
