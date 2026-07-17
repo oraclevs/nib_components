@@ -22,6 +22,7 @@ import 'examples/navigation_menu_examples.dart';
 import 'examples/otp_input_examples.dart';
 import 'examples/pagination_examples.dart';
 import 'examples/popover_examples.dart';
+import 'examples/radio_group_examples.dart';
 import 'examples/resizable_panels_examples.dart';
 import 'examples/select_examples.dart';
 import 'examples/slider_examples.dart';
@@ -433,5 +434,17 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Form — sign up (Input + Textarea, real Flutter Form)',
     builder: (context) => const SignUpFormExample(),
+  ),
+  CatalogEntry(
+    name: 'Radio Group — minimal',
+    builder: (context) => const RadioGroupMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Radio Group — descriptions + disabled + horizontal',
+    builder: (context) => const RadioGroupCommonExample(),
+  ),
+  CatalogEntry(
+    name: 'Radio Group — advanced (animated, custom card rows)',
+    builder: (context) => const RadioGroupAdvancedExample(),
   ),
 ];
