@@ -81,6 +81,9 @@ auto-scrolls the selected component to centre when the drawer (re)opens.
 | Pagination | Cells are `NibButton`s, so each has a **≥48px hit target** — the real cell footprint is `max(itemSize, 48)`; `itemSize` defaults to 48 so visual == footprint and the sliding pill's pitch/offset stay aligned. A smaller `itemSize` still lays out at 48 (pill centred within it) | Deliberate reuse (approved 2026-07-17 brainstorm, spec `docs/superpowers/plans/2026-07-17-pagination.md`): reusing the tested button gives free focus/ripple/keyboard/tap-target/semantics rather than re-implementing them. The active look is a separate **pill behind** ghost buttons (not the button's own fill) so it can glide; the active number uses `primaryForeground` to read on it. `animated:false` builds **zero** `NibMotion` (pill = plain `Positioned`, no pop); `animated:true` adds the glide + a keyed scale-pop. Controlled `currentPage`/`onPageChanged` (no controller), same call as Slider. |
 | Pagination | No bespoke arrow-key roving between page cells; no page-size selector / "jump to page" input | Tab + Enter/Space already navigate/activate via the `NibButton` cells (same roving-focus deferral as Data Table / Date Picker). A page-size selector / jump-input is out of the numbered/compact spec — a Data-Table-pager concern if one ever needs it. `paginationRange` (the MUI ellipsis algorithm) is a pure, unit-tested function reusable by that future pager. |
 
+| Breadcrumb | Two-level collapse (full ↔ `first › … › last`), not a multi-level greedy "show as many trailing crumbs as fit"; last-resort overflow is a **horizontal scroll**, not a Flexible-ellipsized current crumb | Deliberate (approved 2026-07-17 brainstorm, spec `docs/superpowers/plans/2026-07-17-breadcrumb.md`). Collapse triggers on `maxVisibleItems` **or** `fullWidth > available` (measured with `TextPainter` + fixed icon/separator slot estimates — labels dominate). The two-level model matches the approved preview; greedy in-between is a nicety. A Flexible current crumb fought `NibMotion`-wrapped children and still overflowed on a pathologically narrow first crumb, so the guaranteed no-overflow fallback is a `SingleChildScrollView` (§1.7) — collapse handles the common narrow case, scroll is the safety net. |
+| Breadcrumb | Overflow menu reuses `NibPopover` (`…` trigger → hidden-crumb menu, closed via `NibPopoverScope.of(context).close()`); links are a private `_CrumbLink` on `FocusableActionDetector` (native focus + `ActivateIntent` on Enter/Space + hover/focus underline) | Reuse over re-implement: the tested anchored-overlay flip/clamp/viewport logic and native focus/keyboard come for free. Last item = current page (emphasised, non-interactive) even if it has an `onTap`. `animated:true` staggers each crumb's slide+fade (`NibTransition.delay = pos*40ms`); `animated:false` builds **zero** `NibMotion` (crumbs plain, closed popover builds none) — verified. `breadcrumbVisibleIndices` is a pure, unit-tested util. |
+
 ## Tier A — Hardest
 
 | # | Component | Status | Date |
@@ -119,7 +122,7 @@ auto-scrolls the selected component to centre when the drawer (re)opens.
 | 18 | Button | verified | 2026-07-17 |
 | 19 | Slider | verified | 2026-07-17 |
 | 20 | Pagination | verified | 2026-07-17 |
-| 21 | Breadcrumb | not started | |
+| 21 | Breadcrumb | verified | 2026-07-17 |
 | 22 | Textarea | not started | |
 | 23 | Input | not started | |
 | 24 | Radio Group | not started | |

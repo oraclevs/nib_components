@@ -43,6 +43,8 @@ export 'src/resizable_panels/nib_resizable_panels_controller.dart';
 export 'src/resizable_panels/nib_resizable_panels_handle.dart';
 export 'src/popover/nib_popover.dart';
 export 'src/popover/nib_popover_controller.dart';
+export 'src/breadcrumb/nib_breadcrumb.dart';
+export 'src/breadcrumb/nib_breadcrumb_types.dart';
 export 'src/pagination/nib_pagination.dart';
 export 'src/pagination/nib_pagination_types.dart';
 export 'src/slider/nib_slider.dart';

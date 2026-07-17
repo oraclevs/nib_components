@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'examples/accordion_examples.dart';
 import 'examples/bottom_sheet_examples.dart';
+import 'examples/breadcrumb_examples.dart';
 import 'examples/button_examples.dart';
 import 'examples/carousel_examples.dart';
 import 'examples/combobox_examples.dart';
@@ -385,5 +386,21 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Pagination — compact (Page X of Y)',
     builder: (context) => const PaginationCompactExample(),
+  ),
+  CatalogEntry(
+    name: 'Breadcrumb — INTERACTIVE (tap to navigate)',
+    builder: (context) => const BreadcrumbNavigationExample(),
+  ),
+  CatalogEntry(
+    name: 'Breadcrumb — minimal',
+    builder: (context) => const BreadcrumbMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Breadcrumb — collapse + overflow menu (animated)',
+    builder: (context) => const BreadcrumbCollapseExample(),
+  ),
+  CatalogEntry(
+    name: 'Breadcrumb — custom separator + icons',
+    builder: (context) => const BreadcrumbCustomExample(),
   ),
 ];
