@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'examples/accordion_examples.dart';
 import 'examples/bottom_sheet_examples.dart';
+import 'examples/button_examples.dart';
 import 'examples/carousel_examples.dart';
 import 'examples/combobox_examples.dart';
 import 'examples/command_palette_examples.dart';
@@ -322,5 +323,37 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Toast — custom content (shape, padding, color)',
     builder: (context) => const ToastCustomContentExample(),
+  ),
+  CatalogEntry(
+    name: 'Button — minimal (primary, tap to count)',
+    builder: (context) => const ButtonMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Button — variants (5 styles)',
+    builder: (context) => const ButtonVariantsExample(),
+  ),
+  CatalogEntry(
+    name: 'Button — sizes (presets, custom, expand)',
+    builder: (context) => const ButtonSizesExample(),
+  ),
+  CatalogEntry(
+    name: 'Button — states (loading, disabled)',
+    builder: (context) => const ButtonStatesExample(),
+  ),
+  CatalogEntry(
+    name: 'Button — icons, pill & icon-only',
+    builder: (context) => const ButtonIconsPillExample(),
+  ),
+  CatalogEntry(
+    name: 'Button — shape (custom radius & padding)',
+    builder: (context) => const ButtonShapeExample(),
+  ),
+  CatalogEntry(
+    name: 'Button — animated (tap scale-pop)',
+    builder: (context) => const ButtonAnimatedExample(),
+  ),
+  CatalogEntry(
+    name: 'Button — custom content (your own child)',
+    builder: (context) => const ButtonContentExample(),
   ),
 ];

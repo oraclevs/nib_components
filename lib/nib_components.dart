@@ -5,6 +5,8 @@ export 'src/command_palette/nib_command_palette_controller.dart';
 export 'src/accordion/nib_accordion.dart';
 export 'src/accordion/nib_accordion_controller.dart';
 export 'src/bottom_sheet/nib_bottom_sheet.dart';
+export 'src/button/nib_button.dart';
+export 'src/button/nib_button_types.dart';
 export 'src/bottom_sheet/nib_bottom_sheet_controller.dart';
 export 'src/bottom_sheet/nib_bottom_sheet_types.dart';
 export 'src/bottom_sheet/show_nib_bottom_sheet.dart';
