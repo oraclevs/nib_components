@@ -20,6 +20,7 @@ import 'examples/otp_input_examples.dart';
 import 'examples/popover_examples.dart';
 import 'examples/resizable_panels_examples.dart';
 import 'examples/select_examples.dart';
+import 'examples/slider_examples.dart';
 import 'examples/tabs_examples.dart';
 import 'examples/toast_examples.dart';
 
@@ -355,5 +356,21 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Button — custom content (your own child)',
     builder: (context) => const ButtonContentExample(),
+  ),
+  CatalogEntry(
+    name: 'Slider — minimal (single)',
+    builder: (context) => const SliderMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Slider — divisions + value label (animated)',
+    builder: (context) => const SliderDivisionsLabelExample(),
+  ),
+  CatalogEntry(
+    name: 'Slider — range (two thumbs)',
+    builder: (context) => const SliderRangeExample(),
+  ),
+  CatalogEntry(
+    name: 'Slider — vertical + custom (animated)',
+    builder: (context) => const SliderVerticalCustomExample(),
   ),
 ];

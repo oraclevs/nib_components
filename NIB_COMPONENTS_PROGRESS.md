@@ -75,6 +75,9 @@ auto-scrolls the selected component to centre when the drawer (re)opens.
 | Button | `animated:true` adds only a nib_motion tap **scale-pop** (keyed replay, `NibAnim(scale:.94)→identity`); hover/press/focus feedback is **always-on** native `InkWell` ripple + focus ring, not routed through nib_motion | Matches §1.1 ("feedback a native equivalent gives for free" is always present) + §1.4 (nib_motion is the opt-in decorative layer). `animated:false` builds **zero** `NibMotion` (tested), yet ripple/press still work. Same decorative-opt-in precedent as Accordion's chevron. |
 | Button | ≥48px tap target is enforced by a private `_RenderTapTargetPadding` (Flutter's `_InputPadding` idiom) that enlarges only the **hit-test** region, so a custom `height:44`/`width:44` still paints at exactly 44×44 | User requirement: a filled 44×44 and an outline 44×44 must render the identical size. Guaranteed by (a) every variant reserving the same inset 1px border (transparent where not outline — `BoxDecoration` borders paint inside the bounds) and (b) the focus ring being a layout-neutral `Positioned(-3)` overlay in a non-clipping `Stack`. Covered by the "filled 44×44 ≡ outline 44×44" test. |
 
+| Slider | Controlled-only (`value`/`onChanged`, `values`/`onChanged` for `.range`); **no** uncontrolled `initialValue` mode and **no** separate `NibSliderController` | Deliberate (approved 2026-07-17 brainstorm, spec `docs/superpowers/plans/2026-07-17-slider.md`). A slider's entire state *is* its value, already externally owned by the `value`/`onChanged` pair — matching Material's slider and every other Nib input — so a controller would only duplicate that surface. Uncontrolled mode is a follow-up nicety if a consumer needs a self-tracking slider. |
+| Slider | Value-label bubble appears **on drag** (constant reserved lane, so no geometry change on drag-state per [[component-customization-mandate]]); range keyboard moves whichever thumb has focus (two `Focus`es → free Tab traversal) | Both intentional. The lane is always reserved when `showValueLabel:true` so the box never resizes when the bubble fades in. `animated:false` builds **zero** `NibMotion` (thumb pop + label fade are the only motion; drag/fill/tap/keyboard are native and always on) — verified `findsNothing`. Vertical puts `min` at the bottom. |
+
 ## Tier A — Hardest
 
 | # | Component | Status | Date |
@@ -109,9 +112,9 @@ auto-scrolls the selected component to centre when the drawer (re)opens.
 | 14 | OTP Input | verified | 2026-07-16 |
 | 15 | Accordion | verified | 2026-07-16 |
 | 16 | Tabs | verified | 2026-07-16 |
-| 17 | Toast | built — awaiting visual confirm | 2026-07-17 |
+| 17 | Toast | verified | 2026-07-17 |
 | 18 | Button | verified | 2026-07-17 |
-| 19 | Slider | not started | |
+| 19 | Slider | verified | 2026-07-17 |
 | 20 | Pagination | not started | |
 | 21 | Breadcrumb | not started | |
 | 22 | Textarea | not started | |
