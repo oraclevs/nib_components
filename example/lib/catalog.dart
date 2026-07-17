@@ -24,6 +24,7 @@ import 'examples/resizable_panels_examples.dart';
 import 'examples/select_examples.dart';
 import 'examples/slider_examples.dart';
 import 'examples/tabs_examples.dart';
+import 'examples/textarea_examples.dart';
 import 'examples/toast_examples.dart';
 
 /// One entry in the component catalog shown by the example app.
@@ -402,5 +403,17 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Breadcrumb — custom separator + icons',
     builder: (context) => const BreadcrumbCustomExample(),
+  ),
+  CatalogEntry(
+    name: 'Textarea — minimal',
+    builder: (context) => const TextareaMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Textarea — counter (min/max lines + maxLength)',
+    builder: (context) => const TextareaCounterExample(),
+  ),
+  CatalogEntry(
+    name: 'Textarea — advanced (animated validation, custom shape)',
+    builder: (context) => const TextareaAdvancedExample(),
   ),
 ];
