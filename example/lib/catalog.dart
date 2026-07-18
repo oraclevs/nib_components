@@ -27,6 +27,7 @@ import 'examples/radio_group_examples.dart';
 import 'examples/resizable_panels_examples.dart';
 import 'examples/select_examples.dart';
 import 'examples/slider_examples.dart';
+import 'examples/switch_examples.dart';
 import 'examples/tabs_examples.dart';
 import 'examples/textarea_examples.dart';
 import 'examples/toast_examples.dart';
@@ -463,5 +464,25 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Checkbox — beside a Button (alignment check)',
     builder: (context) => const CheckboxBesideButtonExample(),
+  ),
+  CatalogEntry(
+    name: 'Switch — minimal',
+    builder: (context) => const SwitchMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Switch — descriptions + disabled + animated glide',
+    builder: (context) => const SwitchCommonExample(),
+  ),
+  CatalogEntry(
+    name: 'Switch — advanced (async-confirmed loading, custom colour)',
+    builder: (context) => const SwitchAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Switch — thumb customization (shape, images, custom builder)',
+    builder: (context) => const SwitchThumbCustomizationExample(),
+  ),
+  CatalogEntry(
+    name: 'Switch — beside a Button (alignment check)',
+    builder: (context) => const SwitchBesideButtonExample(),
   ),
 ];

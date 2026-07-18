@@ -53,6 +53,8 @@ export 'src/pagination/nib_pagination_types.dart';
 export 'src/slider/nib_slider.dart';
 export 'src/slider/nib_slider_types.dart';
 export 'src/select/nib_select.dart';
+export 'src/switch/nib_switch.dart';
+export 'src/switch/nib_switch_types.dart';
 export 'src/select/nib_select_animation.dart';
 export 'src/select/nib_select_controller.dart';
 export 'src/select/nib_select_option.dart';
