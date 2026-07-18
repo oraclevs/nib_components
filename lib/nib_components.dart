@@ -62,6 +62,8 @@ export 'src/input/nib_input.dart';
 export 'src/tabs/nib_tabs.dart';
 export 'src/tabs/nib_tabs_controller.dart';
 export 'src/textarea/nib_textarea.dart';
+export 'src/toggle_group/nib_toggle_group.dart';
+export 'src/toggle_group/nib_toggle_group_types.dart';
 export 'src/validation/nib_validators.dart';
 export 'src/toast/nib_toast_types.dart';
 export 'src/toast/show_nib_toast.dart';

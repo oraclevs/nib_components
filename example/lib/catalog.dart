@@ -31,6 +31,7 @@ import 'examples/switch_examples.dart';
 import 'examples/tabs_examples.dart';
 import 'examples/textarea_examples.dart';
 import 'examples/toast_examples.dart';
+import 'examples/toggle_group_examples.dart';
 
 /// One entry in the component catalog shown by the example app.
 class CatalogEntry {
@@ -484,5 +485,17 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Switch — beside a Button (alignment check)',
     builder: (context) => const SwitchBesideButtonExample(),
+  ),
+  CatalogEntry(
+    name: 'Toggle Group — minimal (single-select, deselectable)',
+    builder: (context) => const ToggleGroupMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Toggle Group — multi-select, disabled option, animated',
+    builder: (context) => const ToggleGroupCommonExample(),
+  ),
+  CatalogEntry(
+    name: 'Toggle Group — advanced (vertical, lg size, fixed width)',
+    builder: (context) => const ToggleGroupAdvancedExample(),
   ),
 ];

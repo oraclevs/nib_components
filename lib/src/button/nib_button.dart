@@ -50,6 +50,7 @@ class NibButton extends StatefulWidget {
     this.pill = false,
     this.tooltip,
     this.semanticLabel,
+    this.toggled,
     this.focusNode,
     this.autofocus = false,
     this.animated = false,
@@ -131,6 +132,11 @@ class NibButton extends StatefulWidget {
   /// Accessible name. Required when [label] is `null`; overrides the label for
   /// screen readers when both are set.
   final String? semanticLabel;
+
+  /// Marks this button as a toggle/pressed control for assistive tech
+  /// (`SemanticsFlag.isToggled`) — e.g. a segment in `NibToggleGroup`.
+  /// `null` (the default) omits the flag entirely, matching a plain button.
+  final bool? toggled;
 
   /// Optional external focus node.
   final FocusNode? focusNode;
@@ -354,6 +360,7 @@ class _NibButtonState extends State<NibButton> {
         enabled: _interactive,
         // `null` for text buttons → the label Text supplies the accessible name.
         label: widget.semanticLabel,
+        toggled: widget.toggled,
         child: result,
       ),
     );
