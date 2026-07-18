@@ -1,0 +1,252 @@
+# Skeleton — Design
+
+Status: approved, ready for implementation plan.
+Component: #31 in `NIB_COMPONENTS_MASTER_PROMPT.md` §3 Tier C build order (spec
+in this doc supersedes the one-line Tier C table note at §7 row 31 — scope
+grew from "a shimmer-routed bone primitive" to a full auto-shading wrapper
+during brainstorming; the shimmer-routing requirement itself is unchanged and
+still satisfied).
+
+## Why this is worth a real design (not a Tier C five-minute component)
+
+The ask: wrap a component's **real, already-written** widget tree in
+`NibSkeleton` and get a loading-state bone/skeleton version that mirrors its
+exact layout — no hand-rebuilding the shape in a second, parallel widget tree
+(the standard shadcn/MUI/Chakra `<Skeleton>` approach, and the one explicitly
+rejected during brainstorming because it re-creates the whole design).
+
+This needs an algorithm that looks at an arbitrary widget subtree and decides,
+per node, "this is a text line," "this is an avatar," "this is just a layout
+box, recurse into it," or "no idea, fall back." That algorithm is the entire
+scope of this component — everything else it needs (shimmer sweep, dissolve
+crossfade) already exists in `nib_motion` and is reused as-is (see below).
+
+## What's reused from `nib_motion` (zero new animation/shader work)
+
+- **`NibShimmer`** (`package:nib_motion`) — GPU shimmer-sweep shader, already
+  built. Wraps the bone tree while `loading` and `animated` are both true.
+- **`NibPresence` + `NibMotion`** (opacity-only `initial`/`animate`/`exit`,
+  keyed children) — the existing keyed-swap/exit-animation primitive used
+  elsewhere in `nib_motion`. Reused here to dissolve between the bone tree and
+  the real tree on a `loading` flip, instead of introducing `AnimatedSwitcher`
+  (forbidden — animation goes exclusively through `nib_motion` per master
+  prompt §1.4).
+
+The only new code in this component is the detect-and-shade algorithm and the
+widget wiring around it.
+
+## Directory layout
+
+```
+lib/src/skeleton/
+  nib_skeleton.dart          (NibSkeleton widget, public API)
+  nib_skeleton_shade.dart    (pure recursive shading function — no BuildContext
+                              dependency except for expanding unknown
+                              StatelessWidgets; independently unit-testable)
+  nib_skeleton_types.dart    (NibSkeletonBone, NibSkeletonIgnore, NibSkeletonShape)
+```
+
+## Widget API
+
+```dart
+NibSkeleton({
+  super.key,
+  required bool loading,
+  required Widget child,
+  bool animated = false,
+  NibTransition? transition,
+  Color? baseColor,
+  Color? shimmerColor,
+  double fallbackWidth = 80,
+  double fallbackHeight = 16,
+  BorderRadius? borderRadius,
+})
+```
+
+- `loading: false` → returns `child` untouched. No traversal, no bone
+  computation, zero overhead — this is the hot path for the common case
+  where a skeleton wrapper sits around content that's already loaded.
+- `loading: true` → returns the shaded bone tree, computed fresh each build
+  from `child` (see algorithm below).
+- `animated: false` (default) → static bone colors, **instant** swap between
+  bone/real tree, zero `NibMotion`/`NibShimmer`/`NibPresence` widgets built.
+  Matches the master prompt §7 row 31 contract ("default off → static
+  pulse-free placeholder").
+- `animated: true` → bone tree wrapped in `NibShimmer(enabled: true,
+  baseColor:, shimmerColor:)`; swap between bone/real tree goes through
+  `NibPresence` with each side keyed and wrapped in `NibMotion(initial:
+  NibAnim(opacity: 0), animate: NibAnim(opacity: 1), exit: NibAnim(opacity:
+  0), transition: transition ?? const NibTransition(duration: Duration(milliseconds: 220)))`
+  — a pure opacity dissolve, no slide (this is a state swap, not an entrance).
+- `baseColor`/`shimmerColor` default to theme-derived values, never hardcoded
+  hex (master prompt rule): `baseColor ??= NibTheme.of(context).muted`,
+  `shimmerColor ??= Color.lerp(baseColor, NibTheme.of(context).foreground, 0.12)`
+  — a subtle lightening of the base color, direction-agnostic so it looks
+  right in both light and dark themes without two separate hardcoded pairs.
+- `fallbackWidth`/`fallbackHeight` size the placeholder box used for anything
+  the detector can't identify (see "Fallback" below).
+- `borderRadius` overrides the *default* radius applied to generic box bones
+  (Container/Image-derived). Does not affect text-line bones (always fully
+  rounded, see below) or `CircleAvatar`-derived bones (always a perfect
+  circle) or nodes that already specify their own shape/radius (preserved
+  exactly, see below).
+
+## The shading algorithm (`nib_skeleton_shade.dart`)
+
+A pure function, `Widget shade(BuildContext context, Widget node, _BonePalette palette)`,
+called once per build when `loading == true`, dispatching on `node.runtimeType`
+into one of four buckets. `_BonePalette` is an internal (unexported) struct
+bundling the already-resolved `baseColor`/`shimmerColor`/default radius for
+this call — plumbing, not public API.
+
+`NibSkeletonBone` and `NibSkeletonIgnore` (see "Escape hatches" below) are
+checked before any of buckets 1–4, since they're explicit author overrides
+and should always win over automatic detection.
+
+### 1. Leaf types → bone shape from the node's own constructor params
+
+No RenderObject introspection, no layout/measure pass — every size comes
+directly off properties already present on the widget instance:
+
+| Node type | Bone shape |
+|---|---|
+| `Text` / `RichText` / `SelectableText` | Rectangle bone bar. Width from a `TextPainter` laid out with the node's real `style`/`data`/`text` (capped to incoming constraints); height from the computed line height × line count. Radius = `height / 2` (fully-rounded pill line — the standard skeleton-text look), always, regardless of `borderRadius`. |
+| `Icon` | Square bone box sized to `size` (default 24 if unset). Radius = `NibTheme.radiusSm`. |
+| `CircleAvatar` | Perfect circle, diameter from `radius * 2` (falling back to `minRadius`/`maxRadius` if `radius` is unset, then a 40px default). Always circular — `borderRadius` param does not apply here. |
+| `Image` / `RawImage` / `FadeInImage` | Rectangle bone sized from `width`/`height` if both set, else `fallbackWidth`/`fallbackHeight`. Radius = node's own `borderRadius` if wrapped in a `ClipRRect`/`DecoratedBox` ancestor is *not* tracked (that's a separate node in the tree and handled by bucket 2/3 recursion) — the bare `Image` itself uses the `NibSkeleton.borderRadius` default. |
+| `Container` / `DecoratedBox` / `ColoredBox` / `SizedBox` (with no child, or a child that itself resolves to nothing meaningful) | Rectangle bone from `width`/`height`/`constraints`. If it's a `Container`/`DecoratedBox` with a `BoxDecoration`, its `shape`/`borderRadius` is read and preserved exactly (a circular `Container` bones as a circle, not a rounded rect). |
+
+### 2. Structural types → pass through unchanged, recurse into children
+
+`Row`, `Column`, `Flex`, `Padding`, `Align`, `Center`, `Expanded`, `Flexible`,
+`Stack`, `Positioned`, `Wrap`, `ConstrainedBox`, `AspectRatio`,
+`IntrinsicHeight`, `IntrinsicWidth`, `SafeArea`, `Material`, `SizedBox` (with a
+child), `GestureDetector`/`InkWell` (child recursed into; tap handling is not
+individually neutralized here — see "Interaction while loading" below).
+The same widget type is rebuilt with the same non-child params, and its
+child/children replaced by their shaded versions. Layout stays pixel-identical
+to the real tree.
+
+### 3. Unrecognized `StatelessWidget` → auto-expand
+
+For any `StatelessWidget` not matched by bucket 1 or 2 (the "your own
+`ProfileHeader` class" case), call `(node as StatelessWidget).build(context)`
+directly and recurse into the result. This transparently unwraps arbitrary
+user composite widgets down to the `Text`/`Icon`/`CircleAvatar`/etc. inside,
+with no configuration required.
+
+`build()` is `@protected` by Flutter/`package:meta` convention only — Dart
+does not enforce it at the language level, and `build()` must be side-effect
+free per Flutter's own contract, so calling it ourselves ahead of the normal
+`Element` is safe in practice. `Builder` widgets are handled the same way
+(call `builder(context)`, recurse into the result).
+
+Also covers `StatelessWidget`s that resolve to `null`-safe fallback content —
+if calling `build()` throws (e.g. a widget that assumes an `InheritedWidget`
+only available lower in the real tree at a different point than where
+`NibSkeleton` sits), the shader catches and falls back to bucket 4 for that
+node rather than crashing the whole tree.
+
+### 4. Fallback — `StatefulWidget`, custom `RenderObjectWidget`, or a bucket-3 expansion failure
+
+A `StatefulWidget` can't be safely expanded this way (`build()` needs a
+mounted `State`, which we don't have and won't create speculatively). Same
+for custom-painted `RenderObjectWidget`s. These become a plain rectangle bone,
+sized `fallbackWidth × fallbackHeight`, radius `NibTheme.radiusDefault`.
+
+## Escape hatches (`nib_skeleton_types.dart`)
+
+Both wrap a **real** subtree — the point is one authored tree, not a second
+parallel one:
+
+```dart
+NibSkeletonBone({
+  super.key,
+  required Widget child,
+  double? width,
+  double? height,
+  NibSkeletonShape shape = NibSkeletonShape.rectangle,
+})
+```
+While `loading`, renders an explicit bone box (`width`/`height`/`shape`)
+instead of whatever the detector would have produced — the manual override
+for the case the detector guesses wrong (e.g. a custom chart). While not
+`loading`, renders `child` normally.
+
+```dart
+NibSkeletonIgnore({ super.key, required Widget child })
+```
+Always renders `child` as-is, loading or not — e.g. a static logo/icon that
+isn't data-dependent and shouldn't be boned at all. The shader returns
+`node.child` unchanged and does not recurse into it (intentionally — if it
+happens to contain `Text`, that text is meant to stay visible).
+
+`NibSkeletonShape` is a 2-value enum: `rectangle`, `circle`.
+
+## Interaction while loading
+
+`NibSkeleton` wraps its whole output in `IgnorePointer(ignoring: loading)` at
+the top level — one place to disable interaction, rather than hunting down
+and neutralizing every `GestureDetector`/`InkWell` inside the shaded tree
+individually.
+
+## Narrow-viewport / responsive (§1.7)
+
+Not applicable as a distinct requirement — `NibSkeleton` never introduces its
+own layout or fixed sizing; every bone shape is derived from the real node's
+own existing size/constraints, and structural nodes pass their real layout
+widget through unchanged. There is no new viewport-dependent geometry for
+this component to get wrong. (Noted explicitly per the standing convention of
+writing down a §1.7 decision rather than silently skipping it.)
+
+## Testing plan (per §1.6)
+
+Most of this is testable as a pure function (`shade(context, node, palette)`)
+given a `BuildContext` from a minimal test harness, without needing to pump
+and inspect a full render tree for every case:
+
+- Each leaf type (§1 table) produces a bone widget of the right shape/size
+  class from representative inputs (a `Text` with a known string/style, an
+  `Icon` with a known `size`, a `CircleAvatar` with a known `radius`, a sized
+  `Container` with a `BoxDecoration.shape`/`borderRadius`).
+- Each structural type (§2 list) preserves its own type and non-child params,
+  and its children are individually shaded (verified via `find.descendant`
+  after pumping a small real tree).
+- A custom `StatelessWidget` composing known leaf types (the `ProfileHeader`
+  case) is transparently expanded — the shaded output contains bone versions
+  of the `Text`/`CircleAvatar` inside, not a fallback box for the whole thing.
+- A `StatefulWidget` child becomes exactly one fallback bone box sized
+  `fallbackWidth × fallbackHeight`.
+- A bucket-3 expansion that throws during `build()` degrades to a fallback
+  box for that node only, without crashing the rest of the tree.
+- `NibSkeletonBone` renders its explicit override while `loading`, and
+  `child` unchanged while not.
+- `NibSkeletonIgnore` renders `child` unchanged in both states, and its
+  contents are not recursed into (a `Text` inside stays a real `Text`, never
+  boned, even while `loading`).
+- `loading: false` returns `child` with no shading pass — assert via identity
+  or a spy that the shader function is never invoked.
+- `animated: false`: `find.byType(NibMotion), findsNothing` and
+  `find.byType(NibShimmer), findsNothing`, both while `loading` and while not.
+- `animated: true`: bone tree is wrapped in exactly one `NibShimmer` while
+  `loading`; toggling `loading` drives a `NibPresence`-keyed swap (both old
+  and new sides transiently present with the expected `NibMotion`
+  `initial`/`animate`/`exit` opacity values).
+- Default `baseColor`/`shimmerColor` resolve from `NibTheme.of(context)` (no
+  hardcoded hex reachable in the default path); explicit overrides win.
+- Tap/gesture on shaded content is inert while `loading: true` (via the
+  top-level `IgnorePointer`), and restored once `loading: false`.
+
+## Known gaps to flag if they surface during implementation
+
+- `Image` bones don't currently distinguish "this Image is itself wrapped in
+  a circular clip by the caller" — that case already round-trips correctly
+  because the clip is a separate ancestor node handled by structural
+  recursion, but if implementation finds real-world layouts where this
+  produces a visibly wrong shape, it's a candidate for a small dedicated rule
+  rather than a silent miss.
+- The bucket-3 "unrecognized `StatelessWidget`" expansion assumes `build()`
+  is pure/side-effect-free, which is a Flutter convention, not a hard
+  guarantee for arbitrary third-party widgets. If this surfaces a real
+  problem in practice (not just a theoretical one), it goes in
+  `NIB_COMPONENTS_PROGRESS.md`'s Known Gaps table.
