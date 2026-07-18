@@ -27,6 +27,32 @@ class _CustomStatefulState extends State<_CustomStateful> {
   Widget build(BuildContext context) => const Text('stateful content');
 }
 
+class _ProfileHeader extends StatelessWidget {
+  const _ProfileHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      children: [
+        CircleAvatar(radius: 20),
+        Column(
+          children: [
+            Text('Ada Lovelace'),
+            Text('@ada'),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ThrowsOnBuild extends StatelessWidget {
+  const _ThrowsOnBuild();
+
+  @override
+  Widget build(BuildContext context) => throw StateError('no ambient dependency');
+}
+
 Future<void> _pumpShaded(WidgetTester tester, Widget node) async {
   late Widget result;
   await tester.pumpWidget(MaterialApp(
@@ -259,5 +285,24 @@ void main() {
     final coloredBoxes = tester.widgetList<ColoredBox>(find.byType(ColoredBox));
     expect(coloredBoxes.any((w) => w.color == Colors.yellow), isTrue);
     expect(find.text('inside'), findsNothing);
+  });
+
+  testWidgets('a custom StatelessWidget is transparently expanded down to its leaves', (tester) async {
+    await _pumpShaded(tester, const _ProfileHeader());
+    expect(find.byType(Row), findsOneWidget);
+    expect(find.byType(Column), findsOneWidget);
+    // CircleAvatar + 2 Text -> 3 bone boxes; none of the real widgets remain.
+    expect(find.byType(DecoratedBox), findsNWidgets(3));
+    expect(find.byType(CircleAvatar), findsNothing);
+    expect(find.text('Ada Lovelace'), findsNothing);
+  });
+
+  testWidgets('a StatelessWidget that throws during build() degrades to a fallback box, not a crash',
+      (tester) async {
+    await _pumpShaded(tester, const _ThrowsOnBuild());
+    final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox).first);
+    expect(sizedBox.width, _palette.fallbackWidth);
+    expect(sizedBox.height, _palette.fallbackHeight);
+    expect(tester.takeException(), isNull);
   });
 }
