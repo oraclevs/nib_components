@@ -113,19 +113,26 @@ directly off properties already present on the widget instance:
 | `Text` / `RichText` / `SelectableText` | Rectangle bone bar. Width from a `TextPainter` laid out with the node's real `style`/`data`/`text` (capped to incoming constraints); height from the computed line height × line count. Radius = `height / 2` (fully-rounded pill line — the standard skeleton-text look), always, regardless of `borderRadius`. |
 | `Icon` | Square bone box sized to `size` (default 24 if unset). Radius = `NibTheme.radiusSm`. |
 | `CircleAvatar` | Perfect circle, diameter from `radius * 2` (falling back to `minRadius`/`maxRadius` if `radius` is unset, then a 40px default). Always circular — `borderRadius` param does not apply here. |
-| `Image` / `RawImage` / `FadeInImage` | Rectangle bone sized from `width`/`height` if both set, else `fallbackWidth`/`fallbackHeight`. Radius = node's own `borderRadius` if wrapped in a `ClipRRect`/`DecoratedBox` ancestor is *not* tracked (that's a separate node in the tree and handled by bucket 2/3 recursion) — the bare `Image` itself uses the `NibSkeleton.borderRadius` default. |
-| `Container` / `DecoratedBox` / `ColoredBox` / `SizedBox` (with no child, or a child that itself resolves to nothing meaningful) | Rectangle bone from `width`/`height`/`constraints`. If it's a `Container`/`DecoratedBox` with a `BoxDecoration`, its `shape`/`borderRadius` is read and preserved exactly (a circular `Container` bones as a circle, not a rounded rect). |
+| `Image` (bare, no `RawImage`/`FadeInImage` in v1 — see Known gaps) | Rectangle bone sized from `width`/`height` if both set, else `fallbackWidth`/`fallbackHeight`. Uses the `NibSkeleton.borderRadius` default (a `ClipRRect`/`DecoratedBox` ancestor, if any, is a separate node handled by its own bucket). |
+| `Container` / `DecoratedBox` / `ColoredBox` / `SizedBox` **with no `child`** | Rectangle bone. `Container` sizes from its `constraints` when tight (`hasTightWidth`/`hasTightHeight`), else `fallbackWidth`/`fallbackHeight`; its `BoxDecoration.shape`/`borderRadius` is read and preserved exactly (a circular `Container` bones as a circle). `DecoratedBox`/`ColoredBox` have no intrinsic size field at all when childless, so they always use `fallbackWidth`/`fallbackHeight`. |
 
 ### 2. Structural types → pass through unchanged, recurse into children
 
-`Row`, `Column`, `Flex`, `Padding`, `Align`, `Center`, `Expanded`, `Flexible`,
-`Stack`, `Positioned`, `Wrap`, `ConstrainedBox`, `AspectRatio`,
-`IntrinsicHeight`, `IntrinsicWidth`, `SafeArea`, `Material`, `SizedBox` (with a
-child), `GestureDetector`/`InkWell` (child recursed into; tap handling is not
-individually neutralized here — see "Interaction while loading" below).
-The same widget type is rebuilt with the same non-child params, and its
-child/children replaced by their shaded versions. Layout stays pixel-identical
-to the real tree.
+Explicitly reconstructed with their own non-child fields preserved exactly,
+children replaced by their shaded versions — layout stays pixel-identical to
+the real tree: `Row`, `Column`, `Flex`, `Padding`, `Align`, `Center`,
+`Expanded`, `Flexible`, `Stack`, `Wrap`, `ConstrainedBox`, `SizedBox` /
+`Container` / `DecoratedBox` / `ColoredBox` (each **with a `child`** — the
+complement of their bucket-1 childless case above).
+
+`GestureDetector` and `SafeArea` need no explicit case — both are plain
+`StatelessWidget`s under the hood, so bucket 3's auto-expand already recurses
+through them for free. `Positioned` (a `Stack`-only `ParentDataWidget`),
+`AspectRatio`/`IntrinsicHeight`/`IntrinsicWidth` (single-child
+`RenderObjectWidget`s), `Material`, and `InkWell` (both `StatefulWidget`s) are
+**not** given explicit structural cases in v1 — each would need the same
+per-field reconstruction effort as `Row`/`Flex`, for lower expected payoff.
+They fall through to bucket 4's fallback box; see Known gaps.
 
 ### 3. Unrecognized `StatelessWidget` → auto-expand
 
@@ -239,6 +246,14 @@ and inspect a full render tree for every case:
 
 ## Known gaps to flag if they surface during implementation
 
+- `Positioned` (inside a `Stack`), `AspectRatio`, `IntrinsicHeight`,
+  `IntrinsicWidth`, `Material`, and `InkWell` get bucket-4's flat fallback
+  box in v1 rather than a structural pass-through — each would need the same
+  per-field reconstruction as `Row`/`Flex` for comparatively rare payoff.
+  A `Positioned` child inside a shaded `Stack` loses its exact position
+  (renders as a plain, unpositioned `Stack` child) rather than crashing.
+  `RawImage`/`FadeInImage` similarly fall to bucket 4 rather than `Image`'s
+  bucket-1 treatment in v1.
 - `Image` bones don't currently distinguish "this Image is itself wrapped in
   a circular clip by the caller" — that case already round-trips correctly
   because the clip is a separate ancestor node handled by structural
