@@ -62,6 +62,7 @@ export 'src/switch/nib_switch_types.dart';
 export 'src/select/nib_select_animation.dart';
 export 'src/select/nib_select_controller.dart';
 export 'src/select/nib_select_option.dart';
+export 'src/skeleton/nib_skeleton.dart';
 export 'src/skeleton/nib_skeleton_types.dart';
 export 'src/input/nib_input.dart';
 export 'src/tabs/nib_tabs.dart';
