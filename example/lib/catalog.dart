@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import 'examples/accordion_examples.dart';
+import 'examples/alert_examples.dart';
 import 'examples/bottom_sheet_examples.dart';
 import 'examples/breadcrumb_examples.dart';
 import 'examples/button_examples.dart';
@@ -522,5 +523,17 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Flip Card — controlled by an external button',
     builder: (context) => const FlipCardControlledExample(),
+  ),
+  CatalogEntry(
+    name: 'Alert — minimal (title + description, default Cancel/OK)',
+    builder: (context) => const AlertMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Alert — destructive confirm + single-button info alert',
+    builder: (context) => const AlertCommonExample(),
+  ),
+  CatalogEntry(
+    name: 'Alert — advanced (adaptive iOS/Android, custom actions)',
+    builder: (context) => const AlertAdvancedExample(),
   ),
 ];

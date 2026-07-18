@@ -1,3 +1,5 @@
+export 'src/alert/nib_alert_types.dart';
+export 'src/alert/show_nib_alert_dialog.dart';
 export 'src/card/nib_card.dart';
 export 'src/card/nib_flip_card.dart';
 export 'src/carousel/nib_carousel.dart';
