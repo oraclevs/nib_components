@@ -30,12 +30,13 @@ class _CustomStatefulState extends State<_CustomStateful> {
 Future<void> _pumpShaded(WidgetTester tester, Widget node) async {
   late Widget result;
   await tester.pumpWidget(MaterialApp(
+    debugShowCheckedModeBanner: false,
     home: Builder(builder: (context) {
       result = shadeWidget(context, node, _palette);
       return const SizedBox();
     }),
   ));
-  await tester.pumpWidget(MaterialApp(home: result));
+  await tester.pumpWidget(MaterialApp(debugShowCheckedModeBanner: false, home: result));
 }
 
 void main() {
@@ -143,5 +144,120 @@ void main() {
     final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox).first);
     expect(sizedBox.width, 90);
     expect(sizedBox.height, 30);
+  });
+
+  testWidgets('Row/Column/Padding preserve structure and shade their children', (tester) async {
+    await _pumpShaded(
+      tester,
+      const Padding(
+        padding: EdgeInsets.all(8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(Icons.star, size: 20),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Name'),
+                Text('Subtitle'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    expect(find.byType(Padding), findsOneWidget);
+    final padding = tester.widget<Padding>(find.byType(Padding));
+    expect(padding.padding, const EdgeInsets.all(8));
+    final row = tester.widget<Row>(find.byType(Row));
+    expect(row.mainAxisAlignment, MainAxisAlignment.spaceBetween);
+    expect(row.children.length, 2);
+    final column = tester.widget<Column>(find.byType(Column));
+    expect(column.crossAxisAlignment, CrossAxisAlignment.start);
+    expect(column.children.length, 2);
+    // 3 leaves (Icon + 2 Text) -> 3 bone boxes, no real Icon/Text left.
+    expect(find.byType(DecoratedBox), findsNWidgets(3));
+    expect(find.byIcon(Icons.star), findsNothing);
+    expect(find.text('Name'), findsNothing);
+  });
+
+  testWidgets('Center/Align/ConstrainedBox/Expanded/Flexible preserve their own fields', (tester) async {
+    await _pumpShaded(
+      tester,
+      Row(
+        children: [
+          Expanded(flex: 2, child: const Center(child: Text('centered'))),
+          Flexible(
+            fit: FlexFit.tight,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 100),
+                child: const Text('constrained'),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    final expanded = tester.widget<Expanded>(find.byType(Expanded));
+    expect(expanded.flex, 2);
+    final flexible = tester.widget<Flexible>(find.byType(Flexible));
+    expect(flexible.fit, FlexFit.tight);
+    final align = tester.widget<Align>(find.byType(Align));
+    expect(align.alignment, Alignment.topLeft);
+    final constrainedBox = tester.widget<ConstrainedBox>(
+      find.descendant(of: find.byType(Align), matching: find.byType(ConstrainedBox)),
+    );
+    expect(constrainedBox.constraints, const BoxConstraints(maxWidth: 100));
+    expect(find.text('centered'), findsNothing);
+    expect(find.text('constrained'), findsNothing);
+  });
+
+  testWidgets('Stack and Wrap preserve their own fields', (tester) async {
+    await _pumpShaded(
+      tester,
+      Stack(
+        alignment: Alignment.center,
+        children: [
+          const Icon(Icons.star),
+          Wrap(spacing: 6, children: const [Text('a'), Text('b')]),
+        ],
+      ),
+    );
+    final stack = tester.widget<Stack>(find.byType(Stack));
+    expect(stack.alignment, Alignment.center);
+    final wrap = tester.widget<Wrap>(find.byType(Wrap));
+    expect(wrap.spacing, 6);
+    expect(wrap.children.length, 2);
+  });
+
+  testWidgets('Container/DecoratedBox/ColoredBox/SizedBox with a child preserve chrome and shade the child',
+      (tester) async {
+    await _pumpShaded(
+      tester,
+      SizedBox(
+        width: 200,
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(10)),
+          child: DecoratedBox(
+            decoration: const BoxDecoration(color: Colors.green),
+            child: ColoredBox(
+              color: Colors.yellow,
+              child: const Text('inside'),
+            ),
+          ),
+        ),
+      ),
+    );
+    final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox).first);
+    expect(sizedBox.width, 200);
+    final container = tester.widget<Container>(find.byType(Container));
+    expect(container.padding, const EdgeInsets.all(4));
+    expect((container.decoration as BoxDecoration).color, Colors.blue);
+    final coloredBoxes = tester.widgetList<ColoredBox>(find.byType(ColoredBox));
+    expect(coloredBoxes.any((w) => w.color == Colors.yellow), isTrue);
+    expect(find.text('inside'), findsNothing);
   });
 }

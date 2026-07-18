@@ -198,8 +198,125 @@ Widget? shadeLeaf(BuildContext context, Widget node, NibSkeletonPalette palette)
 
 /// Recognized structural widget types → the same widget type rebuilt with
 /// its children individually shaded. Returns `null` when [node] isn't a
-/// recognized structural type. Implemented in Task 4.
+/// recognized structural type.
 Widget? shadeStructural(BuildContext context, Widget node, NibSkeletonPalette palette) {
+  Widget rec(Widget child) => shadeWidget(context, child, palette);
+  Widget? recOrNull(Widget? child) => child == null ? null : rec(child);
+  List<Widget> recAll(List<Widget> children) => children.map(rec).toList(growable: false);
+
+  if (node is Padding) {
+    return Padding(padding: node.padding, child: recOrNull(node.child));
+  }
+  if (node is Center) {
+    return Center(
+      widthFactor: node.widthFactor,
+      heightFactor: node.heightFactor,
+      child: recOrNull(node.child),
+    );
+  }
+  if (node is Align) {
+    return Align(
+      alignment: node.alignment,
+      widthFactor: node.widthFactor,
+      heightFactor: node.heightFactor,
+      child: recOrNull(node.child),
+    );
+  }
+  if (node is Expanded) {
+    return Expanded(flex: node.flex, child: rec(node.child));
+  }
+  if (node is Flexible) {
+    return Flexible(flex: node.flex, fit: node.fit, child: rec(node.child));
+  }
+  if (node is Row) {
+    return Row(
+      mainAxisAlignment: node.mainAxisAlignment,
+      mainAxisSize: node.mainAxisSize,
+      crossAxisAlignment: node.crossAxisAlignment,
+      textDirection: node.textDirection,
+      verticalDirection: node.verticalDirection,
+      textBaseline: node.textBaseline,
+      children: recAll(node.children),
+    );
+  }
+  if (node is Column) {
+    return Column(
+      mainAxisAlignment: node.mainAxisAlignment,
+      mainAxisSize: node.mainAxisSize,
+      crossAxisAlignment: node.crossAxisAlignment,
+      textDirection: node.textDirection,
+      verticalDirection: node.verticalDirection,
+      textBaseline: node.textBaseline,
+      children: recAll(node.children),
+    );
+  }
+  if (node is Flex) {
+    return Flex(
+      direction: node.direction,
+      mainAxisAlignment: node.mainAxisAlignment,
+      mainAxisSize: node.mainAxisSize,
+      crossAxisAlignment: node.crossAxisAlignment,
+      textDirection: node.textDirection,
+      verticalDirection: node.verticalDirection,
+      textBaseline: node.textBaseline,
+      clipBehavior: node.clipBehavior,
+      children: recAll(node.children),
+    );
+  }
+  if (node is Stack) {
+    return Stack(
+      alignment: node.alignment,
+      textDirection: node.textDirection,
+      fit: node.fit,
+      clipBehavior: node.clipBehavior,
+      children: recAll(node.children),
+    );
+  }
+  if (node is Wrap) {
+    return Wrap(
+      direction: node.direction,
+      alignment: node.alignment,
+      spacing: node.spacing,
+      runAlignment: node.runAlignment,
+      runSpacing: node.runSpacing,
+      crossAxisAlignment: node.crossAxisAlignment,
+      textDirection: node.textDirection,
+      verticalDirection: node.verticalDirection,
+      clipBehavior: node.clipBehavior,
+      children: recAll(node.children),
+    );
+  }
+  if (node is ConstrainedBox) {
+    return ConstrainedBox(constraints: node.constraints, child: recOrNull(node.child));
+  }
+  if (node is SizedBox && node.child != null) {
+    return SizedBox(width: node.width, height: node.height, child: rec(node.child!));
+  }
+  if (node is Container && node.child != null) {
+    return Container(
+      alignment: node.alignment,
+      padding: node.padding,
+      color: node.color,
+      decoration: node.decoration,
+      foregroundDecoration: node.foregroundDecoration,
+      constraints: node.constraints,
+      margin: node.margin,
+      transform: node.transform,
+      transformAlignment: node.transformAlignment,
+      clipBehavior: node.clipBehavior,
+      child: rec(node.child!),
+    );
+  }
+  if (node is DecoratedBox && node.child != null) {
+    return DecoratedBox(
+      decoration: node.decoration,
+      position: node.position,
+      child: rec(node.child!),
+    );
+  }
+  if (node is ColoredBox && node.child != null) {
+    return ColoredBox(color: node.color, child: rec(node.child!));
+  }
   return null;
 }
 
