@@ -1,3 +1,5 @@
+export 'src/card/nib_card.dart';
+export 'src/card/nib_flip_card.dart';
 export 'src/carousel/nib_carousel.dart';
 export 'src/checkbox/nib_checkbox.dart';
 export 'src/command_palette/nib_command_action.dart';

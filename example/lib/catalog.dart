@@ -4,6 +4,7 @@ import 'examples/accordion_examples.dart';
 import 'examples/bottom_sheet_examples.dart';
 import 'examples/breadcrumb_examples.dart';
 import 'examples/button_examples.dart';
+import 'examples/card_examples.dart';
 import 'examples/carousel_examples.dart';
 import 'examples/checkbox_examples.dart';
 import 'examples/combobox_examples.dart';
@@ -497,5 +498,29 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Toggle Group — advanced (vertical, lg size, fixed width)',
     builder: (context) => const ToggleGroupAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Card — minimal (static)',
+    builder: (context) => const CardMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Card — header + footer, interactive + animated',
+    builder: (context) => const CardCommonExample(),
+  ),
+  CatalogEntry(
+    name: 'Card — advanced (custom colours, disabled)',
+    builder: (context) => const CardAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Flip Card — minimal (tap to flip)',
+    builder: (context) => const FlipCardMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Flip Card — vertical axis, flashcard style',
+    builder: (context) => const FlipCardVerticalExample(),
+  ),
+  CatalogEntry(
+    name: 'Flip Card — controlled by an external button',
+    builder: (context) => const FlipCardControlledExample(),
   ),
 ];
