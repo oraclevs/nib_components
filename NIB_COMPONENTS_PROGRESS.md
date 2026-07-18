@@ -28,6 +28,13 @@ this and warrant a quick re-confirm on a device.
 Example drawer now single-lines each entry (ellipsis) with a fixed row extent, and
 auto-scrolls the selected component to centre when the drawer (re)opens.
 
+**2026-07-18 — Skeleton (#31) built ahead of Label (#30).** Label hasn't
+started yet, but this component was built directly at the user's explicit,
+repeated request during brainstorming — a documented one-time reorder per
+the standing convention (`NIB_COMPONENTS_MASTER_PROMPT.md` §8.5), not a
+silent skip. Label (#30) is still next in the build-order queue after this
+component's visual confirmation lands.
+
 ## Known gaps (deferred, not silently dropped)
 
 | Component | Gap | Notes |
@@ -126,6 +133,8 @@ auto-scrolls the selected component to centre when the drawer (re)opens.
 | Alert | **Spacing pass (2026-07-18, user-reported from a screenshot):** default `actionsSpacing` 8→12, icon→title gap 8→14, title→description gap 6→8 | First-pass theory (focus-ring paint bleed from `NibDialog`'s auto-focused first action) turned out to be secondary to the width mismatch (see the row below) but *was* real — see the permanent-focus-ring row further down, which fixes it properly. The wider gaps are still a real improvement (more breathing room around the icon and between actions) and were kept. |
 | Alert | **Actual root cause + fix (2026-07-18, user-reported again — "the outline button is bigger than the filled button"):** `NibButton` is content-sized by default (`width: null`) — two different-length labels (`"Cancel"` vs `"Delete"`) simply measure to different intrinsic widths, no bug in either component. Added escape hatches instead of forcing equal sizing by default (which would be a `NibButton`-level change, out of scope, and content-sized is `NibButton`'s own deliberate default everywhere else): `cancelVariant`/`confirmVariant` (`NibButtonVariant`, default `outline`/auto primary-or-destructive), `buttonPadding` (`EdgeInsetsGeometry?`, passed to both actions), `buttonWidth` (`double?`, the direct fix — forces both to an identical width regardless of label length), `cancelFirst` (`bool = true`, left-to-right order) | User asked specifically: expose padding, let the caller choose each button's variant, and let the caller choose which side Confirm/Cancel sits on. All four apply to the default Cancel/OK pair in both Material and Cupertino (`adaptive: true`) presentations — `buttonPadding`/`cancelFirst` work identically on the Cupertino divided-row buttons (which have no width/variant concept, so those two don't apply there). `example/`'s "Delete file" trigger now sets `buttonWidth: 110` to fix exactly the reported screenshot; the advanced example adds a "matched variants, confirm on the left" trigger exercising all four params together. 7 new tests (5 Material, 2 Cupertino). |
 | Alert | **Third round, same underlying bug (2026-07-18, user-reported again — "there is a border that is permanently on the cancel button... even after changing the variant to ghost"):** confirmed this was the focus-ring theory from two rows up, not a variant/border issue at all — `showNibDialog`'s `FocusScope(autofocus: true)` auto-focuses the *first focusable descendant* on open, which is always Cancel (or Confirm, if `cancelFirst: false`); `NibButton`'s focus ring is unconditional on `_focused && _interactive`, independent of `variant`, so it painted regardless of which variant the user picked. Fixed with a private `_noAutofocusSink` — a bare `const Focus(autofocus: true, child: SizedBox.shrink())` mounted first in the dialog body — that absorbs the scope's autofocus instead of Cancel/Confirm. It deliberately never releases focus afterward: since it paints nothing, a focused sink is visually identical to an unfocused one, so there's no need to relinquish it (an earlier attempt tried to `unfocus()` it one frame later via `addPostFrameCallback`, but Flutter resolves pending autofocus via `scheduleMicrotask`, which runs *after* `addPostFrameCallback`s of the same frame — so the reset fired too early and the scope re-focused the sink moments later anyway; verified via a throwaway debug test dumping `FocusManager.instance.primaryFocus?.debugLabel` across several `pump()`s before finding the right fix) | Costs one extra, invisible stop at the very start of Tab traversal — real actions remain fully reachable by Tab/Shift+Tab immediately after. Neither `NibDialog`'s autofocus behavior nor `NibButton`'s ring were touched (both are deliberate, tested, used everywhere else) — this is purely an Alert-local fix. 3 new tests confirm no `NibButton` (Material) / no highlighted `ColoredBox` (Cupertino) is focused immediately after open, and that the first Tab press still reaches Cancel normally. |
+| Skeleton | `Positioned`/`AspectRatio`/`IntrinsicHeight`/`IntrinsicWidth`/`Material`/`InkWell` get a flat fallback bone box in v1 rather than structural pass-through | Each would need the same per-field reconstruction effort as `Row`/`Flex` for comparatively rare real-world payoff; a `Positioned` child inside a shaded `Stack` loses its exact position (renders as a plain, unpositioned `Stack` child) rather than crashing. See `docs/superpowers/specs/2026-07-18-skeleton-design.md`'s Known gaps section. |
+| Skeleton | `RawImage`/`FadeInImage` fall to the generic fallback box rather than `Image`'s dedicated leaf treatment | Same reasoning — `Image` covers the common case; the rarer variants are a small, isolated follow-up if they turn out to matter in practice. |
 
 | # | Component | Status | Date |
 |---|---|---|---|
@@ -178,7 +187,7 @@ auto-scrolls the selected component to centre when the drawer (re)opens.
 
 | # | Component | Status | Date |
 |---|---|---|---|
-| 31 | Skeleton | not started | |
+| 31 | Skeleton | built — awaiting visual confirm | 2026-07-18 |
 | 32 | Progress — Circular | not started | |
 | 33 | Progress — Linear | not started | |
 | 34 | Avatar | not started | |

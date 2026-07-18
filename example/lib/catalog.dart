@@ -28,6 +28,7 @@ import 'examples/popover_examples.dart';
 import 'examples/radio_group_examples.dart';
 import 'examples/resizable_panels_examples.dart';
 import 'examples/select_examples.dart';
+import 'examples/skeleton_examples.dart';
 import 'examples/slider_examples.dart';
 import 'examples/switch_examples.dart';
 import 'examples/tabs_examples.dart';
@@ -535,5 +536,17 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Alert — advanced (adaptive iOS/Android, custom actions)',
     builder: (context) => const AlertAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Skeleton — minimal (auto-shaded Text lines)',
+    builder: (context) => const SkeletonMinimalExample(),
+  ),
+  CatalogEntry(
+    name: 'Skeleton — common (auto-detected profile card, animated)',
+    builder: (context) => const SkeletonCommonExample(),
+  ),
+  CatalogEntry(
+    name: 'Skeleton — advanced (bone/ignore overrides, custom colours)',
+    builder: (context) => const SkeletonAdvancedExample(),
   ),
 ];
