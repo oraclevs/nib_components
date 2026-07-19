@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:nib_motion/nib_motion.dart'
-    show NibAnim, NibMotion, NibPresence, NibShimmer, NibTransition;
+    show NibAnim, NibMotion, NibPresence, NibTransition;
 
 import '../theme/nib_theme.dart';
 import 'nib_skeleton_shade.dart';
@@ -70,7 +70,7 @@ class NibSkeleton extends StatelessWidget {
   NibTransition get _transition =>
       transition ?? const NibTransition(duration: Duration(milliseconds: 220));
 
-  NibSkeletonPalette _palette(BuildContext context) {
+  NibSkeletonPalette _palette(BuildContext context, {required bool shimmer}) {
     final theme = NibTheme.of(context);
     final resolvedBase = baseColor ?? theme.muted;
     final resolvedShimmer =
@@ -83,6 +83,7 @@ class NibSkeleton extends StatelessWidget {
       fallbackWidth: fallbackWidth,
       fallbackHeight: fallbackHeight,
       boxRadius: borderRadius,
+      shimmerEnabled: shimmer,
     );
   }
 
@@ -91,19 +92,17 @@ class NibSkeleton extends StatelessWidget {
     if (!animated) {
       if (!loading) return child;
       return IgnorePointer(
-        child: shadeWidget(context, child, _palette(context)),
+        child: shadeWidget(context, child, _palette(context, shimmer: false)),
       );
     }
 
-    final palette = _palette(context);
-    final bone = IgnorePointer(
-      child: NibShimmer(
-        enabled: true,
-        baseColor: palette.baseColor,
-        shimmerColor: palette.shimmerColor,
-        child: shadeWidget(context, child, palette),
-      ),
-    );
+    // Shimmer is applied per bone box (inside buildBoneBox), not once around
+    // the whole shaded tree — NibShimmer paints its shader as a single solid
+    // rectangle across its entire bounding box, so wrapping the assembled
+    // multi-shape tree in one NibShimmer would flatten every distinct bone
+    // into one undifferentiated rectangle.
+    final palette = _palette(context, shimmer: true);
+    final bone = IgnorePointer(child: shadeWidget(context, child, palette));
 
     return NibPresence(
       children: [

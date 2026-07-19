@@ -53,6 +53,28 @@ void main() {
       expect(find.byType(NibPresence), findsOneWidget);
     });
 
+    testWidgets(
+        'animated: true gives each bone box its own NibShimmer, not one around the whole tree '
+        '(regression for the "flattens into one rectangle" bug)', (tester) async {
+      await tester.pumpWidget(_wrap(
+        const NibSkeleton(
+          loading: true,
+          animated: true,
+          child: Row(
+            children: [
+              CircleAvatar(radius: 20),
+              Text('Name'),
+              Text('Subtitle'),
+            ],
+          ),
+        ),
+      ));
+      // 3 leaves (CircleAvatar + 2 Text) -> 3 independent bone boxes, each
+      // with its own NibShimmer.
+      expect(find.byType(NibShimmer), findsNWidgets(3));
+      expect(find.byType(DecoratedBox), findsNWidgets(3));
+    });
+
     testWidgets('animated: true still uses NibPresence when not loading', (tester) async {
       await tester.pumpWidget(_wrap(
         const NibSkeleton(loading: false, animated: true, child: Text('x')),

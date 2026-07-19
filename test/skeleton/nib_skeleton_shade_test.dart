@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
 import 'package:nib_components/src/skeleton/nib_skeleton_shade.dart';
+import 'package:nib_motion/nib_motion.dart' show NibShimmer;
 
 const _palette = NibSkeletonPalette(
   baseColor: Color(0xFFE0E0E0),
@@ -13,6 +14,17 @@ const _palette = NibSkeletonPalette(
   fallbackWidth: 80,
   fallbackHeight: 16,
   boxRadius: null,
+);
+
+const _shimmerPalette = NibSkeletonPalette(
+  baseColor: Color(0xFFE0E0E0),
+  shimmerColor: Color(0xFFF0F0F0),
+  radiusSm: 4,
+  radiusDefault: 8,
+  fallbackWidth: 80,
+  fallbackHeight: 16,
+  boxRadius: null,
+  shimmerEnabled: true,
 );
 
 class _CustomStateful extends StatefulWidget {
@@ -53,12 +65,16 @@ class _ThrowsOnBuild extends StatelessWidget {
   Widget build(BuildContext context) => throw StateError('no ambient dependency');
 }
 
-Future<void> _pumpShaded(WidgetTester tester, Widget node) async {
+Future<void> _pumpShaded(
+  WidgetTester tester,
+  Widget node, {
+  NibSkeletonPalette palette = _palette,
+}) async {
   late Widget result;
   await tester.pumpWidget(MaterialApp(
     debugShowCheckedModeBanner: false,
     home: Builder(builder: (context) {
-      result = shadeWidget(context, node, _palette);
+      result = shadeWidget(context, node, palette);
       return const SizedBox();
     }),
   ));
@@ -304,5 +320,35 @@ void main() {
     expect(sizedBox.width, _palette.fallbackWidth);
     expect(sizedBox.height, _palette.fallbackHeight);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+      'shimmerEnabled wraps each individual bone box, not the whole composed tree '
+      '(regression: NibShimmer paints one solid rect over its entire bounding box, so '
+      'wrapping the assembled tree once flattens every shape into a single rectangle)',
+      (tester) async {
+    await _pumpShaded(
+      tester,
+      const Row(
+        children: [
+          CircleAvatar(radius: 20),
+          Text('Name'),
+          Text('Subtitle'),
+        ],
+      ),
+      palette: _shimmerPalette,
+    );
+    // 3 leaves (CircleAvatar + 2 Text) -> 3 independent bone boxes, each with
+    // its own NibShimmer — not one NibShimmer wrapping the whole Row.
+    expect(find.byType(NibShimmer), findsNWidgets(3));
+    expect(find.byType(DecoratedBox), findsNWidgets(3));
+  });
+
+  testWidgets('shimmerEnabled: false (default) builds zero NibShimmer widgets', (tester) async {
+    await _pumpShaded(
+      tester,
+      const Row(children: [CircleAvatar(radius: 20), Text('Name')]),
+    );
+    expect(find.byType(NibShimmer), findsNothing);
   });
 }

@@ -72,8 +72,16 @@ NibSkeleton({
   bone/real tree, zero `NibMotion`/`NibShimmer`/`NibPresence` widgets built.
   Matches the master prompt §7 row 31 contract ("default off → static
   pulse-free placeholder").
-- `animated: true` → bone tree wrapped in `NibShimmer(enabled: true,
-  baseColor:, shimmerColor:)`; swap between bone/real tree goes through
+- `animated: true` → **each individual bone box** (not the assembled tree as
+  a whole) wrapped in its own `NibShimmer(enabled: true, baseColor:,
+  shimmerColor:)`, clipped to that bone's own shape (`ClipOval` for circles,
+  `ClipRRect` for rectangles). This is deliberate, not incidental: `NibShimmer`
+  paints its shader as a single solid rectangle across its *entire* bounding
+  box, with no awareness of what shape is underneath — wrapping the whole
+  shaded tree in one `NibShimmer` flattens every distinct bone shape into one
+  undifferentiated rectangle (caught via user visual confirmation after the
+  first implementation; no widget-tree test had covered actual paint output).
+  Swap between bone/real tree goes through
   `NibPresence` with each side keyed and wrapped in `NibMotion(initial:
   NibAnim(opacity: 0), animate: NibAnim(opacity: 1), exit: NibAnim(opacity:
   0), transition: transition ?? const NibTransition(duration: Duration(milliseconds: 220)))`
@@ -235,8 +243,10 @@ and inspect a full render tree for every case:
   or a spy that the shader function is never invoked.
 - `animated: false`: `find.byType(NibMotion), findsNothing` and
   `find.byType(NibShimmer), findsNothing`, both while `loading` and while not.
-- `animated: true`: bone tree is wrapped in exactly one `NibShimmer` while
-  `loading`; toggling `loading` drives a `NibPresence`-keyed swap (both old
+- `animated: true`: **each individual bone box gets its own `NibShimmer`** —
+  a multi-leaf child produces one `NibShimmer` per leaf, not one wrapping the
+  whole tree (the regression test for the bug described above); toggling
+  `loading` drives a `NibPresence`-keyed swap (both old
   and new sides transiently present with the expected `NibMotion`
   `initial`/`animate`/`exit` opacity values).
 - Default `baseColor`/`shimmerColor` resolve from `NibTheme.of(context)` (no

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' show CircleAvatar, SelectableText;
 import 'package:flutter/widgets.dart';
+import 'package:nib_motion/nib_motion.dart' show NibShimmer;
 
 import 'nib_skeleton_types.dart';
 
@@ -15,6 +16,7 @@ class NibSkeletonPalette {
     required this.fallbackWidth,
     required this.fallbackHeight,
     required this.boxRadius,
+    this.shimmerEnabled = false,
   });
 
   final Color baseColor;
@@ -28,11 +30,23 @@ class NibSkeletonPalette {
   /// "use [radiusDefault]" — text-line and circle bones ignore this
   /// entirely (they have their own fixed rule).
   final BorderRadius? boxRadius;
+
+  /// Whether [buildBoneBox] wraps each bone it builds in its own
+  /// [NibShimmer], clipped to that bone's own shape. `false` (default)
+  /// builds zero `NibShimmer` widgets.
+  ///
+  /// Deliberately per-box, not once around the whole shaded tree: `NibShimmer`
+  /// paints its shader as a single solid rectangle across its *entire*
+  /// bounding box, with no awareness of what shape is actually underneath —
+  /// wrapping an assembled multi-shape tree in one `NibShimmer` flattens
+  /// every distinct bone into one undifferentiated rectangle.
+  final bool shimmerEnabled;
 }
 
 /// Builds one bone placeholder box: a coloured, optionally-circular
 /// rectangle sized from [width]/[height] (falling back to
-/// [NibSkeletonPalette.fallbackWidth]/[fallbackHeight] when unset).
+/// [NibSkeletonPalette.fallbackWidth]/[fallbackHeight] when unset). Wrapped
+/// in its own clipped [NibShimmer] when [NibSkeletonPalette.shimmerEnabled].
 Widget buildBoneBox({
   required NibSkeletonPalette palette,
   double? width,
@@ -41,18 +55,34 @@ Widget buildBoneBox({
   BorderRadius? radius,
 }) {
   final isCircle = shape == NibSkeletonShape.circle;
+  final resolvedRadius = isCircle
+      ? null
+      : (radius ?? palette.boxRadius ?? BorderRadius.circular(palette.radiusDefault));
+  final box = DecoratedBox(
+    decoration: BoxDecoration(
+      color: palette.baseColor,
+      shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
+      borderRadius: resolvedRadius,
+    ),
+  );
+
+  Widget content = box;
+  if (palette.shimmerEnabled) {
+    final shimmer = NibShimmer(
+      enabled: true,
+      baseColor: palette.baseColor,
+      shimmerColor: palette.shimmerColor,
+      child: box,
+    );
+    content = isCircle
+        ? ClipOval(child: shimmer)
+        : ClipRRect(borderRadius: resolvedRadius ?? BorderRadius.zero, child: shimmer);
+  }
+
   return SizedBox(
     width: width ?? palette.fallbackWidth,
     height: height ?? palette.fallbackHeight,
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.baseColor,
-        shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
-        borderRadius: isCircle
-            ? null
-            : (radius ?? palette.boxRadius ?? BorderRadius.circular(palette.radiusDefault)),
-      ),
-    ),
+    child: content,
   );
 }
 
