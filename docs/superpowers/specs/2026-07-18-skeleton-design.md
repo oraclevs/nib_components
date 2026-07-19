@@ -60,8 +60,16 @@ NibSkeleton({
   double fallbackWidth = 80,
   double fallbackHeight = 16,
   BorderRadius? borderRadius,
+  double boneSpacing = 0,
 })
 ```
+
+`boneSpacing` (added post-launch, user-requested): extra gap inserted between
+each pair of consecutive children in a shaded `Row`/`Column`/`Flex`, on top
+of whatever real spacing the author's own layout already has (a real
+`SizedBox`/`Padding` spacer is always preserved as-is regardless of this
+value). `0` (default) adds none — the bone tree mirrors the real layout's
+spacing exactly, no more, no less.
 
 - `loading: false` → returns `child` untouched. No traversal, no bone
   computation, zero overhead — this is the hot path for the common case
@@ -122,7 +130,8 @@ directly off properties already present on the widget instance:
 | `Icon` | Square bone box sized to `size` (default 24 if unset). Radius = `NibTheme.radiusSm`. |
 | `CircleAvatar` | Perfect circle, diameter from `radius * 2` (falling back to `minRadius`/`maxRadius` if `radius` is unset, then a 40px default). Always circular — `borderRadius` param does not apply here. |
 | `Image` (bare, no `RawImage`/`FadeInImage` in v1 — see Known gaps) | Rectangle bone sized from `width`/`height` if both set, else `fallbackWidth`/`fallbackHeight`. Uses the `NibSkeleton.borderRadius` default (a `ClipRRect`/`DecoratedBox` ancestor, if any, is a separate node handled by its own bucket). |
-| `Container` / `DecoratedBox` / `ColoredBox` / `SizedBox` **with no `child`** | Rectangle bone. `Container` sizes from its `constraints` when tight (`hasTightWidth`/`hasTightHeight`), else `fallbackWidth`/`fallbackHeight`; its `BoxDecoration.shape`/`borderRadius` is read and preserved exactly (a circular `Container` bones as a circle). `DecoratedBox`/`ColoredBox` have no intrinsic size field at all when childless, so they always use `fallbackWidth`/`fallbackHeight`. |
+| `Container` / `DecoratedBox` / `ColoredBox` **with no `child`** | Rectangle bone. `Container` sizes from its `constraints` when tight (`hasTightWidth`/`hasTightHeight`), else `fallbackWidth`/`fallbackHeight`; its `BoxDecoration.shape`/`borderRadius` is read and preserved exactly (a circular `Container` bones as a circle). `DecoratedBox`/`ColoredBox` have no intrinsic size field at all when childless, so they always use `fallbackWidth`/`fallbackHeight`. |
+| `SizedBox` **with no `child` and *both* `width`/`height` set** | Rectangle bone sized to match — this is the "bare `SizedBox` as an image/avatar placeholder" idiom. A childless `SizedBox` with only *one* dimension set (`SizedBox(width: 12)`) is the idiomatic Flutter spacer, not content, and is returned unchanged (invisible) rather than boned — see "Known gaps" for why this needed a fix after the first visual pass. |
 
 ### 2. Structural types → pass through unchanged, recurse into children
 
@@ -256,6 +265,33 @@ and inspect a full render tree for every case:
 
 ## Known gaps to flag if they surface during implementation
 
+- **Every `nib_components` widget (`NibCard`, `NibButton`, etc.) is a
+  `StatefulWidget`** per this library's own stateful-by-default convention —
+  meaning none of them qualify for bucket-3 auto-expand (which only handles
+  `StatelessWidget`, since expanding `StatefulWidget` safely would need a
+  mounted `State`). Wrapping a real `NibCard`/`NibButton` composition in
+  `NibSkeleton` currently bones the *entire* `NibCard` as one flat fallback
+  box, losing its internal header/padding/child structure entirely — not
+  just the interactive button inside it. This is the single biggest practical
+  limitation of the v1 detector for real Nib-built UI, as opposed to
+  plain-Flutter-widget compositions (which it handles well). If this proves
+  too limiting in practice, the fix is giving Nib's own common components
+  (starting with `NibCard`, `NibButton`) explicit leaf/structural treatment
+  the same way `CircleAvatar`/`Container` already get, rather than relying on
+  generic `StatelessWidget` auto-expand — a separate, scoped follow-up, not
+  done here pending real-world evidence of how much it matters.
+- Two visual bugs only surfaced once actually rendered, not from the widget
+  tests: (1) `NibShimmer` was originally wrapped once around the whole shaded
+  tree — it paints its shader as one solid rectangle over its entire
+  bounding box, so this flattened every distinct bone shape into one
+  undifferentiated rectangle; fixed by moving the wrap into `buildBoneBox`
+  (one `NibShimmer` + shape clip per bone). (2) a childless single-axis
+  `SizedBox` spacer (`SizedBox(width: 12)`) was being boned into a small
+  filled connector block, visually merging the two elements it was meant to
+  separate; fixed by only boning a childless `SizedBox` when *both*
+  dimensions are set. Both are a concrete argument for the project's
+  "visual confirmation gate" convention — pure widget-tree tests verify
+  structure, not what the shapes actually look like painted.
 - `Positioned` (inside a `Stack`), `AspectRatio`, `IntrinsicHeight`,
   `IntrinsicWidth`, `Material`, and `InkWell` get bucket-4's flat fallback
   box in v1 rather than a structural pass-through — each would need the same
