@@ -156,3 +156,94 @@ class _SkeletonAdvancedExampleState extends State<SkeletonAdvancedExample> {
     );
   }
 }
+
+/// A real-world composite — a Nib `NibCard` with a header (avatar + name +
+/// title), a body paragraph, and a footer with two `NibButton`s.
+///
+/// `NibCard`/`NibButton` are themselves `StatefulWidget`s (this library's own
+/// stateful-by-default convention), so — unlike `_ProfileHeader` above, which
+/// is a plain `StatelessWidget` composition NibSkeleton sees straight
+/// through — they don't auto-expand: each bones to a single flat placeholder
+/// box instead of revealing its internal header/body/footer/button
+/// structure. This is a known, documented v1 boundary (see
+/// docs/superpowers/specs/2026-07-18-skeleton-design.md's Known gaps), and
+/// this demo exists specifically to make it visible.
+class _ProfileCard extends StatelessWidget {
+  const _ProfileCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return NibCard(
+      header: const Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CircleAvatar(radius: 24, child: Icon(Icons.person)),
+          SizedBox(width: 12),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Grace Hopper', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text('Rear Admiral, US Navy'),
+              ],
+            ),
+          ),
+        ],
+      ),
+      footer: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          NibButton(
+            label: 'Message',
+            variant: NibButtonVariant.outline,
+            onPressed: () {},
+          ),
+          const SizedBox(width: 8),
+          NibButton(label: 'Follow', onPressed: () {}),
+        ],
+      ),
+      child: const Text(
+        'Pioneering computer scientist — invented the first compiler and '
+        'popularized the idea of machine-independent programming languages.',
+      ),
+    );
+  }
+}
+
+/// 4. Card — real-world stress test: a Nib `NibCard` (header/body/footer)
+/// containing an avatar, name/title/bio text, and two `NibButton`s.
+class SkeletonCardExample extends StatefulWidget {
+  const SkeletonCardExample({super.key});
+
+  @override
+  State<SkeletonCardExample> createState() => _SkeletonCardExampleState();
+}
+
+class _SkeletonCardExampleState extends State<SkeletonCardExample> {
+  bool _loading = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: 320,
+          child: NibSkeleton(
+            loading: _loading,
+            animated: true,
+            boneSpacing: 8,
+            child: const _ProfileCard(),
+          ),
+        ),
+        const SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: () => setState(() => _loading = !_loading),
+          child: Text(_loading ? 'Finish loading' : 'Start loading'),
+        ),
+      ],
+    );
+  }
+}
