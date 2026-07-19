@@ -171,4 +171,42 @@ void main() {
     expect(commands.where((c) => c.kind == BonePaintKind.decoration), hasLength(1));
     expect(commands.where((c) => c.kind == BonePaintKind.bone), hasLength(2));
   });
+
+  testWidgets("NibSkeletonRenderMount lays out to exactly its real child's size, no crash",
+      (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Center(
+        child: NibSkeletonRenderMount(
+          palette: _palette,
+          child: const _StatefulLeaf(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [CircleAvatar(radius: 20), Text('Name')],
+            ),
+          ),
+        ),
+      ),
+    ));
+    expect(tester.takeException(), isNull);
+    final mountSize = tester.getSize(find.byType(NibSkeletonRenderMount));
+    final realSize = tester.getSize(find.byType(Row));
+    expect(mountSize, realSize);
+  });
+
+  testWidgets('NibSkeletonRenderMount survives a rebuild with a different child (update, not just mount)',
+      (tester) async {
+    Widget host(String label) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: Center(
+            child: NibSkeletonRenderMount(
+              palette: _palette,
+              child: _StatefulLeaf(child: Text(label)),
+            ),
+          ),
+        );
+    await tester.pumpWidget(host('first'));
+    await tester.pumpWidget(host('second'));
+    expect(tester.takeException(), isNull);
+  });
 }
