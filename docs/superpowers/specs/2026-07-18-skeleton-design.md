@@ -265,21 +265,22 @@ and inspect a full render tree for every case:
 
 ## Known gaps to flag if they surface during implementation
 
-- **Every `nib_components` widget (`NibCard`, `NibButton`, etc.) is a
-  `StatefulWidget`** per this library's own stateful-by-default convention —
-  meaning none of them qualify for bucket-3 auto-expand (which only handles
-  `StatelessWidget`, since expanding `StatefulWidget` safely would need a
-  mounted `State`). Wrapping a real `NibCard`/`NibButton` composition in
-  `NibSkeleton` currently bones the *entire* `NibCard` as one flat fallback
-  box, losing its internal header/padding/child structure entirely — not
-  just the interactive button inside it. This is the single biggest practical
+- **[Resolved 2026-07-19 — differently than sketched here:** rather than
+  per-component leaf/structural treatment, bucket 4 now routes any
+  `StatefulWidget` through a render-mount engine (`NibSkeletonRenderMount`)
+  that mounts the real subtree normally and substitutes bone boxes only at
+  paint time — see `2026-07-19-skeleton-render-mount.md` and the
+  offsets/chrome/shimmer follow-up spec.**]** ~~Every `nib_components`
+  widget (`NibCard`, `NibButton`, etc.) is a `StatefulWidget`~~ per this
+  library's own stateful-by-default convention — meaning none of them
+  qualify for bucket-3 auto-expand (which only handles `StatelessWidget`,
+  since expanding `StatefulWidget` safely would need a mounted `State`).
+  Wrapping a real `NibCard`/`NibButton` composition in `NibSkeleton`
+  previously boned the *entire* `NibCard` as one flat fallback box, losing
+  its internal header/padding/child structure entirely — not just the
+  interactive button inside it. This was the single biggest practical
   limitation of the v1 detector for real Nib-built UI, as opposed to
-  plain-Flutter-widget compositions (which it handles well). If this proves
-  too limiting in practice, the fix is giving Nib's own common components
-  (starting with `NibCard`, `NibButton`) explicit leaf/structural treatment
-  the same way `CircleAvatar`/`Container` already get, rather than relying on
-  generic `StatelessWidget` auto-expand — a separate, scoped follow-up, not
-  done here pending real-world evidence of how much it matters.
+  plain-Flutter-widget compositions (which it handles well).
 - Two visual bugs only surfaced once actually rendered, not from the widget
   tests: (1) `NibShimmer` was originally wrapped once around the whole shaded
   tree — it paints its shader as one solid rectangle over its entire

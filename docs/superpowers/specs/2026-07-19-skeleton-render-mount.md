@@ -173,7 +173,32 @@ step (see "Testing" below for why):
    concept set by the actual render parent, which Flutter always resolves
    past `ComponentElement`s to the nearest real one), then recurse.
 
+   **[Superseded 2026-07-19:** the parenthetical claim above was wrong — and
+   was the cause of the "missing `NibButton` backdrop" symptom. Because
+   `Element.renderObject` resolves to the nearest *descendant* render object,
+   per-hop accumulation re-adds the same box's `parentData.offset` once per
+   `ComponentElement` in a chain (e.g. `CircleAvatar → AnimatedContainer →
+   Container → ConstrainedBox`, all resolving to one `RenderConstrainedBox`,
+   added its offset four times; the example card's Follow button chrome
+   landed at x=357 inside a 320px-wide card). Command rects are now derived
+   from `RenderBox.getTransformTo` against the walked root's render box —
+   no offset threading at all. See
+   `2026-07-19-skeleton-mount-offsets-chrome-shimmer-design.md`, Fix A.**]**
+
 ### Known gap: `Material`/`PhysicalShape` chrome isn't preserved in v1
+
+**[Closed — and partly misdiagnosed — 2026-07-19; see
+`2026-07-19-skeleton-mount-offsets-chrome-shimmer-design.md`.** The
+description below blamed unpreserved `Material` chrome for the missing
+`NibButton` backdrop, but `NibButton`'s (and `NibCard`'s) fill is a plain
+`DecoratedBox` — their `Material` is `type: transparency` and paints
+nothing — so step 4 already covered them; the backdrop was painted at a
+wrong, off-card position by the step-6 offset bug (see the superseded note
+above). `PhysicalShape`/`PhysicalModel` chrome *was* a real gap for **stock
+Material** widgets (`ElevatedButton`/`Card` route their fill through
+`Material → _MaterialInterior → PhysicalShape`), and the follow-up now
+preserves it as `ShapeDecoration`/`BoxDecoration` paint (no synthesized
+elevation shadows — bones are flat).**]**
 
 Step 4's chrome-preserving list only covers `DecoratedBox`/`ColoredBox` — the
 primitives a plain `Container` decomposes into. `NibButton`'s own pill-shaped
@@ -217,6 +242,13 @@ continue to work exactly as already shipped. This engine is purely what
 `buildBoneBox`'s shimmer/`ClipOval`/`ClipRRect` wrapping still applies to
 this engine's *output* the same way it wraps every other bone box, since
 `NibSkeletonRenderMount` is just another `Widget` bucket 4 returns.
+
+**[Corrected 2026-07-19:** the last sentence overstated it — bucket 4 never
+wrapped the mount in `buildBoneBox`, so mounted bones were static
+regardless of `animated` (this was "Gap 2"). Shimmer on mounted bones now
+comes from `NibSkeletonMountShimmerDriver` + per-bone clipped shader draws
+inside `RenderNibSkeletonMount.paint` — see
+`2026-07-19-skeleton-mount-offsets-chrome-shimmer-design.md`, Fix C.**]**
 
 ## Known gaps (beyond the Material/PhysicalShape one above)
 
