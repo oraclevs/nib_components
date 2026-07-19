@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' show CircleAvatar, SelectableText;
 import 'package:flutter/widgets.dart';
 import 'package:nib_motion/nib_motion.dart' show NibShimmer;
 
+import 'nib_skeleton_render_mount.dart';
 import 'nib_skeleton_types.dart';
 
 /// Resolved bone-fill colours, theme radii, and fallback sizing for one
@@ -385,8 +386,11 @@ Widget? shadeStructural(BuildContext context, Widget node, NibSkeletonPalette pa
 /// Dispatch order: [NibSkeletonIgnore]/[NibSkeletonBone] (explicit author
 /// overrides, always win) → [shadeLeaf] → [shadeStructural] → auto-expand
 /// any other `StatelessWidget` by calling its own `build(context)` and
-/// recursing into the result (Task 5) → a flat fallback bone box for
-/// anything else (a `StatefulWidget`, a custom-painted widget, or a
+/// recursing into the result → route a `StatefulWidget` through
+/// [NibSkeletonRenderMount] (mounts it for real — correct lifecycle — and
+/// substitutes bone boxes only at paint time, via `computeBonePaintCommands`;
+/// see `docs/superpowers/specs/2026-07-19-skeleton-render-mount.md`) → a flat
+/// fallback bone box for anything else (a custom-painted widget, or a
 /// `build()` call that threw).
 Widget shadeWidget(BuildContext context, Widget node, NibSkeletonPalette palette) {
   if (node is NibSkeletonIgnore) {
@@ -419,6 +423,10 @@ Widget shadeWidget(BuildContext context, Widget node, NibSkeletonPalette palette
     } catch (_) {
       return buildBoneBox(palette: palette);
     }
+  }
+
+  if (node is StatefulWidget) {
+    return NibSkeletonRenderMount(palette: palette, child: node);
   }
 
   return buildBoneBox(palette: palette);

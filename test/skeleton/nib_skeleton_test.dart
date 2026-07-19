@@ -118,7 +118,7 @@ void main() {
           ),
         ),
       ));
-      await tester.tap(find.byType(DecoratedBox).first, warnIfMissed: false);
+      await tester.tap(find.byType(IgnorePointer).first, warnIfMissed: false);
       expect(tapped, isFalse);
     });
 

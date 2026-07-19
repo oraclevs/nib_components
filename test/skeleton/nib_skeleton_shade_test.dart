@@ -3,6 +3,7 @@ import 'dart:typed_data' show Uint8List;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
+import 'package:nib_components/src/skeleton/nib_skeleton_render_mount.dart';
 import 'package:nib_components/src/skeleton/nib_skeleton_shade.dart';
 import 'package:nib_motion/nib_motion.dart' show NibShimmer;
 
@@ -93,12 +94,14 @@ Future<void> _pumpShaded(
 }
 
 void main() {
-  testWidgets('unrecognized StatefulWidget becomes a fallback bone box', (tester) async {
+  testWidgets(
+      'a StatefulWidget is walked through by the render-mount engine, not flattened '
+      'into a generic fallback box', (tester) async {
     await _pumpShaded(tester, const _CustomStateful());
-    final box = tester.widget<SizedBox>(find.byType(SizedBox).first);
-    expect(box.width, 80);
-    expect(box.height, 16);
-    expect(find.text('stateful content'), findsNothing);
+    expect(find.byType(NibSkeletonRenderMount), findsOneWidget);
+    // The real Text is genuinely mounted (real lifecycle) — just not painted.
+    expect(find.text('stateful content'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('NibSkeletonBone overrides detection with its explicit shape', (tester) async {
