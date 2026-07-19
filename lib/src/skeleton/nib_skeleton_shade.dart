@@ -17,6 +17,7 @@ class NibSkeletonPalette {
     required this.fallbackHeight,
     required this.boxRadius,
     this.shimmerEnabled = false,
+    this.boneSpacing = 0,
   });
 
   final Color baseColor;
@@ -41,6 +42,12 @@ class NibSkeletonPalette {
   /// wrapping an assembled multi-shape tree in one `NibShimmer` flattens
   /// every distinct bone into one undifferentiated rectangle.
   final bool shimmerEnabled;
+
+  /// Extra gap inserted between each pair of consecutive children in a
+  /// shaded `Row`/`Column`/`Flex`, on top of whatever real spacing the
+  /// author's own layout already has. `0` (default) adds none — the bone
+  /// tree mirrors the real layout's spacing exactly.
+  final double boneSpacing;
 }
 
 /// Builds one bone placeholder box: a coloured, optionally-circular
@@ -221,7 +228,16 @@ Widget? shadeLeaf(BuildContext context, Widget node, NibSkeletonPalette palette)
     return buildBoneBox(palette: palette);
   }
   if (node is SizedBox && node.child == null) {
-    return buildBoneBox(palette: palette, width: node.width, height: node.height);
+    // Only a fully-sized childless SizedBox (both width and height set —
+    // e.g. an image/avatar placeholder authored as a bare SizedBox) becomes
+    // a visible bone. A single-axis SizedBox (SizedBox(width: 12)) is the
+    // idiomatic Flutter spacer, not content — boning it would paint a small
+    // connector block that visually merges the two bones it was meant to
+    // separate, so it's returned unchanged (invisible) instead.
+    if (node.width != null && node.height != null) {
+      return buildBoneBox(palette: palette, width: node.width, height: node.height);
+    }
+    return node;
   }
   return null;
 }
@@ -233,6 +249,19 @@ Widget? shadeStructural(BuildContext context, Widget node, NibSkeletonPalette pa
   Widget rec(Widget child) => shadeWidget(context, child, palette);
   Widget? recOrNull(Widget? child) => child == null ? null : rec(child);
   List<Widget> recAll(List<Widget> children) => children.map(rec).toList(growable: false);
+  List<Widget> recAllSpaced(List<Widget> children, Axis axis) {
+    final shaded = recAll(children);
+    if (palette.boneSpacing <= 0 || shaded.length < 2) return shaded;
+    final gap = axis == Axis.horizontal
+        ? SizedBox(width: palette.boneSpacing)
+        : SizedBox(height: palette.boneSpacing);
+    final spaced = <Widget>[];
+    for (var i = 0; i < shaded.length; i++) {
+      if (i > 0) spaced.add(gap);
+      spaced.add(shaded[i]);
+    }
+    return spaced;
+  }
 
   if (node is Padding) {
     return Padding(padding: node.padding, child: recOrNull(node.child));
@@ -266,7 +295,7 @@ Widget? shadeStructural(BuildContext context, Widget node, NibSkeletonPalette pa
       textDirection: node.textDirection,
       verticalDirection: node.verticalDirection,
       textBaseline: node.textBaseline,
-      children: recAll(node.children),
+      children: recAllSpaced(node.children, Axis.horizontal),
     );
   }
   if (node is Column) {
@@ -277,7 +306,7 @@ Widget? shadeStructural(BuildContext context, Widget node, NibSkeletonPalette pa
       textDirection: node.textDirection,
       verticalDirection: node.verticalDirection,
       textBaseline: node.textBaseline,
-      children: recAll(node.children),
+      children: recAllSpaced(node.children, Axis.vertical),
     );
   }
   if (node is Flex) {
@@ -290,7 +319,7 @@ Widget? shadeStructural(BuildContext context, Widget node, NibSkeletonPalette pa
       verticalDirection: node.verticalDirection,
       textBaseline: node.textBaseline,
       clipBehavior: node.clipBehavior,
-      children: recAll(node.children),
+      children: recAllSpaced(node.children, node.direction),
     );
   }
   if (node is Stack) {

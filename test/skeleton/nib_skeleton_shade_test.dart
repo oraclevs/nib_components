@@ -27,6 +27,17 @@ const _shimmerPalette = NibSkeletonPalette(
   shimmerEnabled: true,
 );
 
+const _spacedPalette = NibSkeletonPalette(
+  baseColor: Color(0xFFE0E0E0),
+  shimmerColor: Color(0xFFF0F0F0),
+  radiusSm: 4,
+  radiusDefault: 8,
+  fallbackWidth: 80,
+  fallbackHeight: 16,
+  boxRadius: null,
+  boneSpacing: 10,
+);
+
 class _CustomStateful extends StatefulWidget {
   const _CustomStateful();
 
@@ -186,6 +197,37 @@ void main() {
     final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox).first);
     expect(sizedBox.width, 90);
     expect(sizedBox.height, 30);
+  });
+
+  testWidgets(
+      'a single-axis childless SizedBox (a pure spacer, e.g. SizedBox(width: 12)) stays '
+      'invisible rather than becoming a visible bone box '
+      '(regression: was rendering as a small connector block merging adjacent bones together)',
+      (tester) async {
+    await _pumpShaded(
+      tester,
+      const Row(
+        children: [
+          CircleAvatar(radius: 20),
+          SizedBox(width: 12),
+          Text('Name'),
+        ],
+      ),
+    );
+    // Only the 2 real leaves (CircleAvatar + Text) become bone boxes — the
+    // spacer contributes zero DecoratedBoxes.
+    expect(find.byType(DecoratedBox), findsNWidgets(2));
+    final spacer = tester.widget<SizedBox>(
+      find.byWidgetPredicate((w) => w is SizedBox && w.width == 12 && w.height == null),
+    );
+    expect(spacer.child, isNull);
+  });
+
+  testWidgets(
+      'a dimensionless childless SizedBox (SizedBox()) also stays invisible rather than '
+      'falling back to a fallback-sized bone box', (tester) async {
+    await _pumpShaded(tester, const SizedBox());
+    expect(find.byType(DecoratedBox), findsNothing);
   });
 
   testWidgets('Row/Column/Padding preserve structure and shade their children', (tester) async {
@@ -350,5 +392,40 @@ void main() {
       const Row(children: [CircleAvatar(radius: 20), Text('Name')]),
     );
     expect(find.byType(NibShimmer), findsNothing);
+  });
+
+  testWidgets('boneSpacing inserts extra gap between siblings in a shaded Row/Column',
+      (tester) async {
+    await _pumpShaded(
+      tester,
+      const Row(
+        children: [
+          Text('A'),
+          Text('B'),
+          Text('C'),
+        ],
+      ),
+      palette: _spacedPalette,
+    );
+    final row = tester.widget<Row>(find.byType(Row));
+    // 3 bone children + 2 injected 10px gaps = 5 entries.
+    expect(row.children.length, 5);
+    // Gap spacers are SizedBox(width: ...) with no height; bone boxes always
+    // have both dimensions set, so filtering on height == null isolates them.
+    final gapWidths = row.children
+        .whereType<SizedBox>()
+        .where((w) => w.height == null)
+        .map((w) => w.width)
+        .toList();
+    expect(gapWidths, [10, 10]);
+  });
+
+  testWidgets('boneSpacing: 0 (default) inserts no gaps', (tester) async {
+    await _pumpShaded(
+      tester,
+      const Row(children: [Text('A'), Text('B')]),
+    );
+    final row = tester.widget<Row>(find.byType(Row));
+    expect(row.children.length, 2);
   });
 }

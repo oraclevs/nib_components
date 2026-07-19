@@ -30,6 +30,7 @@ class NibSkeleton extends StatelessWidget {
     this.fallbackWidth = 80,
     this.fallbackHeight = 16,
     this.borderRadius,
+    this.boneSpacing = 0,
   });
 
   /// Whether to render the shaded bone tree instead of [child].
@@ -67,6 +68,12 @@ class NibSkeleton extends StatelessWidget {
   /// bones (always circular) ignore this.
   final BorderRadius? borderRadius;
 
+  /// Extra gap inserted between each pair of consecutive children in a
+  /// shaded `Row`/`Column`/`Flex`, on top of whatever real spacing the
+  /// author's own layout already has (a real `SizedBox`/`Padding` spacer is
+  /// always preserved as-is). `0` (default) adds none.
+  final double boneSpacing;
+
   NibTransition get _transition =>
       transition ?? const NibTransition(duration: Duration(milliseconds: 220));
 
@@ -84,6 +91,7 @@ class NibSkeleton extends StatelessWidget {
       fallbackHeight: fallbackHeight,
       boxRadius: borderRadius,
       shimmerEnabled: shimmer,
+      boneSpacing: boneSpacing,
     );
   }
 
