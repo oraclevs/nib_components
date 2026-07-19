@@ -49,79 +49,93 @@ class BonePaintCommand {
   final RenderBox? renderBox;
 }
 
-Offset _childOffset(Element child, Offset parentOffset) {
-  final renderObject = child.renderObject;
-  if (renderObject is RenderBox) {
-    final parentData = renderObject.parentData;
-    if (parentData is BoxParentData) {
-      return parentOffset + parentData.offset;
-    }
-  }
-  return parentOffset;
+Rect _rectOf(RenderBox box, RenderBox rootBox, Offset base) {
+  final position =
+      MatrixUtils.transformPoint(box.getTransformTo(rootBox), Offset.zero);
+  return (base + position) & box.size;
 }
 
 List<BonePaintCommand> _recurseChildren(
   Element element,
-  Offset offset,
+  RenderBox rootBox,
+  Offset base,
   NibSkeletonPalette palette,
 ) {
   final commands = <BonePaintCommand>[];
   element.visitChildren((child) {
-    commands.addAll(
-      computeBonePaintCommands(child, _childOffset(child, offset), palette),
-    );
+    commands.addAll(_walk(child, rootBox, base, palette));
   });
   return commands;
 }
 
 /// Walks the real, already-mounted [element] tree (built and laid out
 /// normally by Flutter — including any `StatefulWidget`, with its real
-/// lifecycle) and decides what to paint at [offset]: a bone box, a real
-/// decoration, real paint-through, or recursion into children. See
-/// `docs/superpowers/specs/2026-07-19-skeleton-render-mount.md`.
+/// lifecycle) and decides what to paint: a bone box, a real decoration,
+/// real paint-through, or recursion into children. Every command's rect is
+/// derived from the render tree's own geometry ([RenderBox.getTransformTo]
+/// against the walked root's render box) rather than accumulated while
+/// walking — Element hops don't map 1:1 to render hops, so accumulating
+/// `parentData.offset` per hop re-adds the same offset once per
+/// `ComponentElement` in a chain. See
+/// `docs/superpowers/specs/2026-07-19-skeleton-mount-offsets-chrome-shimmer-design.md`.
 List<BonePaintCommand> computeBonePaintCommands(
   Element element,
   Offset offset,
   NibSkeletonPalette palette,
 ) {
+  final rootBox = element.renderObject;
+  if (rootBox is! RenderBox) return const [];
+  return _walk(element, rootBox, offset, palette);
+}
+
+List<BonePaintCommand> _walk(
+  Element element,
+  RenderBox rootBox,
+  Offset base,
+  NibSkeletonPalette palette,
+) {
   final widget = element.widget;
   final renderObject = element.renderObject;
+  final box = renderObject is RenderBox ? renderObject : null;
 
   if (widget is NibSkeletonIgnore) {
-    if (renderObject is RenderBox) {
+    if (box != null) {
       return [
-        BonePaintCommand.realPaintThrough(rect: offset & renderObject.size, renderBox: renderObject),
+        BonePaintCommand.realPaintThrough(
+            rect: _rectOf(box, rootBox, base), renderBox: box),
       ];
     }
     return const [];
   }
 
   if (widget is NibSkeletonBone) {
-    final realSize = renderObject is RenderBox ? renderObject.size : null;
+    final realSize = box?.size;
     final size = Size(
       widget.width ?? realSize?.width ?? palette.fallbackWidth,
       widget.height ?? realSize?.height ?? palette.fallbackHeight,
     );
-    return [BonePaintCommand.bone(rect: offset & size, shape: widget.shape)];
+    final origin = box != null ? _rectOf(box, rootBox, base).topLeft : base;
+    return [BonePaintCommand.bone(rect: origin & size, shape: widget.shape)];
   }
 
   if (widget is Text || widget is RichText || widget is SelectableText) {
-    if (renderObject is RenderBox) {
+    if (box != null) {
+      final rect = _rectOf(box, rootBox, base);
       return [
         BonePaintCommand.bone(
-          rect: offset & renderObject.size,
+          rect: rect,
           shape: NibSkeletonShape.rectangle,
-          radius: BorderRadius.circular(renderObject.size.height / 2),
+          radius: BorderRadius.circular(rect.height / 2),
         ),
       ];
     }
   }
 
   if (widget is Icon) {
-    if (renderObject is RenderBox) {
+    if (box != null) {
       return [
         BonePaintCommand.bone(
-          rect: offset & renderObject.size,
+          rect: _rectOf(box, rootBox, base),
           shape: NibSkeletonShape.rectangle,
           radius: BorderRadius.circular(palette.radiusSm),
         ),
@@ -130,40 +144,41 @@ List<BonePaintCommand> computeBonePaintCommands(
   }
 
   if (widget is CircleAvatar) {
-    if (renderObject is RenderBox) {
+    if (box != null) {
       return [
-        BonePaintCommand.bone(rect: offset & renderObject.size, shape: NibSkeletonShape.circle),
+        BonePaintCommand.bone(
+            rect: _rectOf(box, rootBox, base), shape: NibSkeletonShape.circle),
       ];
     }
   }
 
   if (widget is DecoratedBox) {
-    if (renderObject is RenderBox) {
+    if (box != null) {
       final chrome = BonePaintCommand.decoration(
-        rect: offset & renderObject.size,
+        rect: _rectOf(box, rootBox, base),
         decoration: widget.decoration,
       );
-      return [chrome, ..._recurseChildren(element, offset, palette)];
+      return [chrome, ..._recurseChildren(element, rootBox, base, palette)];
     }
   }
 
   if (widget is ColoredBox) {
-    if (renderObject is RenderBox) {
+    if (box != null) {
       final chrome = BonePaintCommand.decoration(
-        rect: offset & renderObject.size,
+        rect: _rectOf(box, rootBox, base),
         decoration: BoxDecoration(color: widget.color),
       );
-      return [chrome, ..._recurseChildren(element, offset, palette)];
+      return [chrome, ..._recurseChildren(element, rootBox, base, palette)];
     }
   }
 
-  final recursed = _recurseChildren(element, offset, palette);
+  final recursed = _recurseChildren(element, rootBox, base, palette);
   if (recursed.isNotEmpty) return recursed;
 
-  if (renderObject is RenderBox) {
+  if (box != null) {
     return [
       BonePaintCommand.bone(
-        rect: offset & renderObject.size,
+        rect: _rectOf(box, rootBox, base),
         shape: NibSkeletonShape.rectangle,
         radius: palette.boxRadius,
       ),

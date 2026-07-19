@@ -194,6 +194,66 @@ void main() {
     expect(mountSize, realSize);
   });
 
+  testWidgets(
+      'a multi-hop component chain above a positioned child adds its offset '
+      'exactly once (the CircleAvatar->AnimatedContainer->Container chain bug)',
+      (tester) async {
+    final element = await _pumpAndFindElement(
+      tester,
+      const Padding(
+        padding: EdgeInsets.all(20),
+        child: _StatefulLeaf(child: _StatefulLeaf(child: Text('x'))),
+      ),
+    );
+    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+    expect(commands, hasLength(1));
+    expect(commands.single.rect.topLeft, const Offset(20, 20));
+  });
+
+  testWidgets(
+      'a NibButton at the end of a positioned Row keeps its chrome inside '
+      'the walked bounds, with its label bone inside the chrome (the example '
+      'card regression)', (tester) async {
+    final element = await _pumpAndFindElement(
+      tester,
+      SizedBox(
+        width: 320,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            NibButton(
+                label: 'Message',
+                variant: NibButtonVariant.outline,
+                onPressed: () {}),
+            const SizedBox(width: 8),
+            NibButton(label: 'Follow', onPressed: () {}),
+          ],
+        ),
+      ),
+    );
+    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+    final rootSize = (element.renderObject! as RenderBox).size;
+    final rootRect = Offset.zero & rootSize;
+    final chromes =
+        commands.where((c) => c.kind == BonePaintKind.decoration).toList();
+    expect(chromes, hasLength(2), reason: 'one DecoratedBox chrome per button');
+    for (final chrome in chromes) {
+      expect(rootRect.contains(chrome.rect.topLeft), isTrue,
+          reason: '${chrome.rect} escapes $rootRect');
+      expect(
+          rootRect.contains(chrome.rect.bottomRight - const Offset(0.1, 0.1)),
+          isTrue,
+          reason: '${chrome.rect} escapes $rootRect');
+    }
+    final filled = chromes.last;
+    expect(
+      commands.any((c) =>
+          c.kind == BonePaintKind.bone && filled.rect.contains(c.rect.center)),
+      isTrue,
+      reason: 'the Follow label bone must sit inside its chrome',
+    );
+  });
+
   testWidgets('NibSkeletonRenderMount survives a rebuild with a different child (update, not just mount)',
       (tester) async {
     Widget host(String label) => MaterialApp(
