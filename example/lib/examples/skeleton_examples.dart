@@ -160,14 +160,15 @@ class _SkeletonAdvancedExampleState extends State<SkeletonAdvancedExample> {
 /// A real-world composite — a Nib `NibCard` with a header (avatar + name +
 /// title), a body paragraph, and a footer with two `NibButton`s.
 ///
-/// `NibCard`/`NibButton` are themselves `StatefulWidget`s (this library's own
-/// stateful-by-default convention), so — unlike `_ProfileHeader` above, which
-/// is a plain `StatelessWidget` composition NibSkeleton sees straight
-/// through — they don't auto-expand: each bones to a single flat placeholder
-/// box instead of revealing its internal header/body/footer/button
-/// structure. This is a known, documented v1 boundary (see
-/// docs/superpowers/specs/2026-07-18-skeleton-design.md's Known gaps), and
-/// this demo exists specifically to make it visible.
+/// `NibCard`/`NibButton` are themselves `StatefulWidget`s (this library's
+/// own stateful-by-default convention), so — unlike `_ProfileHeader` above,
+/// which is a plain `StatelessWidget` composition NibSkeleton sees straight
+/// through — they route through the render-mount engine: the real subtree
+/// is mounted normally (real lifecycle) and bone boxes are substituted only
+/// at paint time, preserving the card's and buttons' own `DecoratedBox`
+/// chrome under the boned content. See
+/// docs/superpowers/specs/2026-07-19-skeleton-render-mount.md and the
+/// offsets/chrome/shimmer follow-up spec.
 class _ProfileCard extends StatelessWidget {
   const _ProfileCard();
 
@@ -236,6 +237,65 @@ class _SkeletonCardExampleState extends State<SkeletonCardExample> {
             animated: true,
             boneSpacing: 8,
             child: const _ProfileCard(),
+          ),
+        ),
+        const SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: () => setState(() => _loading = !_loading),
+          child: Text(_loading ? 'Finish loading' : 'Start loading'),
+        ),
+      ],
+    );
+  }
+}
+
+/// 5. Stock Material — a subtree of plain Material widgets (`Card`,
+/// `ElevatedButton`), whose chrome comes from `PhysicalShape` rather than
+/// `DecoratedBox`. Exercises the render mount's stock-Material chrome
+/// preservation.
+class SkeletonMaterialExample extends StatefulWidget {
+  const SkeletonMaterialExample({super.key});
+
+  @override
+  State<SkeletonMaterialExample> createState() =>
+      _SkeletonMaterialExampleState();
+}
+
+class _SkeletonMaterialExampleState extends State<SkeletonMaterialExample> {
+  bool _loading = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: 320,
+          child: NibSkeleton(
+            loading: _loading,
+            animated: true,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Stock Material card',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    const Text(
+                        'Card and ElevatedButton chrome comes from '
+                        'PhysicalShape, not DecoratedBox.'),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                        onPressed: () {}, child: const Text('Act')),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 16),

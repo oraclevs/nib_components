@@ -553,4 +553,8 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
     name: 'Skeleton — card (real-world stress test: NibCard, avatar, buttons)',
     builder: (context) => const SkeletonCardExample(),
   ),
+  CatalogEntry(
+    name: 'Skeleton — stock Material (Card/ElevatedButton PhysicalShape chrome)',
+    builder: (context) => const SkeletonMaterialExample(),
+  ),
 ];
