@@ -426,7 +426,9 @@ Widget shadeWidget(BuildContext context, Widget node, NibSkeletonPalette palette
   }
 
   if (node is StatefulWidget) {
-    return NibSkeletonRenderMount(palette: palette, child: node);
+    return palette.shimmerEnabled
+        ? NibSkeletonMountShimmerDriver(palette: palette, child: node)
+        : NibSkeletonRenderMount(palette: palette, child: node);
   }
 
   return buildBoneBox(palette: palette);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
+import 'package:nib_motion/nib_motion.dart' show MotionValue;
 import 'package:nib_components/src/skeleton/nib_skeleton_render_mount.dart';
 import 'package:nib_components/src/skeleton/nib_skeleton_shade.dart';
 
@@ -355,6 +356,81 @@ void main() {
     final mount = tester.renderObject<RenderNibSkeletonMount>(
         find.byType(NibSkeletonRenderMount));
     expect(mount.textDirection, TextDirection.rtl);
+  });
+
+  testWidgets(
+      'animated: true wraps the mount in a shimmer driver with a live ticker, '
+      'and unmounting leaks nothing', (tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: NibSkeleton(
+          loading: true,
+          animated: true,
+          child: _StatefulLeaf(child: Text('x'))),
+    ));
+    // Let the NibPresence/NibMotion entrance dissolve (220ms) finish so the
+    // only remaining transient callback is the shimmer ticker.
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byType(NibSkeletonMountShimmerDriver), findsOneWidget);
+    expect(tester.binding.transientCallbackCount, greaterThan(0),
+        reason: 'the shimmer ticker must keep running while loading');
+    final mount = tester.renderObject<RenderNibSkeletonMount>(
+        find.byType(NibSkeletonRenderMount));
+    expect(mount.time, isNotNull);
+
+    await tester.pumpWidget(
+        const MaterialApp(debugShowCheckedModeBanner: false, home: SizedBox()));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    // flutter_test itself fails the test at teardown if a Ticker leaked.
+  });
+
+  testWidgets(
+      'animated: false builds no shimmer driver and no ticking animation',
+      (tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: NibSkeleton(loading: true, child: _StatefulLeaf(child: Text('x'))),
+    ));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(NibSkeletonMountShimmerDriver), findsNothing);
+    expect(tester.binding.transientCallbackCount, 0);
+    final mount = tester.renderObject<RenderNibSkeletonMount>(
+        find.byType(NibSkeletonRenderMount));
+    expect(mount.time, isNull);
+  });
+
+  testWidgets('a time tick marks the mount as needing paint with no rebuild',
+      (tester) async {
+    // Drives a bare mount directly (no NibSkeleton/NibMotion above): the
+    // NibMotion entrance dissolve never progresses past its initial
+    // opacity-0 frame under fake-async `flutter test`, so an animated
+    // skeleton's subtree is never painted in tests at all — the real app
+    // paints it normally (visually confirmed). What this test pins is the
+    // render object's own contract: a time tick triggers a repaint, and
+    // only a repaint.
+    final time = MotionValue<double>(0);
+    addTearDown(time.dispose);
+    await tester.pumpWidget(MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Center(
+        child: NibSkeletonRenderMount(
+          palette: _palette,
+          time: time,
+          child: const _StatefulLeaf(child: Text('x')),
+        ),
+      ),
+    ));
+    final mount = tester.renderObject<RenderNibSkeletonMount>(
+        find.byType(NibSkeletonRenderMount));
+    expect(mount.debugNeedsPaint, isFalse,
+        reason: 'the initial frame paints the mount');
+    time.value = 123.456;
+    expect(mount.debugNeedsPaint, isTrue,
+        reason: 'a tick marks a repaint without any rebuild');
+    await tester.pump();
+    expect(mount.debugNeedsPaint, isFalse,
+        reason: 'the repaint clears the flag');
   });
 
   testWidgets('NibSkeletonRenderMount survives a rebuild with a different child (update, not just mount)',
