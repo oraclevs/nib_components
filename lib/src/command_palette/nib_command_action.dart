@@ -2,7 +2,8 @@ import 'package:flutter/widgets.dart';
 
 /// Overridable match predicate used by [NibCommandPalette]'s filtering —
 /// `true` if [action] should remain visible for the current [query].
-typedef NibCommandActionFilter = bool Function(NibCommandAction action, String query);
+typedef NibCommandActionFilter =
+    bool Function(NibCommandAction action, String query);
 
 /// One entry in a [NibCommandPalette]'s action list.
 ///

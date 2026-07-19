@@ -12,9 +12,17 @@ class ResizablePanelsMinimalExample extends StatelessWidget {
       child: NibResizablePanels(
         direction: Axis.horizontal,
         panels: [
-          NibResizablePanel(child: ColoredBox(color: Colors.blue.shade50, child: const Center(child: Text('Left')))),
           NibResizablePanel(
-            child: ColoredBox(color: Colors.blue.shade100, child: const Center(child: Text('Right'))),
+            child: ColoredBox(
+              color: Colors.blue.shade50,
+              child: const Center(child: Text('Left')),
+            ),
+          ),
+          NibResizablePanel(
+            child: ColoredBox(
+              color: Colors.blue.shade100,
+              child: const Center(child: Text('Right')),
+            ),
           ),
         ],
       ),
@@ -37,17 +45,26 @@ class ResizablePanelsIdeLayoutExample extends StatelessWidget {
           NibResizablePanel(
             initialSize: 0.2,
             minSize: 0.12,
-            child: ColoredBox(color: Colors.grey.shade100, child: const Center(child: Text('Sidebar'))),
+            child: ColoredBox(
+              color: Colors.grey.shade100,
+              child: const Center(child: Text('Sidebar')),
+            ),
           ),
           NibResizablePanel(
             initialSize: 0.6,
             minSize: 0.3,
-            child: ColoredBox(color: Colors.white, child: const Center(child: Text('Editor'))),
+            child: ColoredBox(
+              color: Colors.white,
+              child: const Center(child: Text('Editor')),
+            ),
           ),
           NibResizablePanel(
             initialSize: 0.2,
             minSize: 0.12,
-            child: ColoredBox(color: Colors.grey.shade100, child: const Center(child: Text('Inspector'))),
+            child: ColoredBox(
+              color: Colors.grey.shade100,
+              child: const Center(child: Text('Inspector')),
+            ),
           ),
         ],
       ),
@@ -62,10 +79,12 @@ class ResizablePanelsAdvancedExample extends StatefulWidget {
   const ResizablePanelsAdvancedExample({super.key});
 
   @override
-  State<ResizablePanelsAdvancedExample> createState() => _ResizablePanelsAdvancedExampleState();
+  State<ResizablePanelsAdvancedExample> createState() =>
+      _ResizablePanelsAdvancedExampleState();
 }
 
-class _ResizablePanelsAdvancedExampleState extends State<ResizablePanelsAdvancedExample> {
+class _ResizablePanelsAdvancedExampleState
+    extends State<ResizablePanelsAdvancedExample> {
   final _controller = NibResizablePanelsController();
 
   @override
@@ -80,7 +99,10 @@ class _ResizablePanelsAdvancedExampleState extends State<ResizablePanelsAdvanced
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        OutlinedButton(onPressed: _controller.resetAll, child: const Text('Reset layout')),
+        OutlinedButton(
+          onPressed: _controller.resetAll,
+          child: const Text('Reset layout'),
+        ),
         const SizedBox(height: 8),
         SizedBox(
           height: 360,
@@ -90,7 +112,10 @@ class _ResizablePanelsAdvancedExampleState extends State<ResizablePanelsAdvanced
             animated: true,
             onLayoutChanged: (sizes) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Layout changed: $sizes'), duration: const Duration(milliseconds: 800)),
+                SnackBar(
+                  content: Text('Layout changed: $sizes'),
+                  duration: const Duration(milliseconds: 800),
+                ),
               );
             },
             panels: [
@@ -101,17 +126,26 @@ class _ResizablePanelsAdvancedExampleState extends State<ResizablePanelsAdvanced
                   animated: true,
                   panels: [
                     NibResizablePanel(
-                      child: ColoredBox(color: Colors.teal.shade50, child: const Center(child: Text('Top left'))),
+                      child: ColoredBox(
+                        color: Colors.teal.shade50,
+                        child: const Center(child: Text('Top left')),
+                      ),
                     ),
                     NibResizablePanel(
-                      child: ColoredBox(color: Colors.teal.shade100, child: const Center(child: Text('Top right'))),
+                      child: ColoredBox(
+                        color: Colors.teal.shade100,
+                        child: const Center(child: Text('Top right')),
+                      ),
                     ),
                   ],
                 ),
               ),
               NibResizablePanel(
                 initialSize: 0.35,
-                child: ColoredBox(color: Colors.teal.shade200, child: const Center(child: Text('Bottom'))),
+                child: ColoredBox(
+                  color: Colors.teal.shade200,
+                  child: const Center(child: Text('Bottom')),
+                ),
               ),
             ],
           ),
@@ -136,9 +170,24 @@ class ResizablePanelsNarrowExample extends StatelessWidget {
       child: NibResizablePanels(
         direction: Axis.horizontal,
         panels: [
-          NibResizablePanel(child: ColoredBox(color: Colors.orange.shade50, child: const Center(child: Text('A')))),
-          NibResizablePanel(child: ColoredBox(color: Colors.orange.shade100, child: const Center(child: Text('B')))),
-          NibResizablePanel(child: ColoredBox(color: Colors.orange.shade200, child: const Center(child: Text('C')))),
+          NibResizablePanel(
+            child: ColoredBox(
+              color: Colors.orange.shade50,
+              child: const Center(child: Text('A')),
+            ),
+          ),
+          NibResizablePanel(
+            child: ColoredBox(
+              color: Colors.orange.shade100,
+              child: const Center(child: Text('B')),
+            ),
+          ),
+          NibResizablePanel(
+            child: ColoredBox(
+              color: Colors.orange.shade200,
+              child: const Center(child: Text('C')),
+            ),
+          ),
         ],
       ),
     );

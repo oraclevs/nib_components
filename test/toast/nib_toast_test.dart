@@ -305,19 +305,22 @@ void main() {
       await _cleanup(tester);
     });
 
-    test('enterOffset slides left/right horizontally and center vertically', () {
-      expect(NibToastPosition.topLeft.enterOffset.dx, lessThan(0));
-      expect(NibToastPosition.bottomLeft.enterOffset.dx, lessThan(0));
-      expect(NibToastPosition.topRight.enterOffset.dx, greaterThan(0));
-      expect(NibToastPosition.bottomRight.enterOffset.dx, greaterThan(0));
-      // corners slide horizontally, not vertically
-      expect(NibToastPosition.topRight.enterOffset.dy, 0);
-      expect(NibToastPosition.bottomLeft.enterOffset.dy, 0);
-      // centered positions slide vertically
-      expect(NibToastPosition.topCenter.enterOffset, const Offset(0, -16));
-      expect(NibToastPosition.bottomCenter.enterOffset.dy, greaterThan(0));
-      expect(NibToastPosition.bottomCenter.enterOffset.dx, 0);
-    });
+    test(
+      'enterOffset slides left/right horizontally and center vertically',
+      () {
+        expect(NibToastPosition.topLeft.enterOffset.dx, lessThan(0));
+        expect(NibToastPosition.bottomLeft.enterOffset.dx, lessThan(0));
+        expect(NibToastPosition.topRight.enterOffset.dx, greaterThan(0));
+        expect(NibToastPosition.bottomRight.enterOffset.dx, greaterThan(0));
+        // corners slide horizontally, not vertically
+        expect(NibToastPosition.topRight.enterOffset.dy, 0);
+        expect(NibToastPosition.bottomLeft.enterOffset.dy, 0);
+        // centered positions slide vertically
+        expect(NibToastPosition.topCenter.enterOffset, const Offset(0, -16));
+        expect(NibToastPosition.bottomCenter.enterOffset.dy, greaterThan(0));
+        expect(NibToastPosition.bottomCenter.enterOffset.dx, 0);
+      },
+    );
 
     testWidgets('NibToaster enables context-free showNibToast', (tester) async {
       await tester.pumpWidget(

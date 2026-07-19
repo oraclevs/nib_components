@@ -24,7 +24,10 @@ void main() {
   });
 
   test('fadeScale combines opacity and scale', () {
-    final a = resolveNibSelectEnter(NibSelectAnimation.fadeScale, openUp: false);
+    final a = resolveNibSelectEnter(
+      NibSelectAnimation.fadeScale,
+      openUp: false,
+    );
     expect(a.opacity, 0);
     expect(a.scale, lessThan(1));
   });
@@ -41,8 +44,14 @@ void main() {
   });
 
   test('slideFade flips slide direction and also fades', () {
-    final down = resolveNibSelectEnter(NibSelectAnimation.slideFade, openUp: false);
-    final up = resolveNibSelectEnter(NibSelectAnimation.slideFade, openUp: true);
+    final down = resolveNibSelectEnter(
+      NibSelectAnimation.slideFade,
+      openUp: false,
+    );
+    final up = resolveNibSelectEnter(
+      NibSelectAnimation.slideFade,
+      openUp: true,
+    );
     expect(down.opacity, 0);
     expect(down.y!.sign, isNot(up.y!.sign));
   });

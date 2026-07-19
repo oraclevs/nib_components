@@ -23,8 +23,17 @@ class _TriggerBox extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (icon != null) ...[Icon(icon, size: 18), const SizedBox(width: 8)],
-            Text(label, style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w600)),
+            if (icon != null) ...[
+              Icon(icon, size: 18),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: scheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),
@@ -49,8 +58,10 @@ class PopoverMinimalExample extends StatelessWidget {
           trigger: Icon(Icons.info_outline),
           content: SizedBox(
             width: 220,
-            child: Text('Popovers anchor to their trigger and flip/clamp to stay '
-                'on screen — the same positioning core Select and the nav menu use.'),
+            child: Text(
+              'Popovers anchor to their trigger and flip/clamp to stay '
+              'on screen — the same positioning core Select and the nav menu use.',
+            ),
           ),
         ),
       ],
@@ -115,7 +126,9 @@ class _PopoverAdvancedExampleState extends State<PopoverAdvancedExample> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Advanced — controller, dismissOnOutsideTap: false, animated'),
+        const Text(
+          'Advanced — controller, dismissOnOutsideTap: false, animated',
+        ),
         const SizedBox(height: 12),
         NibPopover(
           controller: _controller,
@@ -129,11 +142,17 @@ class _PopoverAdvancedExampleState extends State<PopoverAdvancedExample> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('Rename item', style: TextStyle(fontWeight: FontWeight.w600)),
+                const Text(
+                  'Rename item',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 const SizedBox(height: 8),
                 const TextField(
                   autofocus: true,
-                  decoration: InputDecoration(isDense: true, border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Row(
@@ -166,14 +185,18 @@ class PopoverMenuExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget item(BuildContext pctx, IconData icon, String label) => InkWell(
-          onTap: () => NibPopoverScope.of(pctx).close(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              children: [Icon(icon, size: 18), const SizedBox(width: 10), Text(label)],
-            ),
-          ),
-        );
+      onTap: () => NibPopoverScope.of(pctx).close(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Icon(icon, size: 18),
+            const SizedBox(width: 10),
+            Text(label),
+          ],
+        ),
+      ),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

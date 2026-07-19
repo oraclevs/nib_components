@@ -17,7 +17,8 @@ class NibSelectController<T> extends ChangeNotifier {
 
   /// Convenience accessor for single-select use: the first selected value, or
   /// `null` if nothing is selected.
-  T? get selectedValue => _selectedValues.isEmpty ? null : _selectedValues.first;
+  T? get selectedValue =>
+      _selectedValues.isEmpty ? null : _selectedValues.first;
 
   /// Whether the dropdown is currently open.
   bool get isOpen => _isOpen;

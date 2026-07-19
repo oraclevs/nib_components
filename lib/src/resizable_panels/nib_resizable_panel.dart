@@ -16,8 +16,14 @@ class NibResizablePanel {
     this.minSize = 0.1,
     this.maxSize = 1.0,
     this.initialSize,
-  }) : assert(minSize >= 0.0 && minSize <= 1.0, 'minSize must be within 0.0-1.0.'),
-       assert(maxSize >= 0.0 && maxSize <= 1.0, 'maxSize must be within 0.0-1.0.'),
+  }) : assert(
+         minSize >= 0.0 && minSize <= 1.0,
+         'minSize must be within 0.0-1.0.',
+       ),
+       assert(
+         maxSize >= 0.0 && maxSize <= 1.0,
+         'maxSize must be within 0.0-1.0.',
+       ),
        assert(minSize <= maxSize, 'minSize must be <= maxSize.'),
        assert(
          initialSize == null || (initialSize >= 0.0 && initialSize <= 1.0),

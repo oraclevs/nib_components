@@ -275,7 +275,8 @@ class _NibRadioGroupState<T> extends State<NibRadioGroup<T>> {
     return Container(
       constraints: const BoxConstraints(minHeight: 48),
       alignment: Alignment.centerLeft,
-      padding: widget.contentPadding ??
+      padding:
+          widget.contentPadding ??
           const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -324,8 +325,8 @@ class _NibRadioGroupState<T> extends State<NibRadioGroup<T>> {
     final ringColor = !enabled
         ? theme.border
         : selected
-            ? (widget.activeColor ?? theme.primary)
-            : theme.mutedForeground;
+        ? (widget.activeColor ?? theme.primary)
+        : theme.mutedForeground;
     return Container(
       width: size,
       height: size,
@@ -339,7 +340,9 @@ class _NibRadioGroupState<T> extends State<NibRadioGroup<T>> {
   }
 
   Widget _buildInnerDot(NibTheme theme, double outerSize, bool enabled) {
-    final dotColor = enabled ? (widget.activeColor ?? theme.primary) : theme.mutedForeground;
+    final dotColor = enabled
+        ? (widget.activeColor ?? theme.primary)
+        : theme.mutedForeground;
     final inner = Container(
       width: outerSize * 0.5,
       height: outerSize * 0.5,

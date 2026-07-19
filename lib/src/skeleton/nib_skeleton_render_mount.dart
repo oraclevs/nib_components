@@ -9,6 +9,11 @@ import 'package:nib_motion/nib_motion.dart' show MotionValue, NibShaderLoader;
 import 'nib_skeleton_shade.dart';
 import 'nib_skeleton_types.dart';
 
+// RenderNibSkeletonMount deliberately takes public `palette`/`time`/`program`
+// constructor params and maps them to private fields (clean internal API);
+// initializing formals would expose the underscored names.
+// ignore_for_file: prefer_initializing_formals
+
 /// What one [BonePaintCommand] does when drawn.
 enum BonePaintKind {
   /// Paint a solid bone-coloured shape.
@@ -28,22 +33,29 @@ enum BonePaintKind {
 /// walker unit-testable without a real `Canvas`/golden image: tests call
 /// [computeBonePaintCommands] directly and assert on the returned commands.
 class BonePaintCommand {
-  const BonePaintCommand.bone({required this.rect, required this.shape, this.radius})
-      : kind = BonePaintKind.bone,
-        decoration = null,
-        renderBox = null;
+  const BonePaintCommand.bone({
+    required this.rect,
+    required this.shape,
+    this.radius,
+  }) : kind = BonePaintKind.bone,
+       decoration = null,
+       renderBox = null;
 
-  const BonePaintCommand.decoration({required this.rect, required this.decoration})
-      : kind = BonePaintKind.decoration,
-        shape = NibSkeletonShape.rectangle,
-        radius = null,
-        renderBox = null;
+  const BonePaintCommand.decoration({
+    required this.rect,
+    required this.decoration,
+  }) : kind = BonePaintKind.decoration,
+       shape = NibSkeletonShape.rectangle,
+       radius = null,
+       renderBox = null;
 
-  const BonePaintCommand.realPaintThrough({required this.rect, required this.renderBox})
-      : kind = BonePaintKind.realPaintThrough,
-        shape = NibSkeletonShape.rectangle,
-        radius = null,
-        decoration = null;
+  const BonePaintCommand.realPaintThrough({
+    required this.rect,
+    required this.renderBox,
+  }) : kind = BonePaintKind.realPaintThrough,
+       shape = NibSkeletonShape.rectangle,
+       radius = null,
+       decoration = null;
 
   final BonePaintKind kind;
   final Rect rect;
@@ -54,8 +66,10 @@ class BonePaintCommand {
 }
 
 Rect _rectOf(RenderBox box, RenderBox rootBox, Offset base) {
-  final position =
-      MatrixUtils.transformPoint(box.getTransformTo(rootBox), Offset.zero);
+  final position = MatrixUtils.transformPoint(
+    box.getTransformTo(rootBox),
+    Offset.zero,
+  );
   return (base + position) & box.size;
 }
 
@@ -106,7 +120,9 @@ List<BonePaintCommand> _walk(
     if (box != null) {
       return [
         BonePaintCommand.realPaintThrough(
-            rect: _rectOf(box, rootBox, base), renderBox: box),
+          rect: _rectOf(box, rootBox, base),
+          renderBox: box,
+        ),
       ];
     }
     return const [];
@@ -151,7 +167,9 @@ List<BonePaintCommand> _walk(
     if (box != null) {
       return [
         BonePaintCommand.bone(
-            rect: _rectOf(box, rootBox, base), shape: NibSkeletonShape.circle),
+          rect: _rectOf(box, rootBox, base),
+          shape: NibSkeletonShape.circle,
+        ),
       ];
     }
   }
@@ -183,8 +201,9 @@ List<BonePaintCommand> _walk(
         decoration: BoxDecoration(
           color: widget.color,
           shape: widget.shape,
-          borderRadius:
-              widget.shape == BoxShape.rectangle ? widget.borderRadius : null,
+          borderRadius: widget.shape == BoxShape.rectangle
+              ? widget.borderRadius
+              : null,
         ),
       );
       return [chrome, ..._recurseChildren(element, rootBox, base, palette)];
@@ -256,11 +275,18 @@ class NibSkeletonRenderMount extends RenderObjectWidget {
 
   @override
   RenderNibSkeletonMount createRenderObject(BuildContext context) {
-    return RenderNibSkeletonMount(palette: palette, time: time, program: program);
+    return RenderNibSkeletonMount(
+      palette: palette,
+      time: time,
+      program: program,
+    );
   }
 
   @override
-  void updateRenderObject(BuildContext context, RenderNibSkeletonMount renderObject) {
+  void updateRenderObject(
+    BuildContext context,
+    RenderNibSkeletonMount renderObject,
+  ) {
     renderObject
       ..palette = palette
       ..time = time
@@ -292,14 +318,22 @@ class _NibSkeletonMountElement extends RenderObjectElement {
   @override
   void mount(Element? parent, Object? newSlot) {
     super.mount(parent, newSlot);
-    _child = updateChild(_child, (widget as NibSkeletonRenderMount).child, null);
+    _child = updateChild(
+      _child,
+      (widget as NibSkeletonRenderMount).child,
+      null,
+    );
     _pushRoot();
   }
 
   @override
   void update(NibSkeletonRenderMount newWidget) {
     super.update(newWidget);
-    _child = updateChild(_child, (widget as NibSkeletonRenderMount).child, null);
+    _child = updateChild(
+      _child,
+      (widget as NibSkeletonRenderMount).child,
+      null,
+    );
     _pushRoot();
   }
 
@@ -316,7 +350,11 @@ class _NibSkeletonMountElement extends RenderObjectElement {
   }
 
   @override
-  void moveRenderObjectChild(RenderObject child, Object? oldSlot, Object? newSlot) {
+  void moveRenderObjectChild(
+    RenderObject child,
+    Object? oldSlot,
+    Object? newSlot,
+  ) {
     assert(false, 'NibSkeletonRenderMount has a single child slot.');
   }
 
@@ -335,13 +373,9 @@ class RenderNibSkeletonMount extends RenderProxyBox {
     required NibSkeletonPalette palette,
     MotionValue<double>? time,
     FragmentProgram? program,
-  })  :
-        // ignore: prefer_initializing_formals
-        _palette = palette,
-        // ignore: prefer_initializing_formals
-        _time = time,
-        // ignore: prefer_initializing_formals
-        _program = program {
+  }) : _palette = palette,
+       _time = time,
+       _program = program {
     _time?.addListener(_onTimeChanged);
     _shader = _program?.fragmentShader();
   }
@@ -418,7 +452,9 @@ class RenderNibSkeletonMount extends RenderProxyBox {
             context.canvas,
             command.rect.topLeft,
             ImageConfiguration(
-                size: command.rect.size, textDirection: _textDirection),
+              size: command.rect.size,
+              textDirection: _textDirection,
+            ),
           );
           painter.dispose();
         case BonePaintKind.bone:

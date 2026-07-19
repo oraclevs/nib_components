@@ -43,7 +43,10 @@ const double _scaleFrom = 0.96;
 /// [openUp] flips the slide direction so the panel always travels *away from*
 /// the trigger as it settles: sliding down when the panel is below the
 /// trigger, up when it's above.
-NibAnim resolveNibSelectEnter(NibSelectAnimation animation, {required bool openUp}) {
+NibAnim resolveNibSelectEnter(
+  NibSelectAnimation animation, {
+  required bool openUp,
+}) {
   final slideY = openUp ? _slideDistance : -_slideDistance;
   switch (animation) {
     case NibSelectAnimation.none:

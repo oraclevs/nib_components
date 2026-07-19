@@ -60,9 +60,9 @@ class NibSelect<T> extends StatefulWidget {
     this.semanticLabel,
     this.controller,
   }) : assert(
-          (options == null) != (groups == null),
-          'Provide exactly one of `options` (flat) or `groups` (grouped).',
-        );
+         (options == null) != (groups == null),
+         'Provide exactly one of `options` (flat) or `groups` (grouped).',
+       );
 
   /// The flat, ungrouped option list — the common case. Mutually exclusive
   /// with [groups].
@@ -191,7 +191,8 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
       _unbindController();
       _bindController(widget.controller);
     }
-    final dataChanged = !identical(widget.options, oldWidget.options) ||
+    final dataChanged =
+        !identical(widget.options, oldWidget.options) ||
         !identical(widget.groups, oldWidget.groups);
     if (dataChanged && _controller.isOpen) {
       _computeVisible();
@@ -249,8 +250,9 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
 
   // --- Label helpers --------------------------------------------------------
 
-  Iterable<NibSelectOption<T>> get _allOptions =>
-      widget.groups != null ? widget.groups!.expand((g) => g.options) : widget.options!;
+  Iterable<NibSelectOption<T>> get _allOptions => widget.groups != null
+      ? widget.groups!.expand((g) => g.options)
+      : widget.options!;
 
   String _labelForValue(T value) {
     for (final o in _allOptions) {
@@ -376,7 +378,9 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
     ];
     if (enabled.isEmpty) return;
     final pos = enabled.indexOf(_highlightedIndex);
-    final nextPos = pos == -1 ? (delta > 0 ? 0 : enabled.length - 1) : (pos + delta) % enabled.length;
+    final nextPos = pos == -1
+        ? (delta > 0 ? 0 : enabled.length - 1)
+        : (pos + delta) % enabled.length;
     final wrapped = nextPos < 0 ? enabled.length + nextPos : nextPos;
     setState(() => _highlightedIndex = enabled[wrapped]);
     _overlayEntry?.markNeedsBuild();
@@ -388,7 +392,8 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
     }
   }
 
-  void _onMove(int delta) => _controller.isOpen ? _moveHighlight(delta) : _open();
+  void _onMove(int delta) =>
+      _controller.isOpen ? _moveHighlight(delta) : _open();
   void _onActivate() => _controller.isOpen ? _activateHighlighted() : _open();
 
   // --- Overlay --------------------------------------------------------------
@@ -427,16 +432,20 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
   /// Whether the dropdown should build `nib_motion` widgets at all — `false`
   /// keeps the `animated: false` / `NibSelectAnimation.none` paths overhead-free.
   bool get _animatedDropdown =>
-      widget.animated && (widget.enterFrom != null || widget.animation != NibSelectAnimation.none);
+      widget.animated &&
+      (widget.enterFrom != null || widget.animation != NibSelectAnimation.none);
 
   NibTransition _effectiveTransition() =>
-      widget.transition ?? const NibTransition(duration: Duration(milliseconds: 140));
+      widget.transition ??
+      const NibTransition(duration: Duration(milliseconds: 140));
 
   /// How long to keep the overlay mounted after a close so the exit motion can
   /// finish before removal. Springs have no fixed duration, so estimate.
   Duration _exitDuration() {
     final t = _effectiveTransition();
-    final base = t.spring != null ? const Duration(milliseconds: 450) : t.duration;
+    final base = t.spring != null
+        ? const Duration(milliseconds: 450)
+        : t.duration;
     return base + t.delay + const Duration(milliseconds: 40);
   }
 
@@ -448,8 +457,9 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
     // Keep the dropdown clear of the status bar (top), and of the system nav bar
     // or on-screen keyboard (bottom) — otherwise on a phone it opens under them.
     final safeTop = mq.padding.top;
-    final safeBottom =
-        mq.padding.bottom > mq.viewInsets.bottom ? mq.padding.bottom : mq.viewInsets.bottom;
+    final safeBottom = mq.padding.bottom > mq.viewInsets.bottom
+        ? mq.padding.bottom
+        : mq.viewInsets.bottom;
 
     var triggerWidth = 240.0;
     var available = widget.maxDropdownHeight;
@@ -457,10 +467,14 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
     if (box != null && box.hasSize) {
       triggerWidth = box.size.width;
       final topLeft = box.localToGlobal(Offset.zero);
-      final spaceBelow = screen.height - safeBottom - (topLeft.dy + box.size.height) - 8;
+      final spaceBelow =
+          screen.height - safeBottom - (topLeft.dy + box.size.height) - 8;
       final spaceAbove = topLeft.dy - safeTop - 8;
       openUp = spaceBelow < 160 && spaceAbove > spaceBelow;
-      available = (openUp ? spaceAbove : spaceBelow).clamp(80.0, widget.maxDropdownHeight);
+      available = (openUp ? spaceAbove : spaceBelow).clamp(
+        80.0,
+        widget.maxDropdownHeight,
+      );
     }
 
     final maxHeight = available.clamp(80.0, widget.maxDropdownHeight);
@@ -522,7 +536,8 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
     if (!_animatedDropdown) return card;
     final panelFrom = widget.staggerOptions
         ? const NibAnim(opacity: 0)
-        : (widget.enterFrom ?? resolveNibSelectEnter(widget.animation, openUp: openUp));
+        : (widget.enterFrom ??
+              resolveNibSelectEnter(widget.animation, openUp: openUp));
     final motion = NibMotion(
       key: _cardKey,
       initial: panelFrom,
@@ -534,25 +549,39 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
     return NibPresence(children: _closing ? const [] : [motion]);
   }
 
-  Widget _buildDropdownBody(NibTheme theme, BuildContext overlayContext, bool openUp) {
+  Widget _buildDropdownBody(
+    NibTheme theme,
+    BuildContext overlayContext,
+    bool openUp,
+  ) {
     final Widget body;
     if (widget.loading) {
       body = const Padding(
         padding: EdgeInsets.all(20),
         child: Center(
-          child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5)),
+          child: SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
         ),
       );
     } else if (_visibleOptions.isEmpty) {
-      body = widget.noResultsBuilder?.call(overlayContext) ??
+      body =
+          widget.noResultsBuilder?.call(overlayContext) ??
           Padding(
             padding: const EdgeInsets.all(20),
-            child: Text('No results', style: TextStyle(color: theme.mutedForeground)),
+            child: Text(
+              'No results',
+              style: TextStyle(color: theme.mutedForeground),
+            ),
           );
     } else if (_animatedDropdown && widget.staggerOptions) {
       // Cascade: build every row eagerly and stagger each one's entrance. The
       // per-row "from" state carries the chosen preset (the panel only fades).
-      final rowFrom = widget.enterFrom ?? resolveNibSelectEnter(widget.animation, openUp: openUp);
+      final rowFrom =
+          widget.enterFrom ??
+          resolveNibSelectEnter(widget.animation, openUp: openUp);
       body = SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: NibMotionList(
@@ -658,10 +687,16 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 44),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   child: Row(
                     children: [
-                      if (option.icon != null) ...[option.icon!, const SizedBox(width: 10)],
+                      if (option.icon != null) ...[
+                        option.icon!,
+                        const SizedBox(width: 10),
+                      ],
                       Expanded(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -670,14 +705,21 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
                             Text(
                               option.label,
                               style: TextStyle(
-                                color: option.disabled ? theme.mutedForeground : theme.foreground,
-                                fontWeight: highlighted ? FontWeight.w600 : FontWeight.normal,
+                                color: option.disabled
+                                    ? theme.mutedForeground
+                                    : theme.foreground,
+                                fontWeight: highlighted
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
                               ),
                             ),
                             if (option.subtitle != null)
                               Text(
                                 option.subtitle!,
-                                style: TextStyle(color: theme.mutedForeground, fontSize: 12),
+                                style: TextStyle(
+                                  color: theme.mutedForeground,
+                                  fontSize: 12,
+                                ),
                               ),
                           ],
                         ),
@@ -700,37 +742,43 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
   // --- Shortcuts / actions --------------------------------------------------
 
   Map<ShortcutActivator, Intent> _triggerShortcuts() => const {
-        SingleActivator(LogicalKeyboardKey.arrowDown): _MoveIntent(1),
-        SingleActivator(LogicalKeyboardKey.arrowUp): _MoveIntent(-1),
-        SingleActivator(LogicalKeyboardKey.enter): _ActivateIntent(),
-        SingleActivator(LogicalKeyboardKey.numpadEnter): _ActivateIntent(),
-        SingleActivator(LogicalKeyboardKey.space): _ActivateIntent(),
-        SingleActivator(LogicalKeyboardKey.escape): _CloseIntent(),
-      };
+    SingleActivator(LogicalKeyboardKey.arrowDown): _MoveIntent(1),
+    SingleActivator(LogicalKeyboardKey.arrowUp): _MoveIntent(-1),
+    SingleActivator(LogicalKeyboardKey.enter): _ActivateIntent(),
+    SingleActivator(LogicalKeyboardKey.numpadEnter): _ActivateIntent(),
+    SingleActivator(LogicalKeyboardKey.space): _ActivateIntent(),
+    SingleActivator(LogicalKeyboardKey.escape): _CloseIntent(),
+  };
 
   // No `space` here — inside the search field it must type a space, not select.
   Map<ShortcutActivator, Intent> _overlayShortcuts() => const {
-        SingleActivator(LogicalKeyboardKey.arrowDown): _MoveIntent(1),
-        SingleActivator(LogicalKeyboardKey.arrowUp): _MoveIntent(-1),
-        SingleActivator(LogicalKeyboardKey.enter): _ActivateIntent(),
-        SingleActivator(LogicalKeyboardKey.numpadEnter): _ActivateIntent(),
-        SingleActivator(LogicalKeyboardKey.escape): _CloseIntent(),
-      };
+    SingleActivator(LogicalKeyboardKey.arrowDown): _MoveIntent(1),
+    SingleActivator(LogicalKeyboardKey.arrowUp): _MoveIntent(-1),
+    SingleActivator(LogicalKeyboardKey.enter): _ActivateIntent(),
+    SingleActivator(LogicalKeyboardKey.numpadEnter): _ActivateIntent(),
+    SingleActivator(LogicalKeyboardKey.escape): _CloseIntent(),
+  };
 
   Map<Type, Action<Intent>> _navActions() => {
-        _MoveIntent: CallbackAction<_MoveIntent>(onInvoke: (i) {
-          _onMove(i.delta);
-          return null;
-        }),
-        _ActivateIntent: CallbackAction<_ActivateIntent>(onInvoke: (_) {
-          _onActivate();
-          return null;
-        }),
-        _CloseIntent: CallbackAction<_CloseIntent>(onInvoke: (_) {
-          _close();
-          return null;
-        }),
-      };
+    _MoveIntent: CallbackAction<_MoveIntent>(
+      onInvoke: (i) {
+        _onMove(i.delta);
+        return null;
+      },
+    ),
+    _ActivateIntent: CallbackAction<_ActivateIntent>(
+      onInvoke: (_) {
+        _onActivate();
+        return null;
+      },
+    ),
+    _CloseIntent: CallbackAction<_CloseIntent>(
+      onInvoke: (_) {
+        _close();
+        return null;
+      },
+    ),
+  };
 
   // --- Trigger build --------------------------------------------------------
 
@@ -788,28 +836,44 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: widget.disabled ? theme.muted : theme.background,
-                    border: Border.all(color: _controller.isOpen ? theme.ring : theme.border),
+                    border: Border.all(
+                      color: _controller.isOpen ? theme.ring : theme.border,
+                    ),
                     borderRadius: BorderRadius.circular(theme.radiusDefault),
                   ),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(minHeight: 46),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       child: Row(
                         children: [
-                          if (leadingIcon != null) ...[leadingIcon, const SizedBox(width: 8)],
+                          if (leadingIcon != null) ...[
+                            leadingIcon,
+                            const SizedBox(width: 8),
+                          ],
                           Expanded(child: label),
                           if (showClear)
                             InkWell(
                               onTap: _clear,
-                              borderRadius: BorderRadius.circular(theme.radiusPill),
+                              borderRadius: BorderRadius.circular(
+                                theme.radiusPill,
+                              ),
                               child: Padding(
                                 padding: const EdgeInsets.all(4),
-                                child: Icon(Icons.close, size: 16, color: theme.mutedForeground),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 16,
+                                  color: theme.mutedForeground,
+                                ),
                               ),
                             ),
                           Icon(
-                            _controller.isOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                            _controller.isOpen
+                                ? Icons.arrow_drop_up
+                                : Icons.arrow_drop_down,
                             color: theme.mutedForeground,
                           ),
                         ],

@@ -62,9 +62,10 @@ class _SignUpFormExampleState extends State<SignUpFormExample> {
           NibInput(
             label: 'Email',
             keyboardType: TextInputType.emailAddress,
-            validator: NibValidators.compose(
-              [NibValidators.required(), NibValidators.email()],
-            ),
+            validator: NibValidators.compose([
+              NibValidators.required(),
+              NibValidators.email(),
+            ]),
             onSaved: (v) => _email = v,
           ),
           const SizedBox(height: 12),
@@ -73,12 +74,15 @@ class _SignUpFormExampleState extends State<SignUpFormExample> {
             obscureText: _obscurePassword,
             keyboardType: TextInputType.visiblePassword,
             helperText: 'At least 8 characters, upper+lowercase, a number.',
-            validator: NibValidators.compose(
-              [NibValidators.required(), NibValidators.password()],
-            ),
+            validator: NibValidators.compose([
+              NibValidators.required(),
+              NibValidators.password(),
+            ]),
             suffixIcon: GestureDetector(
               onTap: () => setState(() => _obscurePassword = !_obscurePassword),
-              child: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+              child: Icon(
+                _obscurePassword ? Icons.visibility : Icons.visibility_off,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -86,20 +90,24 @@ class _SignUpFormExampleState extends State<SignUpFormExample> {
             label: 'Bio',
             placeholder: 'Optional — tell us a bit about yourself',
             minLines: 2,
-            validator: NibValidators.minLength(10, 'Use at least 10 characters, or leave it empty.'),
+            validator: NibValidators.minLength(
+              10,
+              'Use at least 10 characters, or leave it empty.',
+            ),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
               NibButton(label: 'Submit', onPressed: _submit),
               const SizedBox(width: 8),
-              NibButton(label: 'Reset', variant: NibButtonVariant.outline, onPressed: _reset),
+              NibButton(
+                label: 'Reset',
+                variant: NibButtonVariant.outline,
+                onPressed: _reset,
+              ),
             ],
           ),
-          if (_result != null) ...[
-            const SizedBox(height: 12),
-            Text(_result!),
-          ],
+          if (_result != null) ...[const SizedBox(height: 12), Text(_result!)],
         ],
       ),
     );

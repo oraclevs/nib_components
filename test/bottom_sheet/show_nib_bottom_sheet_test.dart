@@ -23,12 +23,18 @@ Widget _host(void Function(BuildContext) open) {
 
 void main() {
   group('showNibBottomSheet', () {
-    testWidgets('opens over the root overlay and shows content', (tester) async {
-      await tester.pumpWidget(_host((c) => showNibBottomSheet<void>(
+    testWidgets('opens over the root overlay and shows content', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          (c) => showNibBottomSheet<void>(
             c,
             title: 'Sheet',
             content: const Text('sheet body'),
-          )));
+          ),
+        ),
+      );
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
 
@@ -36,12 +42,15 @@ void main() {
       expect(find.text('sheet body'), findsOneWidget);
     });
 
-    testWidgets('barrier tap dismisses and completes the future with null',
-        (tester) async {
+    testWidgets('barrier tap dismisses and completes the future with null', (
+      tester,
+    ) async {
       Future<String?>? result;
-      await tester.pumpWidget(_host((c) {
-        result = showNibBottomSheet<String>(c, content: const Text('body'));
-      }));
+      await tester.pumpWidget(
+        _host((c) {
+          result = showNibBottomSheet<String>(c, content: const Text('body'));
+        }),
+      );
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
       expect(find.text('body'), findsOneWidget);
@@ -55,11 +64,15 @@ void main() {
     });
 
     testWidgets('non-dismissible ignores barrier taps', (tester) async {
-      await tester.pumpWidget(_host((c) => showNibBottomSheet<void>(
+      await tester.pumpWidget(
+        _host(
+          (c) => showNibBottomSheet<void>(
             c,
             dismissible: false,
             content: const Text('locked'),
-          )));
+          ),
+        ),
+      );
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
 
@@ -68,20 +81,23 @@ void main() {
       expect(find.text('locked'), findsOneWidget);
     });
 
-    testWidgets('NibBottomSheetScope.close completes with a result',
-        (tester) async {
+    testWidgets('NibBottomSheetScope.close completes with a result', (
+      tester,
+    ) async {
       Future<String?>? result;
-      await tester.pumpWidget(_host((c) {
-        result = showNibBottomSheet<String>(
-          c,
-          content: Builder(
-            builder: (sctx) => TextButton(
-              onPressed: () => NibBottomSheetScope.of(sctx).close('saved'),
-              child: const Text('save'),
+      await tester.pumpWidget(
+        _host((c) {
+          result = showNibBottomSheet<String>(
+            c,
+            content: Builder(
+              builder: (sctx) => TextButton(
+                onPressed: () => NibBottomSheetScope.of(sctx).close('saved'),
+                child: const Text('save'),
+              ),
             ),
-          ),
-        );
-      }));
+          );
+        }),
+      );
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
 
@@ -93,10 +109,11 @@ void main() {
     });
 
     testWidgets('Escape dismisses when dismissible', (tester) async {
-      await tester.pumpWidget(_host((c) => showNibBottomSheet<void>(
-            c,
-            content: const Text('esc body'),
-          )));
+      await tester.pumpWidget(
+        _host(
+          (c) => showNibBottomSheet<void>(c, content: const Text('esc body')),
+        ),
+      );
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
 
@@ -106,10 +123,9 @@ void main() {
     });
 
     testWidgets('builds no NibMotion when animated is false', (tester) async {
-      await tester.pumpWidget(_host((c) => showNibBottomSheet<void>(
-            c,
-            content: const Text('plain'),
-          )));
+      await tester.pumpWidget(
+        _host((c) => showNibBottomSheet<void>(c, content: const Text('plain'))),
+      );
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
 
@@ -117,12 +133,18 @@ void main() {
       expect(find.byType(NibMotion), findsNothing);
     });
 
-    testWidgets('routes the barrier through NibMotion when animated', (tester) async {
-      await tester.pumpWidget(_host((c) => showNibBottomSheet<void>(
+    testWidgets('routes the barrier through NibMotion when animated', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          (c) => showNibBottomSheet<void>(
             c,
             animated: true,
             content: const Text('animated'),
-          )));
+          ),
+        ),
+      );
       await tester.tap(find.text('open'));
       await tester.pump(); // enter frame
       await tester.pump(const Duration(milliseconds: 50));
@@ -133,9 +155,14 @@ void main() {
 
     testWidgets('flinging the sheet down dismisses it', (tester) async {
       Future<void>? result;
-      await tester.pumpWidget(_host((c) {
-        result = showNibBottomSheet<void>(c, content: const Text('flick body'));
-      }));
+      await tester.pumpWidget(
+        _host((c) {
+          result = showNibBottomSheet<void>(
+            c,
+            content: const Text('flick body'),
+          );
+        }),
+      );
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
       expect(find.text('flick body'), findsOneWidget);
@@ -147,17 +174,22 @@ void main() {
       expect(result, completes);
     });
 
-    testWidgets('snap-point sheet reports onSnapChanged when settling lower',
-        (tester) async {
+    testWidgets('snap-point sheet reports onSnapChanged when settling lower', (
+      tester,
+    ) async {
       final snaps = <int>[];
-      await tester.pumpWidget(_host((c) => showNibBottomSheet<void>(
+      await tester.pumpWidget(
+        _host(
+          (c) => showNibBottomSheet<void>(
             c,
             title: 'Snaps',
             snapPoints: const [0.3, 0.6, 0.9],
             initialSnap: 2,
             onSnapChanged: snaps.add,
             content: const Text('snap body'),
-          )));
+          ),
+        ),
+      );
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
 

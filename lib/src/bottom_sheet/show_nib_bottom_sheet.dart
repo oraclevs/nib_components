@@ -42,8 +42,8 @@ class NibBottomSheetScope extends InheritedWidget {
 
   /// The nearest enclosing sheet scope. Asserts if called outside a sheet.
   static NibBottomSheetScope of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<NibBottomSheetScope>();
+    final scope = context
+        .dependOnInheritedWidgetOfExactType<NibBottomSheetScope>();
     assert(
       scope != null,
       'NibBottomSheetScope.of() called outside a NibBottomSheet/showNibBottomSheet.',
@@ -263,8 +263,12 @@ class _NibBottomSheetSurfaceState extends State<_NibBottomSheetSurface>
   void initState() {
     super.initState();
     _extents = normalizeSnapExtents(widget.snapPoints);
-    _currentSnap = clampInitialSnapIndex(_extents?.length ?? 1, widget.initialSnap);
-    _offset = AnimationController.unbounded(vsync: this)..value = _prelayoutOffset;
+    _currentSnap = clampInitialSnapIndex(
+      _extents?.length ?? 1,
+      widget.initialSnap,
+    );
+    _offset = AnimationController.unbounded(vsync: this)
+      ..value = _prelayoutOffset;
   }
 
   @override
@@ -277,7 +281,8 @@ class _NibBottomSheetSurfaceState extends State<_NibBottomSheetSurface>
   double? get _maxExtent => _extents?.last;
 
   NibTransition _effectiveTransition() =>
-      widget.transition ?? const NibTransition(duration: Duration(milliseconds: 220));
+      widget.transition ??
+      const NibTransition(duration: Duration(milliseconds: 220));
 
   SpringDescription get _spring =>
       _effectiveTransition().spring?.toFlutter() ??
@@ -314,7 +319,8 @@ class _NibBottomSheetSurfaceState extends State<_NibBottomSheetSurface>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final rest = _offsetForSnap(_currentSnap);
-      _offset.value = _sheetHeight; // start fully off-screen at the known height
+      _offset.value =
+          _sheetHeight; // start fully off-screen at the known height
       if (widget.animated) {
         _driveTo(rest);
       } else {
@@ -435,7 +441,12 @@ class _NibBottomSheetSurfaceState extends State<_NibBottomSheetSurface>
       if (widget.showDragHandle) _buildHandle(theme),
       if (widget.title != null)
         Padding(
-          padding: EdgeInsets.fromLTRB(20, widget.showDragHandle ? 2 : 16, 20, 4),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            widget.showDragHandle ? 2 : 16,
+            20,
+            4,
+          ),
           child: Text(
             widget.title!,
             style: TextStyle(
@@ -495,25 +506,31 @@ class _NibBottomSheetSurfaceState extends State<_NibBottomSheetSurface>
   }
 
   Map<ShortcutActivator, Intent> get _shortcuts => const {
-        SingleActivator(LogicalKeyboardKey.tab): NextFocusIntent(),
-        SingleActivator(LogicalKeyboardKey.tab, shift: true): PreviousFocusIntent(),
-        SingleActivator(LogicalKeyboardKey.escape): _DismissSheetIntent(),
-      };
+    SingleActivator(LogicalKeyboardKey.tab): NextFocusIntent(),
+    SingleActivator(LogicalKeyboardKey.tab, shift: true): PreviousFocusIntent(),
+    SingleActivator(LogicalKeyboardKey.escape): _DismissSheetIntent(),
+  };
 
   Map<Type, Action<Intent>> get _actions => {
-        NextFocusIntent: CallbackAction<NextFocusIntent>(onInvoke: (_) {
-          _focusScopeNode.nextFocus();
-          return null;
-        }),
-        PreviousFocusIntent: CallbackAction<PreviousFocusIntent>(onInvoke: (_) {
-          _focusScopeNode.previousFocus();
-          return null;
-        }),
-        _DismissSheetIntent: CallbackAction<_DismissSheetIntent>(onInvoke: (_) {
-          if (widget.dismissible) _close();
-          return null;
-        }),
-      };
+    NextFocusIntent: CallbackAction<NextFocusIntent>(
+      onInvoke: (_) {
+        _focusScopeNode.nextFocus();
+        return null;
+      },
+    ),
+    PreviousFocusIntent: CallbackAction<PreviousFocusIntent>(
+      onInvoke: (_) {
+        _focusScopeNode.previousFocus();
+        return null;
+      },
+    ),
+    _DismissSheetIntent: CallbackAction<_DismissSheetIntent>(
+      onInvoke: (_) {
+        if (widget.dismissible) _close();
+        return null;
+      },
+    ),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -531,7 +548,10 @@ class _NibBottomSheetSurfaceState extends State<_NibBottomSheetSurface>
             onTap: () {
               if (widget.dismissible) _close();
             },
-            child: ColoredBox(color: scrimColor, child: const SizedBox.expand()),
+            child: ColoredBox(
+              color: scrimColor,
+              child: const SizedBox.expand(),
+            ),
           ),
         );
 

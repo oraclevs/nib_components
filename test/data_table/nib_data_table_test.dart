@@ -96,41 +96,42 @@ void main() {
     expect(tapped, people[1]);
   });
 
-  testWidgets('tapping a sortable header sorts rows ascending, then descending, then unsorted', (
-    tester,
-  ) async {
-    const people = [
-      _Person('Charlie', 'c@example.com'),
-      _Person('Ada', 'a@example.com'),
-      _Person('Bob', 'b@example.com'),
-    ];
-    await tester.pumpWidget(
-      _wrap(NibDataTable<_Person>(columns: _columns(), rows: people)),
-    );
+  testWidgets(
+    'tapping a sortable header sorts rows ascending, then descending, then unsorted',
+    (tester) async {
+      const people = [
+        _Person('Charlie', 'c@example.com'),
+        _Person('Ada', 'a@example.com'),
+        _Person('Bob', 'b@example.com'),
+      ];
+      await tester.pumpWidget(
+        _wrap(NibDataTable<_Person>(columns: _columns(), rows: people)),
+      );
 
-    Text firstRowName() {
-      final texts = tester
-          .widgetList<Text>(find.byType(Text))
-          .map((t) => t.data)
-          .toList();
-      return Text(texts.firstWhere((t) => people.any((p) => p.name == t))!);
-    }
+      Text firstRowName() {
+        final texts = tester
+            .widgetList<Text>(find.byType(Text))
+            .map((t) => t.data)
+            .toList();
+        return Text(texts.firstWhere((t) => people.any((p) => p.name == t))!);
+      }
 
-    // Unsorted: input order.
-    expect(firstRowName().data, 'Charlie');
+      // Unsorted: input order.
+      expect(firstRowName().data, 'Charlie');
 
-    await tester.tap(find.text('Name')); // -> ascending
-    await tester.pumpAndSettle();
-    expect(firstRowName().data, 'Ada');
+      await tester.tap(find.text('Name')); // -> ascending
+      await tester.pumpAndSettle();
+      expect(firstRowName().data, 'Ada');
 
-    await tester.tap(find.text('Name')); // -> descending
-    await tester.pumpAndSettle();
-    expect(firstRowName().data, 'Charlie');
+      await tester.tap(find.text('Name')); // -> descending
+      await tester.pumpAndSettle();
+      expect(firstRowName().data, 'Charlie');
 
-    await tester.tap(find.text('Name')); // -> none
-    await tester.pumpAndSettle();
-    expect(firstRowName().data, 'Charlie');
-  });
+      await tester.tap(find.text('Name')); // -> none
+      await tester.pumpAndSettle();
+      expect(firstRowName().data, 'Charlie');
+    },
+  );
 
   testWidgets('a non-sortable column header does nothing when tapped', (
     tester,
@@ -148,69 +149,71 @@ void main() {
     expect(find.text('Charlie'), findsOneWidget);
   });
 
-  testWidgets('onSort is called with the new column/direction instead of self-sorting', (
-    tester,
-  ) async {
-    const people = [
-      _Person('Charlie', 'c@example.com'),
-      _Person('Ada', 'a@example.com'),
-    ];
-    int? sortedColumn;
-    NibSortDirection? sortedDirection;
-    await tester.pumpWidget(
-      _wrap(
-        NibDataTable<_Person>(
-          columns: _columns(),
-          rows: people,
-          onSort: (columnIndex, direction) {
-            sortedColumn = columnIndex;
-            sortedDirection = direction;
-          },
+  testWidgets(
+    'onSort is called with the new column/direction instead of self-sorting',
+    (tester) async {
+      const people = [
+        _Person('Charlie', 'c@example.com'),
+        _Person('Ada', 'a@example.com'),
+      ];
+      int? sortedColumn;
+      NibSortDirection? sortedDirection;
+      await tester.pumpWidget(
+        _wrap(
+          NibDataTable<_Person>(
+            columns: _columns(),
+            rows: people,
+            onSort: (columnIndex, direction) {
+              sortedColumn = columnIndex;
+              sortedDirection = direction;
+            },
+          ),
         ),
-      ),
-    );
-    await tester.tap(find.text('Name'));
-    await tester.pumpAndSettle();
-    expect(sortedColumn, 0);
-    expect(sortedDirection, NibSortDirection.ascending);
-    // NibDataTable does not reorder rows itself in onSort mode.
-    final texts = tester
-        .widgetList<Text>(find.byType(Text))
-        .map((t) => t.data)
-        .whereType<String>()
-        .toList();
-    expect(texts.indexOf('Charlie') < texts.indexOf('Ada'), isTrue);
-  });
+      );
+      await tester.tap(find.text('Name'));
+      await tester.pumpAndSettle();
+      expect(sortedColumn, 0);
+      expect(sortedDirection, NibSortDirection.ascending);
+      // NibDataTable does not reorder rows itself in onSort mode.
+      final texts = tester
+          .widgetList<Text>(find.byType(Text))
+          .map((t) => t.data)
+          .whereType<String>()
+          .toList();
+      expect(texts.indexOf('Charlie') < texts.indexOf('Ada'), isTrue);
+    },
+  );
 
-  testWidgets('multi selection: per-row checkbox toggles selection and calls onSelectionChanged', (
-    tester,
-  ) async {
-    const people = [
-      _Person('Ada Lovelace', 'ada@example.com'),
-      _Person('Alan Turing', 'alan@example.com'),
-    ];
-    Set<_Person>? lastSelection;
-    await tester.pumpWidget(
-      _wrap(
-        NibDataTable<_Person>(
-          columns: _columns(),
-          rows: people,
-          selectionMode: NibDataTableSelectionMode.multi,
-          onSelectionChanged: (selection) => lastSelection = selection,
+  testWidgets(
+    'multi selection: per-row checkbox toggles selection and calls onSelectionChanged',
+    (tester) async {
+      const people = [
+        _Person('Ada Lovelace', 'ada@example.com'),
+        _Person('Alan Turing', 'alan@example.com'),
+      ];
+      Set<_Person>? lastSelection;
+      await tester.pumpWidget(
+        _wrap(
+          NibDataTable<_Person>(
+            columns: _columns(),
+            rows: people,
+            selectionMode: NibDataTableSelectionMode.multi,
+            onSelectionChanged: (selection) => lastSelection = selection,
+          ),
         ),
-      ),
-    );
+      );
 
-    final rowCheckboxes = find.byType(Checkbox);
-    // First checkbox is the header select-all; row checkboxes follow.
-    await tester.tap(rowCheckboxes.at(1));
-    await tester.pumpAndSettle();
-    expect(lastSelection, {people[0]});
+      final rowCheckboxes = find.byType(Checkbox);
+      // First checkbox is the header select-all; row checkboxes follow.
+      await tester.tap(rowCheckboxes.at(1));
+      await tester.pumpAndSettle();
+      expect(lastSelection, {people[0]});
 
-    await tester.tap(rowCheckboxes.at(1));
-    await tester.pumpAndSettle();
-    expect(lastSelection, isEmpty);
-  });
+      await tester.tap(rowCheckboxes.at(1));
+      await tester.pumpAndSettle();
+      expect(lastSelection, isEmpty);
+    },
+  );
 
   testWidgets('multi selection: header checkbox selects/deselects all', (
     tester,
@@ -240,52 +243,57 @@ void main() {
     expect(lastSelection, isEmpty);
   });
 
-  testWidgets('single selection: tapping a row selects it and replaces prior selection', (
-    tester,
-  ) async {
-    const people = [
-      _Person('Ada Lovelace', 'ada@example.com'),
-      _Person('Alan Turing', 'alan@example.com'),
-    ];
-    Set<_Person>? lastSelection;
-    await tester.pumpWidget(
-      _wrap(
-        NibDataTable<_Person>(
-          columns: _columns(),
-          rows: people,
-          selectionMode: NibDataTableSelectionMode.single,
-          onSelectionChanged: (selection) => lastSelection = selection,
+  testWidgets(
+    'single selection: tapping a row selects it and replaces prior selection',
+    (tester) async {
+      const people = [
+        _Person('Ada Lovelace', 'ada@example.com'),
+        _Person('Alan Turing', 'alan@example.com'),
+      ];
+      Set<_Person>? lastSelection;
+      await tester.pumpWidget(
+        _wrap(
+          NibDataTable<_Person>(
+            columns: _columns(),
+            rows: people,
+            selectionMode: NibDataTableSelectionMode.single,
+            onSelectionChanged: (selection) => lastSelection = selection,
+          ),
         ),
-      ),
-    );
+      );
 
-    expect(find.byType(Checkbox), findsNothing);
+      expect(find.byType(Checkbox), findsNothing);
 
-    await tester.tap(find.text('Ada Lovelace'));
-    await tester.pumpAndSettle();
-    expect(lastSelection, {people[0]});
+      await tester.tap(find.text('Ada Lovelace'));
+      await tester.pumpAndSettle();
+      expect(lastSelection, {people[0]});
 
-    await tester.tap(find.text('Alan Turing'));
-    await tester.pumpAndSettle();
-    expect(lastSelection, {people[1]});
-  });
+      await tester.tap(find.text('Alan Turing'));
+      await tester.pumpAndSettle();
+      expect(lastSelection, {people[1]});
+    },
+  );
 
-  testWidgets('loading shows skeleton rows instead of data, hides empty state', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      _wrap(
-        NibDataTable<_Person>(
-          columns: _columns(),
-          rows: const [_Person('Ada Lovelace', 'ada@example.com')],
-          loading: true,
+  testWidgets(
+    'loading shows skeleton rows instead of data, hides empty state',
+    (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          NibDataTable<_Person>(
+            columns: _columns(),
+            rows: const [_Person('Ada Lovelace', 'ada@example.com')],
+            loading: true,
+          ),
         ),
-      ),
-    );
-    expect(find.text('Ada Lovelace'), findsNothing);
-    expect(find.text('No data'), findsNothing);
-    expect(find.byKey(const ValueKey('nib-data-table-skeleton-row')), findsWidgets);
-  });
+      );
+      expect(find.text('Ada Lovelace'), findsNothing);
+      expect(find.text('No data'), findsNothing);
+      expect(
+        find.byKey(const ValueKey('nib-data-table-skeleton-row')),
+        findsWidgets,
+      );
+    },
+  );
 
   testWidgets('virtualizes: a row far outside the viewport is never built', (
     tester,
@@ -405,12 +413,14 @@ void main() {
       final columns = [
         NibDataColumn<_Person>(
           label: 'Narrow',
-          cellBuilder: (context, row) => const SizedBox(width: 0, child: Text('N')),
+          cellBuilder: (context, row) =>
+              const SizedBox(width: 0, child: Text('N')),
           minWidth: 96,
         ),
         NibDataColumn<_Person>(
           label: 'Wide',
-          cellBuilder: (context, row) => const SizedBox(width: 0, child: Text('W')),
+          cellBuilder: (context, row) =>
+              const SizedBox(width: 0, child: Text('W')),
           minWidth: 300,
         ),
       ];
@@ -435,20 +445,26 @@ void main() {
       expect(expandedFinders, findsWidgets);
 
       // Collect flex values from all Expanded widgets in headers and rows.
-      final expandedWidgets = tester.widgetList<Expanded>(expandedFinders).toList();
+      final expandedWidgets = tester
+          .widgetList<Expanded>(expandedFinders)
+          .toList();
 
       // Filter to just the ones we care about (skip if there are any with width set).
       // The Expanded widgets in flexible columns should have flex: 96 and flex: 300
-      final flexValues = expandedWidgets
-          .map((e) => e.flex)
-          .toList();
+      final flexValues = expandedWidgets.map((e) => e.flex).toList();
 
       // Verify that we have flex values that reflect the minWidth ratio.
       // With minWidth 96 and 300, we expect flex 96 and flex 300.
-      expect(flexValues.contains(96), isTrue,
-          reason: 'Expected an Expanded with flex=96 (minWidth of narrow column)');
-      expect(flexValues.contains(300), isTrue,
-          reason: 'Expected an Expanded with flex=300 (minWidth of wide column)');
+      expect(
+        flexValues.contains(96),
+        isTrue,
+        reason: 'Expected an Expanded with flex=96 (minWidth of narrow column)',
+      );
+      expect(
+        flexValues.contains(300),
+        isTrue,
+        reason: 'Expected an Expanded with flex=300 (minWidth of wide column)',
+      );
     },
   );
 
@@ -469,7 +485,10 @@ void main() {
       await tester.tap(find.text('Name'));
       await tester.pumpAndSettle();
 
-      expect(find.bySemanticsLabel('Sort by Name, sorted ascending'), findsOneWidget);
+      expect(
+        find.bySemanticsLabel('Sort by Name, sorted ascending'),
+        findsOneWidget,
+      );
       handle.dispose();
     },
   );

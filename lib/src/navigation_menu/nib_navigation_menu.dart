@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibPresence, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibPresence, NibTransition;
 
 import '../overlay/measure_size.dart';
 import '../overlay/nib_anchored_overlay.dart';
@@ -103,7 +104,9 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
       _bindController(widget.controller);
     }
     final currentIds = {for (final i in widget.items) i.id};
-    _measuredWidths.removeWhere((id, _) => id != '__more__' && !currentIds.contains(id));
+    _measuredWidths.removeWhere(
+      (id, _) => id != '__more__' && !currentIds.contains(id),
+    );
   }
 
   @override
@@ -136,7 +139,11 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
   FocusNode _focusNodeFor(String id) =>
       _focusNodes.putIfAbsent(id, () => FocusNode(debugLabel: id));
 
-  void _handleItemTap(NibNavItem item, List<String> path, List<String> siblingIds) {
+  void _handleItemTap(
+    NibNavItem item,
+    List<String> path,
+    List<String> siblingIds,
+  ) {
     if (item.disabled) return;
     // A mouse/touch tap on InkWell does not request focus by itself, so
     // without this, pressing Escape right after clicking an item to open
@@ -157,7 +164,9 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
   }
 
   void _toggleInline(NibNavItem item, List<String> siblingIds) {
-    final exclusive = widget.allowMultipleOpen ? null : (siblingIds.toSet()..remove(item.id));
+    final exclusive = widget.allowMultipleOpen
+        ? null
+        : (siblingIds.toSet()..remove(item.id));
     _controller.toggleOpenId(item.id, exclusiveSiblings: exclusive);
   }
 
@@ -170,19 +179,24 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
       return;
     }
     _closeFlyoutsFrom(depth);
-    final renderBox = _keyFor(item.id).currentContext!.findRenderObject() as RenderBox;
+    final renderBox =
+        _keyFor(item.id).currentContext!.findRenderObject() as RenderBox;
     final handle = NibAnchoredOverlay.show(
       context,
       link: _linkFor(item.id),
       targetRenderBox: renderBox,
-      placement: depth == 0 ? NibOverlayPlacement.bottom : NibOverlayPlacement.end,
+      placement: depth == 0
+          ? NibOverlayPlacement.bottom
+          : NibOverlayPlacement.end,
       contentBuilder: (overlayContext) {
         final built = _buildFlyoutContent(item.children, path);
         if (!widget.animated) return built;
         return NibMotion(
           initial: const NibAnim(opacity: 0, scale: 0.95),
           animate: const NibAnim(opacity: 1, scale: 1),
-          transition: widget.transition ?? const NibTransition(duration: Duration(milliseconds: 160)),
+          transition:
+              widget.transition ??
+              const NibTransition(duration: Duration(milliseconds: 160)),
           child: built,
         );
       },
@@ -218,7 +232,10 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             for (final child in items)
-              _buildItem(context, theme, child, [...parentPath, child.id], siblingIds),
+              _buildItem(context, theme, child, [
+                ...parentPath,
+                child.id,
+              ], siblingIds),
           ],
         ),
       ),
@@ -276,7 +293,9 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
             type: MaterialType.transparency,
             child: InkWell(
               focusNode: _focusNodeFor(item.id),
-              onTap: item.disabled ? null : () => _handleItemTap(item, path, siblingIds),
+              onTap: item.disabled
+                  ? null
+                  : () => _handleItemTap(item, path, siblingIds),
               borderRadius: BorderRadius.circular(theme.radiusSm),
               excludeFromSemantics: true,
               child: ConstrainedBox(
@@ -309,7 +328,10 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (final child in item.children)
-            _buildVerticalNode(context, theme, child, [...path, child.id], childSiblingIds),
+            _buildVerticalNode(context, theme, child, [
+              ...path,
+              child.id,
+            ], childSiblingIds),
         ],
       ),
     );
@@ -324,7 +346,10 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
                   animate: const NibAnim(opacity: 1, y: 0),
                   exit: const NibAnim(opacity: 0, y: -6),
                   transition:
-                      widget.transition ?? const NibTransition(duration: Duration(milliseconds: 180)),
+                      widget.transition ??
+                      const NibTransition(
+                        duration: Duration(milliseconds: 180),
+                      ),
                   child: childList,
                 ),
             ],
@@ -401,7 +426,9 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
             ),
           MeasureSize(
             onChange: (size) => _recordWidth('__more__', size.width),
-            child: _measureVisual(const NibNavItem(id: '__more__', label: 'More')),
+            child: _measureVisual(
+              const NibNavItem(id: '__more__', label: 'More'),
+            ),
           ),
         ],
       ),
@@ -433,7 +460,9 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     for (final item in widget.items)
-                      _buildItem(context, theme, item, [item.id], rawSiblingIds),
+                      _buildItem(context, theme, item, [
+                        item.id,
+                      ], rawSiblingIds),
                   ],
                 ),
               ),
@@ -447,7 +476,11 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
             ? packed.visible
             : [
                 ...packed.visible,
-                NibNavItem(id: '__more__', label: 'More', children: packed.overflow),
+                NibNavItem(
+                  id: '__more__',
+                  label: 'More',
+                  children: packed.overflow,
+                ),
               ];
         final topSiblingIds = [for (final i in displayItems) i.id];
         return Column(
@@ -474,7 +507,9 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
     final nodes = widget.orientation == NibNavMenuOrientation.vertical
         ? [
             for (final item in widget.items)
-              _buildVerticalNode(context, theme, item, [item.id], topSiblingIds),
+              _buildVerticalNode(context, theme, item, [
+                item.id,
+              ], topSiblingIds),
           ]
         : const <Widget>[];
 
@@ -491,7 +526,9 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
     );
 
     return Shortcuts(
-      shortcuts: {LogicalKeySet(LogicalKeyboardKey.escape): const _CloseFlyoutIntent()},
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.escape): const _CloseFlyoutIntent(),
+      },
       child: Actions(
         actions: {
           _CloseFlyoutIntent: CallbackAction<_CloseFlyoutIntent>(

@@ -70,7 +70,5 @@ class NibSliderThumbState {
 /// Builds a fully custom thumb, replacing the built-in circle. The slider still
 /// owns positioning, gestures, focus and (when `animated`) the press-pop — the
 /// builder only paints the knob.
-typedef NibSliderThumbBuilder = Widget Function(
-  BuildContext context,
-  NibSliderThumbState state,
-);
+typedef NibSliderThumbBuilder =
+    Widget Function(BuildContext context, NibSliderThumbState state);

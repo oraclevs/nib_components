@@ -28,288 +28,390 @@ class _StatefulLeafState extends State<_StatefulLeaf> {
   Widget build(BuildContext context) => widget.child;
 }
 
-Future<Element> _pumpAndFindElement(WidgetTester tester, Widget child, {Key? key}) async {
-  await tester.pumpWidget(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: Center(child: KeyedSubtree(key: key ?? const Key('root'), child: child)),
-  ));
+Future<Element> _pumpAndFindElement(
+  WidgetTester tester,
+  Widget child, {
+  Key? key,
+}) async {
+  await tester.pumpWidget(
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Center(
+        child: KeyedSubtree(key: key ?? const Key('root'), child: child),
+      ),
+    ),
+  );
   return tester.element(find.byKey(key ?? const Key('root')));
 }
 
 void main() {
-  testWidgets('NibSkeletonBone produces one explicit bone command, ignoring what it wraps',
-      (tester) async {
+  testWidgets(
+    'NibSkeletonBone produces one explicit bone command, ignoring what it wraps',
+    (tester) async {
+      final element = await _pumpAndFindElement(
+        tester,
+        const NibSkeletonBone(
+          width: 40,
+          height: 40,
+          shape: NibSkeletonShape.circle,
+          child: Text('x'),
+        ),
+      );
+      final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+      expect(commands, hasLength(1));
+      expect(commands.single.kind, BonePaintKind.bone);
+      expect(commands.single.shape, NibSkeletonShape.circle);
+      expect(commands.single.rect.size, const Size(40, 40));
+    },
+  );
+
+  testWidgets('NibSkeletonIgnore produces one realPaintThrough command', (
+    tester,
+  ) async {
     final element = await _pumpAndFindElement(
       tester,
-      const NibSkeletonBone(width: 40, height: 40, shape: NibSkeletonShape.circle, child: Text('x')),
+      const NibSkeletonIgnore(child: Icon(Icons.star)),
     );
-    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
-    expect(commands, hasLength(1));
-    expect(commands.single.kind, BonePaintKind.bone);
-    expect(commands.single.shape, NibSkeletonShape.circle);
-    expect(commands.single.rect.size, const Size(40, 40));
-  });
-
-  testWidgets('NibSkeletonIgnore produces one realPaintThrough command', (tester) async {
-    final element = await _pumpAndFindElement(tester, const NibSkeletonIgnore(child: Icon(Icons.star)));
     final commands = computeBonePaintCommands(element, Offset.zero, _palette);
     expect(commands, hasLength(1));
     expect(commands.single.kind, BonePaintKind.realPaintThrough);
   });
 
-  testWidgets('a Text leaf produces one bone command sized to its real measured size',
-      (tester) async {
-    final element = await _pumpAndFindElement(tester, const Text('Hello there'));
-    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
-    expect(commands, hasLength(1));
-    expect(commands.single.kind, BonePaintKind.bone);
-    final realSize = (element.renderObject! as RenderBox).size;
-    expect(commands.single.rect.size, realSize);
-    expect(commands.single.radius, BorderRadius.circular(realSize.height / 2));
-  });
-
-  testWidgets('an Icon leaf produces one bone command sized to its real measured size',
-      (tester) async {
-    final element = await _pumpAndFindElement(tester, const Icon(Icons.star, size: 32));
-    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
-    expect(commands, hasLength(1));
-    final realSize = (element.renderObject! as RenderBox).size;
-    expect(commands.single.rect.size, realSize);
-    expect(commands.single.radius, BorderRadius.circular(_palette.radiusSm));
-  });
-
-  testWidgets('a CircleAvatar leaf produces one circle bone command sized to its real size',
-      (tester) async {
-    final element = await _pumpAndFindElement(tester, const CircleAvatar(radius: 20));
-    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
-    expect(commands, hasLength(1));
-    expect(commands.single.shape, NibSkeletonShape.circle);
-  });
+  testWidgets(
+    'a Text leaf produces one bone command sized to its real measured size',
+    (tester) async {
+      final element = await _pumpAndFindElement(
+        tester,
+        const Text('Hello there'),
+      );
+      final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+      expect(commands, hasLength(1));
+      expect(commands.single.kind, BonePaintKind.bone);
+      final realSize = (element.renderObject! as RenderBox).size;
+      expect(commands.single.rect.size, realSize);
+      expect(
+        commands.single.radius,
+        BorderRadius.circular(realSize.height / 2),
+      );
+    },
+  );
 
   testWidgets(
-      'a StatefulWidget wrapping a Text is walked through transparently — one bone command '
-      'for the real Text, not a flat fallback box (the whole point of this engine)',
-      (tester) async {
-    final element = await _pumpAndFindElement(tester, const _StatefulLeaf(child: Text('inside')));
-    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
-    expect(commands, hasLength(1));
-    expect(commands.single.kind, BonePaintKind.bone);
-    // Sized to the real Text, not the generic fallbackWidth/Height default.
-    expect(commands.single.rect.size.width, isNot(_palette.fallbackWidth));
-  });
-
-  testWidgets('a Row of two Texts produces two independent bone commands at their own offsets',
-      (tester) async {
-    final element = await _pumpAndFindElement(
-      tester,
-      const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [Text('A'), Text('BB')],
-      ),
-    );
-    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
-    expect(commands, hasLength(2));
-    expect(commands[0].rect.left, lessThan(commands[1].rect.left));
-  });
-
-  testWidgets('a childless leaf render object with no recognized type falls back to a bone '
-      'sized to its real size (e.g. a bare SizedBox)', (tester) async {
-    final element = await _pumpAndFindElement(tester, const SizedBox(width: 50, height: 20));
-    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
-    expect(commands, hasLength(1));
-    expect(commands.single.kind, BonePaintKind.bone);
-    expect(commands.single.rect.size, const Size(50, 20));
-  });
+    'an Icon leaf produces one bone command sized to its real measured size',
+    (tester) async {
+      final element = await _pumpAndFindElement(
+        tester,
+        const Icon(Icons.star, size: 32),
+      );
+      final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+      expect(commands, hasLength(1));
+      final realSize = (element.renderObject! as RenderBox).size;
+      expect(commands.single.rect.size, realSize);
+      expect(commands.single.radius, BorderRadius.circular(_palette.radiusSm));
+    },
+  );
 
   testWidgets(
-      'a DecoratedBox with a child preserves its own real decoration and still bones its child',
-      (tester) async {
-    final element = await _pumpAndFindElement(
-      tester,
-      DecoratedBox(
-        decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(10)),
-        child: const Text('inside'),
-      ),
-    );
-    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
-    expect(commands, hasLength(2));
-    expect(commands[0].kind, BonePaintKind.decoration);
-    final decoration = commands[0].decoration as BoxDecoration;
-    expect(decoration.color, Colors.blue);
-    expect(commands[1].kind, BonePaintKind.bone);
-  });
-
-  testWidgets('a ColoredBox with a child preserves its own real colour and still bones its child',
-      (tester) async {
-    final element = await _pumpAndFindElement(
-      tester,
-      const ColoredBox(color: Colors.yellow, child: Text('inside')),
-    );
-    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
-    expect(commands, hasLength(2));
-    expect(commands[0].kind, BonePaintKind.decoration);
-    final decoration = commands[0].decoration as BoxDecoration;
-    expect(decoration.color, Colors.yellow);
-  });
+    'a CircleAvatar leaf produces one circle bone command sized to its real size',
+    (tester) async {
+      final element = await _pumpAndFindElement(
+        tester,
+        const CircleAvatar(radius: 20),
+      );
+      final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+      expect(commands, hasLength(1));
+      expect(commands.single.shape, NibSkeletonShape.circle);
+    },
+  );
 
   testWidgets(
-      'a StatefulWidget composing a DecoratedBox chrome around a CircleAvatar+Text preserves '
-      'the chrome and shades the content (the NibCard shape)', (tester) async {
-    final element = await _pumpAndFindElement(
-      tester,
-      _StatefulLeaf(
-        child: DecoratedBox(
-          decoration: const BoxDecoration(color: Colors.black12),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: const [CircleAvatar(radius: 16), Text('Name')],
-          ),
+    'a StatefulWidget wrapping a Text is walked through transparently — one bone command '
+    'for the real Text, not a flat fallback box (the whole point of this engine)',
+    (tester) async {
+      final element = await _pumpAndFindElement(
+        tester,
+        const _StatefulLeaf(child: Text('inside')),
+      );
+      final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+      expect(commands, hasLength(1));
+      expect(commands.single.kind, BonePaintKind.bone);
+      // Sized to the real Text, not the generic fallbackWidth/Height default.
+      expect(commands.single.rect.size.width, isNot(_palette.fallbackWidth));
+    },
+  );
+
+  testWidgets(
+    'a Row of two Texts produces two independent bone commands at their own offsets',
+    (tester) async {
+      final element = await _pumpAndFindElement(
+        tester,
+        const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [Text('A'), Text('BB')],
         ),
-      ),
-    );
-    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
-    // 1 decoration (the chrome) + 2 bones (avatar circle, text bar).
-    expect(commands.where((c) => c.kind == BonePaintKind.decoration), hasLength(1));
-    expect(commands.where((c) => c.kind == BonePaintKind.bone), hasLength(2));
-  });
+      );
+      final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+      expect(commands, hasLength(2));
+      expect(commands[0].rect.left, lessThan(commands[1].rect.left));
+    },
+  );
 
-  testWidgets("NibSkeletonRenderMount lays out to exactly its real child's size, no crash",
-      (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Center(
-        child: NibSkeletonRenderMount(
-          palette: _palette,
-          child: const _StatefulLeaf(
+  testWidgets(
+    'a childless leaf render object with no recognized type falls back to a bone '
+    'sized to its real size (e.g. a bare SizedBox)',
+    (tester) async {
+      final element = await _pumpAndFindElement(
+        tester,
+        const SizedBox(width: 50, height: 20),
+      );
+      final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+      expect(commands, hasLength(1));
+      expect(commands.single.kind, BonePaintKind.bone);
+      expect(commands.single.rect.size, const Size(50, 20));
+    },
+  );
+
+  testWidgets(
+    'a DecoratedBox with a child preserves its own real decoration and still bones its child',
+    (tester) async {
+      final element = await _pumpAndFindElement(
+        tester,
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.blue,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: const Text('inside'),
+        ),
+      );
+      final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+      expect(commands, hasLength(2));
+      expect(commands[0].kind, BonePaintKind.decoration);
+      final decoration = commands[0].decoration as BoxDecoration;
+      expect(decoration.color, Colors.blue);
+      expect(commands[1].kind, BonePaintKind.bone);
+    },
+  );
+
+  testWidgets(
+    'a ColoredBox with a child preserves its own real colour and still bones its child',
+    (tester) async {
+      final element = await _pumpAndFindElement(
+        tester,
+        const ColoredBox(color: Colors.yellow, child: Text('inside')),
+      );
+      final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+      expect(commands, hasLength(2));
+      expect(commands[0].kind, BonePaintKind.decoration);
+      final decoration = commands[0].decoration as BoxDecoration;
+      expect(decoration.color, Colors.yellow);
+    },
+  );
+
+  testWidgets(
+    'a StatefulWidget composing a DecoratedBox chrome around a CircleAvatar+Text preserves '
+    'the chrome and shades the content (the NibCard shape)',
+    (tester) async {
+      final element = await _pumpAndFindElement(
+        tester,
+        _StatefulLeaf(
+          child: DecoratedBox(
+            decoration: const BoxDecoration(color: Colors.black12),
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: [CircleAvatar(radius: 20), Text('Name')],
+              children: const [CircleAvatar(radius: 16), Text('Name')],
             ),
           ),
         ),
-      ),
-    ));
-    expect(tester.takeException(), isNull);
-    final mountSize = tester.getSize(find.byType(NibSkeletonRenderMount));
-    final realSize = tester.getSize(find.byType(Row));
-    expect(mountSize, realSize);
-  });
+      );
+      final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+      // 1 decoration (the chrome) + 2 bones (avatar circle, text bar).
+      expect(
+        commands.where((c) => c.kind == BonePaintKind.decoration),
+        hasLength(1),
+      );
+      expect(commands.where((c) => c.kind == BonePaintKind.bone), hasLength(2));
+    },
+  );
 
   testWidgets(
-      'a multi-hop component chain above a positioned child adds its offset '
-      'exactly once (the CircleAvatar->AnimatedContainer->Container chain bug)',
-      (tester) async {
-    final element = await _pumpAndFindElement(
-      tester,
-      const Padding(
-        padding: EdgeInsets.all(20),
-        child: _StatefulLeaf(child: _StatefulLeaf(child: Text('x'))),
-      ),
-    );
-    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
-    expect(commands, hasLength(1));
-    expect(commands.single.rect.topLeft, const Offset(20, 20));
-  });
+    "NibSkeletonRenderMount lays out to exactly its real child's size, no crash",
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: Center(
+            child: NibSkeletonRenderMount(
+              palette: _palette,
+              child: const _StatefulLeaf(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [CircleAvatar(radius: 20), Text('Name')],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final mountSize = tester.getSize(find.byType(NibSkeletonRenderMount));
+      final realSize = tester.getSize(find.byType(Row));
+      expect(mountSize, realSize);
+    },
+  );
 
   testWidgets(
-      'a NibButton at the end of a positioned Row keeps its chrome inside '
-      'the walked bounds, with its label bone inside the chrome (the example '
-      'card regression)', (tester) async {
-    final element = await _pumpAndFindElement(
-      tester,
-      SizedBox(
-        width: 320,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            NibButton(
+    'a multi-hop component chain above a positioned child adds its offset '
+    'exactly once (the CircleAvatar->AnimatedContainer->Container chain bug)',
+    (tester) async {
+      final element = await _pumpAndFindElement(
+        tester,
+        const Padding(
+          padding: EdgeInsets.all(20),
+          child: _StatefulLeaf(child: _StatefulLeaf(child: Text('x'))),
+        ),
+      );
+      final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+      expect(commands, hasLength(1));
+      expect(commands.single.rect.topLeft, const Offset(20, 20));
+    },
+  );
+
+  testWidgets(
+    'a NibButton at the end of a positioned Row keeps its chrome inside '
+    'the walked bounds, with its label bone inside the chrome (the example '
+    'card regression)',
+    (tester) async {
+      final element = await _pumpAndFindElement(
+        tester,
+        SizedBox(
+          width: 320,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              NibButton(
                 label: 'Message',
                 variant: NibButtonVariant.outline,
-                onPressed: () {}),
-            const SizedBox(width: 8),
-            NibButton(label: 'Follow', onPressed: () {}),
-          ],
+                onPressed: () {},
+              ),
+              const SizedBox(width: 8),
+              NibButton(label: 'Follow', onPressed: () {}),
+            ],
+          ),
         ),
-      ),
-    );
-    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
-    final rootSize = (element.renderObject! as RenderBox).size;
-    final rootRect = Offset.zero & rootSize;
-    final chromes =
-        commands.where((c) => c.kind == BonePaintKind.decoration).toList();
-    expect(chromes, hasLength(2), reason: 'one DecoratedBox chrome per button');
-    for (final chrome in chromes) {
-      expect(rootRect.contains(chrome.rect.topLeft), isTrue,
-          reason: '${chrome.rect} escapes $rootRect');
+      );
+      final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+      final rootSize = (element.renderObject! as RenderBox).size;
+      final rootRect = Offset.zero & rootSize;
+      final chromes = commands
+          .where((c) => c.kind == BonePaintKind.decoration)
+          .toList();
       expect(
+        chromes,
+        hasLength(2),
+        reason: 'one DecoratedBox chrome per button',
+      );
+      for (final chrome in chromes) {
+        expect(
+          rootRect.contains(chrome.rect.topLeft),
+          isTrue,
+          reason: '${chrome.rect} escapes $rootRect',
+        );
+        expect(
           rootRect.contains(chrome.rect.bottomRight - const Offset(0.1, 0.1)),
           isTrue,
-          reason: '${chrome.rect} escapes $rootRect');
-    }
-    final filled = chromes.last;
-    expect(
-      commands.any((c) =>
-          c.kind == BonePaintKind.bone && filled.rect.contains(c.rect.center)),
-      isTrue,
-      reason: 'the Follow label bone must sit inside its chrome',
-    );
-  });
+          reason: '${chrome.rect} escapes $rootRect',
+        );
+      }
+      final filled = chromes.last;
+      expect(
+        commands.any(
+          (c) =>
+              c.kind == BonePaintKind.bone &&
+              filled.rect.contains(c.rect.center),
+        ),
+        isTrue,
+        reason: 'the Follow label bone must sit inside its chrome',
+      );
+    },
+  );
 
   testWidgets(
-      'a shaped Material (the stock ElevatedButton/Card chrome primitive) '
-      'preserves color+shape as a ShapeDecoration command before its content',
-      (tester) async {
-    final element = await _pumpAndFindElement(
-      tester,
-      Material(
-        color: Colors.deepOrange,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: const SizedBox(
-            width: 80, height: 40, child: Center(child: Text('Go'))),
-      ),
-    );
-    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
-    expect(commands.first.kind, BonePaintKind.decoration,
-        reason: 'chrome paints before content bones');
-    final decoration = commands.first.decoration;
-    expect(decoration, isA<ShapeDecoration>());
-    final shapeDecoration = decoration! as ShapeDecoration;
-    expect(shapeDecoration.color, Colors.deepOrange);
-    expect((shapeDecoration.shape as RoundedRectangleBorder).borderRadius,
-        BorderRadius.circular(12));
-    expect(commands.where((c) => c.kind == BonePaintKind.bone), isNotEmpty,
-        reason: 'the label still bones');
-  });
+    'a shaped Material (the stock ElevatedButton/Card chrome primitive) '
+    'preserves color+shape as a ShapeDecoration command before its content',
+    (tester) async {
+      final element = await _pumpAndFindElement(
+        tester,
+        Material(
+          color: Colors.deepOrange,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const SizedBox(
+            width: 80,
+            height: 40,
+            child: Center(child: Text('Go')),
+          ),
+        ),
+      );
+      final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+      expect(
+        commands.first.kind,
+        BonePaintKind.decoration,
+        reason: 'chrome paints before content bones',
+      );
+      final decoration = commands.first.decoration;
+      expect(decoration, isA<ShapeDecoration>());
+      final shapeDecoration = decoration! as ShapeDecoration;
+      expect(shapeDecoration.color, Colors.deepOrange);
+      expect(
+        (shapeDecoration.shape as RoundedRectangleBorder).borderRadius,
+        BorderRadius.circular(12),
+      );
+      expect(
+        commands.where((c) => c.kind == BonePaintKind.bone),
+        isNotEmpty,
+        reason: 'the label still bones',
+      );
+    },
+  );
 
-  testWidgets('Material(type: transparency) produces no decoration command',
-      (tester) async {
+  testWidgets('Material(type: transparency) produces no decoration command', (
+    tester,
+  ) async {
     final element = await _pumpAndFindElement(
       tester,
       const Material(
         type: MaterialType.transparency,
-        child:
-            SizedBox(width: 80, height: 40, child: Center(child: Text('Go'))),
+        child: SizedBox(
+          width: 80,
+          height: 40,
+          child: Center(child: Text('Go')),
+        ),
       ),
     );
     final commands = computeBonePaintCommands(element, Offset.zero, _palette);
     expect(commands.where((c) => c.kind == BonePaintKind.decoration), isEmpty);
   });
 
-  testWidgets('a stock ElevatedButton gets chrome under its boned label',
-      (tester) async {
+  testWidgets('a stock ElevatedButton gets chrome under its boned label', (
+    tester,
+  ) async {
     final element = await _pumpAndFindElement(
       tester,
       ElevatedButton(onPressed: () {}, child: const Text('Go')),
     );
     final commands = computeBonePaintCommands(element, Offset.zero, _palette);
-    final chromes =
-        commands.where((c) => c.kind == BonePaintKind.decoration).toList();
+    final chromes = commands
+        .where((c) => c.kind == BonePaintKind.decoration)
+        .toList();
     expect(chromes, isNotEmpty);
     expect(chromes.first.decoration, isA<ShapeDecoration>());
   });
 
-  testWidgets('PhysicalModel rounded-rect preserves color and borderRadius',
-      (tester) async {
+  testWidgets('PhysicalModel rounded-rect preserves color and borderRadius', (
+    tester,
+  ) async {
     final element = await _pumpAndFindElement(
       tester,
       PhysicalModel(
@@ -325,8 +427,7 @@ void main() {
     expect(deco.borderRadius, BorderRadius.circular(6));
   });
 
-  testWidgets(
-      'PhysicalModel circle drops borderRadius (BoxDecoration asserts '
+  testWidgets('PhysicalModel circle drops borderRadius (BoxDecoration asserts '
       'borderRadius == null for circles)', (tester) async {
     final element = await _pumpAndFindElement(
       tester,
@@ -343,65 +444,89 @@ void main() {
   });
 
   testWidgets(
-      'the mount captures the ambient Directionality for decoration painting',
-      (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Directionality(
-        textDirection: TextDirection.rtl,
-        child:
-            NibSkeleton(loading: true, child: _StatefulLeaf(child: Text('x'))),
-      ),
-    ));
-    final mount = tester.renderObject<RenderNibSkeletonMount>(
-        find.byType(NibSkeletonRenderMount));
-    expect(mount.textDirection, TextDirection.rtl);
-  });
+    'the mount captures the ambient Directionality for decoration painting',
+    (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: Directionality(
+            textDirection: TextDirection.rtl,
+            child: NibSkeleton(
+              loading: true,
+              child: _StatefulLeaf(child: Text('x')),
+            ),
+          ),
+        ),
+      );
+      final mount = tester.renderObject<RenderNibSkeletonMount>(
+        find.byType(NibSkeletonRenderMount),
+      );
+      expect(mount.textDirection, TextDirection.rtl);
+    },
+  );
 
   testWidgets(
-      'animated: true wraps the mount in a shimmer driver with a live ticker, '
-      'and unmounting leaks nothing', (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: NibSkeleton(
-          loading: true,
-          animated: true,
-          child: _StatefulLeaf(child: Text('x'))),
-    ));
-    // Let the NibPresence/NibMotion entrance dissolve (220ms) finish so the
-    // only remaining transient callback is the shimmer ticker.
-    await tester.pump(const Duration(milliseconds: 400));
-    expect(find.byType(NibSkeletonMountShimmerDriver), findsOneWidget);
-    expect(tester.binding.transientCallbackCount, greaterThan(0),
-        reason: 'the shimmer ticker must keep running while loading');
-    final mount = tester.renderObject<RenderNibSkeletonMount>(
-        find.byType(NibSkeletonRenderMount));
-    expect(mount.time, isNotNull);
+    'animated: true wraps the mount in a shimmer driver with a live ticker, '
+    'and unmounting leaks nothing',
+    (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: NibSkeleton(
+            loading: true,
+            animated: true,
+            child: _StatefulLeaf(child: Text('x')),
+          ),
+        ),
+      );
+      // Let the NibPresence/NibMotion entrance dissolve (220ms) finish so the
+      // only remaining transient callback is the shimmer ticker.
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byType(NibSkeletonMountShimmerDriver), findsOneWidget);
+      expect(
+        tester.binding.transientCallbackCount,
+        greaterThan(0),
+        reason: 'the shimmer ticker must keep running while loading',
+      );
+      final mount = tester.renderObject<RenderNibSkeletonMount>(
+        find.byType(NibSkeletonRenderMount),
+      );
+      expect(mount.time, isNotNull);
 
-    await tester.pumpWidget(
-        const MaterialApp(debugShowCheckedModeBanner: false, home: SizedBox()));
-    await tester.pump();
-    expect(tester.takeException(), isNull);
-    // flutter_test itself fails the test at teardown if a Ticker leaked.
-  });
+      await tester.pumpWidget(
+        const MaterialApp(debugShowCheckedModeBanner: false, home: SizedBox()),
+      );
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      // flutter_test itself fails the test at teardown if a Ticker leaked.
+    },
+  );
 
   testWidgets(
-      'animated: false builds no shimmer driver and no ticking animation',
-      (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: NibSkeleton(loading: true, child: _StatefulLeaf(child: Text('x'))),
-    ));
-    await tester.pump(const Duration(seconds: 1));
-    expect(find.byType(NibSkeletonMountShimmerDriver), findsNothing);
-    expect(tester.binding.transientCallbackCount, 0);
-    final mount = tester.renderObject<RenderNibSkeletonMount>(
-        find.byType(NibSkeletonRenderMount));
-    expect(mount.time, isNull);
-  });
+    'animated: false builds no shimmer driver and no ticking animation',
+    (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: NibSkeleton(
+            loading: true,
+            child: _StatefulLeaf(child: Text('x')),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.byType(NibSkeletonMountShimmerDriver), findsNothing);
+      expect(tester.binding.transientCallbackCount, 0);
+      final mount = tester.renderObject<RenderNibSkeletonMount>(
+        find.byType(NibSkeletonRenderMount),
+      );
+      expect(mount.time, isNull);
+    },
+  );
 
-  testWidgets('a time tick marks the mount as needing paint with no rebuild',
-      (tester) async {
+  testWidgets('a time tick marks the mount as needing paint with no rebuild', (
+    tester,
+  ) async {
     // Drives a bare mount directly (no NibSkeleton/NibMotion above): the
     // NibMotion entrance dissolve never progresses past its initial
     // opacity-0 frame under fake-async `flutter test`, so an animated
@@ -411,41 +536,55 @@ void main() {
     // only a repaint.
     final time = MotionValue<double>(0);
     addTearDown(time.dispose);
-    await tester.pumpWidget(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Center(
-        child: NibSkeletonRenderMount(
-          palette: _palette,
-          time: time,
-          child: const _StatefulLeaf(child: Text('x')),
+    await tester.pumpWidget(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Center(
+          child: NibSkeletonRenderMount(
+            palette: _palette,
+            time: time,
+            child: const _StatefulLeaf(child: Text('x')),
+          ),
         ),
       ),
-    ));
+    );
     final mount = tester.renderObject<RenderNibSkeletonMount>(
-        find.byType(NibSkeletonRenderMount));
-    expect(mount.debugNeedsPaint, isFalse,
-        reason: 'the initial frame paints the mount');
+      find.byType(NibSkeletonRenderMount),
+    );
+    expect(
+      mount.debugNeedsPaint,
+      isFalse,
+      reason: 'the initial frame paints the mount',
+    );
     time.value = 123.456;
-    expect(mount.debugNeedsPaint, isTrue,
-        reason: 'a tick marks a repaint without any rebuild');
+    expect(
+      mount.debugNeedsPaint,
+      isTrue,
+      reason: 'a tick marks a repaint without any rebuild',
+    );
     await tester.pump();
-    expect(mount.debugNeedsPaint, isFalse,
-        reason: 'the repaint clears the flag');
+    expect(
+      mount.debugNeedsPaint,
+      isFalse,
+      reason: 'the repaint clears the flag',
+    );
   });
 
-  testWidgets('NibSkeletonRenderMount survives a rebuild with a different child (update, not just mount)',
-      (tester) async {
-    Widget host(String label) => MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: Center(
-            child: NibSkeletonRenderMount(
-              palette: _palette,
-              child: _StatefulLeaf(child: Text(label)),
-            ),
+  testWidgets(
+    'NibSkeletonRenderMount survives a rebuild with a different child (update, not just mount)',
+    (tester) async {
+      Widget host(String label) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Center(
+          child: NibSkeletonRenderMount(
+            palette: _palette,
+            child: _StatefulLeaf(child: Text(label)),
           ),
-        );
-    await tester.pumpWidget(host('first'));
-    await tester.pumpWidget(host('second'));
-    expect(tester.takeException(), isNull);
-  });
+        ),
+      );
+      await tester.pumpWidget(host('first'));
+      await tester.pumpWidget(host('second'));
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

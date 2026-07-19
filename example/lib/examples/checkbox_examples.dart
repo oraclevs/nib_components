@@ -6,8 +6,7 @@ class CheckboxMinimalExample extends StatefulWidget {
   const CheckboxMinimalExample({super.key});
 
   @override
-  State<CheckboxMinimalExample> createState() =>
-      _CheckboxMinimalExampleState();
+  State<CheckboxMinimalExample> createState() => _CheckboxMinimalExampleState();
 }
 
 class _CheckboxMinimalExampleState extends State<CheckboxMinimalExample> {
@@ -22,10 +21,7 @@ class _CheckboxMinimalExampleState extends State<CheckboxMinimalExample> {
       children: [
         Text('Bare — $_bare'),
         const SizedBox(height: 8),
-        NibCheckbox(
-          value: _bare,
-          onChanged: (v) => setState(() => _bare = v!),
-        ),
+        NibCheckbox(value: _bare, onChanged: (v) => setState(() => _bare = v!)),
         const SizedBox(height: 16),
         NibCheckbox(
           value: _labelled,
@@ -141,11 +137,7 @@ class _CheckboxBesideButtonExampleState
               onChanged: (v) => setState(() => _bare = v!),
             ),
             const SizedBox(width: 12),
-            NibButton(
-              label: 'Small',
-              size: NibButtonSize.sm,
-              onPressed: () {},
-            ),
+            NibButton(label: 'Small', size: NibButtonSize.sm, onPressed: () {}),
             const SizedBox(width: 12),
             NibButton(label: 'Medium', onPressed: () {}),
           ],
@@ -179,11 +171,7 @@ class _CheckboxBesideButtonExampleState
               ),
             ),
             const SizedBox(width: 12),
-            NibButton(
-              label: 'Continue',
-              disabled: !_agreed,
-              onPressed: () {},
-            ),
+            NibButton(label: 'Continue', disabled: !_agreed, onPressed: () {}),
           ],
         ),
       ],

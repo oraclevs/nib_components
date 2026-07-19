@@ -20,7 +20,9 @@ List<double> normalizedInitialSizes(List<NibResizablePanel> panels) {
   final remainder = (1.0 - explicitSum).clamp(0.0, 1.0);
   final implicitShare = implicitCount > 0 ? remainder / implicitCount : 0.0;
 
-  final raw = <double>[for (var i = 0; i < panels.length; i++) explicit[i] ?? implicitShare];
+  final raw = <double>[
+    for (var i = 0; i < panels.length; i++) explicit[i] ?? implicitShare,
+  ];
 
   final total = raw.fold<double>(0.0, (sum, v) => sum + v);
   if (total <= 0.0) {
@@ -47,7 +49,10 @@ List<double> applyHandleDelta({
   final j = handleIndex + 1;
   final pairBudget = sizes[i] + sizes[j];
 
-  var newI = (sizes[i] + deltaFraction).clamp(panels[i].minSize, panels[i].maxSize);
+  var newI = (sizes[i] + deltaFraction).clamp(
+    panels[i].minSize,
+    panels[i].maxSize,
+  );
   var newJ = pairBudget - newI;
 
   if (newJ < panels[j].minSize) {

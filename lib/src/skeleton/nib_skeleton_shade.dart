@@ -65,7 +65,9 @@ Widget buildBoneBox({
   final isCircle = shape == NibSkeletonShape.circle;
   final resolvedRadius = isCircle
       ? null
-      : (radius ?? palette.boxRadius ?? BorderRadius.circular(palette.radiusDefault));
+      : (radius ??
+            palette.boxRadius ??
+            BorderRadius.circular(palette.radiusDefault));
   final box = DecoratedBox(
     decoration: BoxDecoration(
       color: palette.baseColor,
@@ -84,7 +86,10 @@ Widget buildBoneBox({
     );
     content = isCircle
         ? ClipOval(child: shimmer)
-        : ClipRRect(borderRadius: resolvedRadius ?? BorderRadius.zero, child: shimmer);
+        : ClipRRect(
+            borderRadius: resolvedRadius ?? BorderRadius.zero,
+            child: shimmer,
+          );
   }
 
   return SizedBox(
@@ -143,8 +148,12 @@ BorderRadius? _containerRadius(Decoration? decoration) {
 Widget _boneForChildlessContainer(Container node, NibSkeletonPalette palette) {
   final decoration = node.decoration;
   final constraints = node.constraints;
-  final width = (constraints != null && constraints.hasTightWidth) ? constraints.maxWidth : null;
-  final height = (constraints != null && constraints.hasTightHeight) ? constraints.maxHeight : null;
+  final width = (constraints != null && constraints.hasTightWidth)
+      ? constraints.maxWidth
+      : null;
+  final height = (constraints != null && constraints.hasTightHeight)
+      ? constraints.maxHeight
+      : null;
   return buildBoneBox(
     palette: palette,
     width: width,
@@ -154,7 +163,10 @@ Widget _boneForChildlessContainer(Container node, NibSkeletonPalette palette) {
   );
 }
 
-Widget _boneForChildlessDecoratedBox(DecoratedBox node, NibSkeletonPalette palette) {
+Widget _boneForChildlessDecoratedBox(
+  DecoratedBox node,
+  NibSkeletonPalette palette,
+) {
   return buildBoneBox(
     palette: palette,
     shape: _containerShape(node.decoration) ?? NibSkeletonShape.rectangle,
@@ -165,7 +177,11 @@ Widget _boneForChildlessDecoratedBox(DecoratedBox node, NibSkeletonPalette palet
 /// Recognized leaf widget types → a bone shape sized from the node's own
 /// constructor params. Returns `null` when [node] isn't a recognized leaf,
 /// so [shadeWidget] can try the next bucket.
-Widget? shadeLeaf(BuildContext context, Widget node, NibSkeletonPalette palette) {
+Widget? shadeLeaf(
+  BuildContext context,
+  Widget node,
+  NibSkeletonPalette palette,
+) {
   if (node is Text) {
     return _boneForTextLike(
       context,
@@ -217,7 +233,11 @@ Widget? shadeLeaf(BuildContext context, Widget node, NibSkeletonPalette palette)
     );
   }
   if (node is Image) {
-    return buildBoneBox(palette: palette, width: node.width, height: node.height);
+    return buildBoneBox(
+      palette: palette,
+      width: node.width,
+      height: node.height,
+    );
   }
   if (node is Container && node.child == null) {
     return _boneForChildlessContainer(node, palette);
@@ -236,7 +256,11 @@ Widget? shadeLeaf(BuildContext context, Widget node, NibSkeletonPalette palette)
     // connector block that visually merges the two bones it was meant to
     // separate, so it's returned unchanged (invisible) instead.
     if (node.width != null && node.height != null) {
-      return buildBoneBox(palette: palette, width: node.width, height: node.height);
+      return buildBoneBox(
+        palette: palette,
+        width: node.width,
+        height: node.height,
+      );
     }
     return node;
   }
@@ -246,10 +270,15 @@ Widget? shadeLeaf(BuildContext context, Widget node, NibSkeletonPalette palette)
 /// Recognized structural widget types → the same widget type rebuilt with
 /// its children individually shaded. Returns `null` when [node] isn't a
 /// recognized structural type.
-Widget? shadeStructural(BuildContext context, Widget node, NibSkeletonPalette palette) {
+Widget? shadeStructural(
+  BuildContext context,
+  Widget node,
+  NibSkeletonPalette palette,
+) {
   Widget rec(Widget child) => shadeWidget(context, child, palette);
   Widget? recOrNull(Widget? child) => child == null ? null : rec(child);
-  List<Widget> recAll(List<Widget> children) => children.map(rec).toList(growable: false);
+  List<Widget> recAll(List<Widget> children) =>
+      children.map(rec).toList(growable: false);
   List<Widget> recAllSpaced(List<Widget> children, Axis axis) {
     final shaded = recAll(children);
     if (palette.boneSpacing <= 0 || shaded.length < 2) return shaded;
@@ -347,10 +376,17 @@ Widget? shadeStructural(BuildContext context, Widget node, NibSkeletonPalette pa
     );
   }
   if (node is ConstrainedBox) {
-    return ConstrainedBox(constraints: node.constraints, child: recOrNull(node.child));
+    return ConstrainedBox(
+      constraints: node.constraints,
+      child: recOrNull(node.child),
+    );
   }
   if (node is SizedBox && node.child != null) {
-    return SizedBox(width: node.width, height: node.height, child: rec(node.child!));
+    return SizedBox(
+      width: node.width,
+      height: node.height,
+      child: rec(node.child!),
+    );
   }
   if (node is Container && node.child != null) {
     return Container(
@@ -392,7 +428,11 @@ Widget? shadeStructural(BuildContext context, Widget node, NibSkeletonPalette pa
 /// see `docs/superpowers/specs/2026-07-19-skeleton-render-mount.md`) → a flat
 /// fallback bone box for anything else (a custom-painted widget, or a
 /// `build()` call that threw).
-Widget shadeWidget(BuildContext context, Widget node, NibSkeletonPalette palette) {
+Widget shadeWidget(
+  BuildContext context,
+  Widget node,
+  NibSkeletonPalette palette,
+) {
   if (node is NibSkeletonIgnore) {
     return node.child;
   }

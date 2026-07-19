@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibTransition;
 
 import '../theme/nib_theme.dart';
 import 'nib_combobox_controller.dart';
@@ -154,7 +155,9 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
       _unbindController();
       _bindController(widget.controller);
     }
-    if (!identical(widget.options, oldWidget.options) && _controller.isOpen && !_isAsync) {
+    if (!identical(widget.options, oldWidget.options) &&
+        _controller.isOpen &&
+        !_isAsync) {
       _recomputeSyncVisible();
       _overlayEntry?.markNeedsBuild();
     }
@@ -230,7 +233,10 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
     // Select-all so the first keystroke replaces any reverted label and the
     // freshly-opened list shows everything rather than filtering by it.
     if (_textController.text.isNotEmpty) {
-      _textController.selection = TextSelection(baseOffset: 0, extentOffset: _textController.text.length);
+      _textController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: _textController.text.length,
+      );
     }
     _controller.open();
   }
@@ -258,7 +264,11 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
   }
 
   void _recomputeSyncVisible() {
-    _visibleOptions = filterOptions(widget.options, _textController.text, _filter);
+    _visibleOptions = filterOptions(
+      widget.options,
+      _textController.text,
+      _filter,
+    );
     _resetHighlight();
   }
 
@@ -378,7 +388,9 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
     ];
     if (enabled.isEmpty) return;
     final pos = enabled.indexOf(_highlightedIndex);
-    final nextPos = pos == -1 ? (delta > 0 ? 0 : enabled.length - 1) : (pos + delta) % enabled.length;
+    final nextPos = pos == -1
+        ? (delta > 0 ? 0 : enabled.length - 1)
+        : (pos + delta) % enabled.length;
     final wrapped = nextPos < 0 ? enabled.length + nextPos : nextPos;
     setState(() => _highlightedIndex = enabled[wrapped]);
     _overlayEntry?.markNeedsBuild();
@@ -413,8 +425,9 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
     // Keep the dropdown clear of the status bar (top), and of the system nav bar
     // or on-screen keyboard (bottom) — otherwise on a phone it opens under them.
     final safeTop = mq.padding.top;
-    final safeBottom =
-        mq.padding.bottom > mq.viewInsets.bottom ? mq.padding.bottom : mq.viewInsets.bottom;
+    final safeBottom = mq.padding.bottom > mq.viewInsets.bottom
+        ? mq.padding.bottom
+        : mq.viewInsets.bottom;
 
     var fieldWidth = 240.0;
     var available = widget.maxDropdownHeight;
@@ -422,10 +435,14 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
     if (box != null && box.hasSize) {
       fieldWidth = box.size.width;
       final topLeft = box.localToGlobal(Offset.zero);
-      final spaceBelow = screen.height - safeBottom - (topLeft.dy + box.size.height) - 8;
+      final spaceBelow =
+          screen.height - safeBottom - (topLeft.dy + box.size.height) - 8;
       final spaceAbove = topLeft.dy - safeTop - 8;
       openUp = spaceBelow < 160 && spaceAbove > spaceBelow;
-      available = (openUp ? spaceAbove : spaceBelow).clamp(80.0, widget.maxDropdownHeight);
+      available = (openUp ? spaceAbove : spaceBelow).clamp(
+        80.0,
+        widget.maxDropdownHeight,
+      );
     }
 
     final maxHeight = available.clamp(80.0, widget.maxDropdownHeight);
@@ -462,9 +479,17 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
             width: fieldWidth,
             child: widget.animated
                 ? NibMotion(
-                    initial: NibAnim(opacity: 0, scale: 0.98, y: openUp ? 8 : -8),
+                    initial: NibAnim(
+                      opacity: 0,
+                      scale: 0.98,
+                      y: openUp ? 8 : -8,
+                    ),
                     animate: const NibAnim(opacity: 1, scale: 1, y: 0),
-                    transition: widget.transition ?? const NibTransition(duration: Duration(milliseconds: 140)),
+                    transition:
+                        widget.transition ??
+                        const NibTransition(
+                          duration: Duration(milliseconds: 140),
+                        ),
                     child: card,
                   )
                 : card,
@@ -481,7 +506,11 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
       return const Padding(
         padding: EdgeInsets.all(20),
         child: Center(
-          child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5)),
+          child: SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
         ),
       );
     }
@@ -490,7 +519,10 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
       return widget.noResultsBuilder?.call(overlayContext) ??
           Padding(
             padding: const EdgeInsets.all(20),
-            child: Text('No results', style: TextStyle(color: theme.mutedForeground)),
+            child: Text(
+              'No results',
+              style: TextStyle(color: theme.mutedForeground),
+            ),
           );
     }
 
@@ -498,7 +530,8 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       shrinkWrap: true,
       itemCount: _visibleOptions.length,
-      itemBuilder: (context, i) => _buildOptionRow(theme, _visibleOptions[i], i),
+      itemBuilder: (context, i) =>
+          _buildOptionRow(theme, _visibleOptions[i], i),
     );
 
     if (!loadingActive) return list;
@@ -506,13 +539,21 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        LinearProgressIndicator(minHeight: 2, backgroundColor: theme.muted, color: theme.primary),
+        LinearProgressIndicator(
+          minHeight: 2,
+          backgroundColor: theme.muted,
+          color: theme.primary,
+        ),
         Flexible(child: list),
       ],
     );
   }
 
-  Widget _buildOptionRow(NibTheme theme, NibComboboxOption<T> option, int index) {
+  Widget _buildOptionRow(
+    NibTheme theme,
+    NibComboboxOption<T> option,
+    int index,
+  ) {
     final highlighted = index == _highlightedIndex;
     final selected = _controller.selectedValues.contains(option.value);
     return Padding(
@@ -536,10 +577,16 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 44),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   child: Row(
                     children: [
-                      if (option.icon != null) ...[option.icon!, const SizedBox(width: 10)],
+                      if (option.icon != null) ...[
+                        option.icon!,
+                        const SizedBox(width: 10),
+                      ],
                       Expanded(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -548,14 +595,21 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
                             Text(
                               option.label,
                               style: TextStyle(
-                                color: option.disabled ? theme.mutedForeground : theme.foreground,
-                                fontWeight: highlighted ? FontWeight.w600 : FontWeight.normal,
+                                color: option.disabled
+                                    ? theme.mutedForeground
+                                    : theme.foreground,
+                                fontWeight: highlighted
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
                               ),
                             ),
                             if (option.subtitle != null)
                               Text(
                                 option.subtitle!,
-                                style: TextStyle(color: theme.mutedForeground, fontSize: 12),
+                                style: TextStyle(
+                                  color: theme.mutedForeground,
+                                  fontSize: 12,
+                                ),
                               ),
                           ],
                         ),
@@ -579,14 +633,21 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
 
   Map<ShortcutActivator, Intent> _shortcuts() {
     final canRemoveChip =
-        widget.multiSelect && _textController.text.isEmpty && _controller.selectedValues.isNotEmpty;
+        widget.multiSelect &&
+        _textController.text.isEmpty &&
+        _controller.selectedValues.isNotEmpty;
     return {
-      const SingleActivator(LogicalKeyboardKey.arrowDown): const _MoveOrOpenIntent(1),
-      const SingleActivator(LogicalKeyboardKey.arrowUp): const _MoveHighlightIntent(-1),
+      const SingleActivator(LogicalKeyboardKey.arrowDown):
+          const _MoveOrOpenIntent(1),
+      const SingleActivator(LogicalKeyboardKey.arrowUp):
+          const _MoveHighlightIntent(-1),
       const SingleActivator(LogicalKeyboardKey.enter): const _ActivateIntent(),
-      const SingleActivator(LogicalKeyboardKey.numpadEnter): const _ActivateIntent(),
+      const SingleActivator(LogicalKeyboardKey.numpadEnter):
+          const _ActivateIntent(),
       const SingleActivator(LogicalKeyboardKey.escape): const _CloseIntent(),
-      if (canRemoveChip) const SingleActivator(LogicalKeyboardKey.backspace): const _RemoveLastChipIntent(),
+      if (canRemoveChip)
+        const SingleActivator(LogicalKeyboardKey.backspace):
+            const _RemoveLastChipIntent(),
     };
   }
 
@@ -601,14 +662,21 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(_labelForValue(value), style: TextStyle(color: theme.secondaryForeground, fontSize: 13)),
+          Text(
+            _labelForValue(value),
+            style: TextStyle(color: theme.secondaryForeground, fontSize: 13),
+          ),
           const SizedBox(width: 2),
           InkWell(
             onTap: widget.disabled ? null : () => _removeChip(value),
             borderRadius: BorderRadius.circular(theme.radiusPill),
             child: Padding(
               padding: const EdgeInsets.all(2),
-              child: Icon(Icons.close, size: 14, color: theme.secondaryForeground),
+              child: Icon(
+                Icons.close,
+                size: 14,
+                color: theme.secondaryForeground,
+              ),
             ),
           ),
         ],
@@ -619,9 +687,11 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
   @override
   Widget build(BuildContext context) {
     final theme = NibTheme.of(context);
-    final hasClearable = widget.clearable &&
+    final hasClearable =
+        widget.clearable &&
         !widget.disabled &&
-        (_textController.text.isNotEmpty || _controller.selectedValues.isNotEmpty);
+        (_textController.text.isNotEmpty ||
+            _controller.selectedValues.isNotEmpty);
 
     final field = TextField(
       controller: _textController,
@@ -637,7 +707,9 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
       decoration: InputDecoration(
         isDense: true,
         border: InputBorder.none,
-        hintText: (widget.multiSelect && _controller.selectedValues.isNotEmpty) ? null : widget.placeholder,
+        hintText: (widget.multiSelect && _controller.selectedValues.isNotEmpty)
+            ? null
+            : widget.placeholder,
         hintStyle: TextStyle(color: theme.mutedForeground),
         contentPadding: EdgeInsets.zero,
       ),
@@ -649,7 +721,10 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           for (final v in _controller.selectedValues) _buildChip(theme, v),
-          ConstrainedBox(constraints: const BoxConstraints(minWidth: 120), child: field),
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 120),
+            child: field,
+          ),
         ],
       );
     } else {
@@ -660,35 +735,45 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
       shortcuts: _shortcuts(),
       child: Actions(
         actions: {
-          _MoveOrOpenIntent: CallbackAction<_MoveOrOpenIntent>(onInvoke: (i) {
-            if (!_controller.isOpen) {
-              _open();
-            } else {
-              _moveHighlight(i.delta);
-            }
-            return null;
-          }),
-          _MoveHighlightIntent: CallbackAction<_MoveHighlightIntent>(onInvoke: (i) {
-            if (_controller.isOpen) _moveHighlight(i.delta);
-            return null;
-          }),
-          _ActivateIntent: CallbackAction<_ActivateIntent>(onInvoke: (_) {
-            if (_controller.isOpen) {
-              _activateHighlighted();
-            } else if (widget.allowFreeText) {
-              _commitFreeText();
-            }
-            return null;
-          }),
-          _CloseIntent: CallbackAction<_CloseIntent>(onInvoke: (_) {
-            _closeAndRevert();
-            return null;
-          }),
-          _RemoveLastChipIntent: CallbackAction<_RemoveLastChipIntent>(onInvoke: (_) {
-            final sel = _controller.selectedValues;
-            if (sel.isNotEmpty) _removeChip(sel.last);
-            return null;
-          }),
+          _MoveOrOpenIntent: CallbackAction<_MoveOrOpenIntent>(
+            onInvoke: (i) {
+              if (!_controller.isOpen) {
+                _open();
+              } else {
+                _moveHighlight(i.delta);
+              }
+              return null;
+            },
+          ),
+          _MoveHighlightIntent: CallbackAction<_MoveHighlightIntent>(
+            onInvoke: (i) {
+              if (_controller.isOpen) _moveHighlight(i.delta);
+              return null;
+            },
+          ),
+          _ActivateIntent: CallbackAction<_ActivateIntent>(
+            onInvoke: (_) {
+              if (_controller.isOpen) {
+                _activateHighlighted();
+              } else if (widget.allowFreeText) {
+                _commitFreeText();
+              }
+              return null;
+            },
+          ),
+          _CloseIntent: CallbackAction<_CloseIntent>(
+            onInvoke: (_) {
+              _closeAndRevert();
+              return null;
+            },
+          ),
+          _RemoveLastChipIntent: CallbackAction<_RemoveLastChipIntent>(
+            onInvoke: (_) {
+              final sel = _controller.selectedValues;
+              if (sel.isNotEmpty) _removeChip(sel.last);
+              return null;
+            },
+          ),
         },
         child: CompositedTransformTarget(
           link: _link,
@@ -698,11 +783,16 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: widget.disabled ? theme.muted : theme.background,
-                border: Border.all(color: _controller.isOpen ? theme.ring : theme.border),
+                border: Border.all(
+                  color: _controller.isOpen ? theme.ring : theme.border,
+                ),
                 borderRadius: BorderRadius.circular(theme.radiusDefault),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 child: Row(
                   children: [
                     Icon(Icons.search, size: 18, color: theme.mutedForeground),
@@ -714,7 +804,11 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
                         borderRadius: BorderRadius.circular(theme.radiusPill),
                         child: Padding(
                           padding: const EdgeInsets.all(4),
-                          child: Icon(Icons.close, size: 16, color: theme.mutedForeground),
+                          child: Icon(
+                            Icons.close,
+                            size: 16,
+                            color: theme.mutedForeground,
+                          ),
                         ),
                       ),
                     InkWell(
@@ -723,7 +817,9 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
                       child: Padding(
                         padding: const EdgeInsets.all(4),
                         child: Icon(
-                          _controller.isOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                          _controller.isOpen
+                              ? Icons.arrow_drop_up
+                              : Icons.arrow_drop_down,
                           color: theme.mutedForeground,
                         ),
                       ),

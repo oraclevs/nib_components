@@ -24,8 +24,17 @@ class _TriggerBox extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (icon != null) ...[Icon(icon, size: 18), const SizedBox(width: 8)],
-            Text(label, style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w600)),
+            if (icon != null) ...[
+              Icon(icon, size: 18),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: scheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),
@@ -63,9 +72,21 @@ class BottomSheetMinimalExample extends StatelessWidget {
               builder: (sctx) => Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _action(Icons.link, 'Copy link', () => NibBottomSheetScope.of(sctx).close()),
-                  _action(Icons.mail_outline, 'Email', () => NibBottomSheetScope.of(sctx).close()),
-                  _action(Icons.download, 'Save to device', () => NibBottomSheetScope.of(sctx).close()),
+                  _action(
+                    Icons.link,
+                    'Copy link',
+                    () => NibBottomSheetScope.of(sctx).close(),
+                  ),
+                  _action(
+                    Icons.mail_outline,
+                    'Email',
+                    () => NibBottomSheetScope.of(sctx).close(),
+                  ),
+                  _action(
+                    Icons.download,
+                    'Save to device',
+                    () => NibBottomSheetScope.of(sctx).close(),
+                  ),
                 ],
               ),
             ),
@@ -83,10 +104,12 @@ class BottomSheetSnapPointsExample extends StatefulWidget {
   const BottomSheetSnapPointsExample({super.key});
 
   @override
-  State<BottomSheetSnapPointsExample> createState() => _BottomSheetSnapPointsExampleState();
+  State<BottomSheetSnapPointsExample> createState() =>
+      _BottomSheetSnapPointsExampleState();
 }
 
-class _BottomSheetSnapPointsExampleState extends State<BottomSheetSnapPointsExample> {
+class _BottomSheetSnapPointsExampleState
+    extends State<BottomSheetSnapPointsExample> {
   int _snap = 1;
 
   @override
@@ -97,7 +120,10 @@ class _BottomSheetSnapPointsExampleState extends State<BottomSheetSnapPointsExam
       children: [
         const Text('Snap points — peek / half / full (drag the handle)'),
         const SizedBox(height: 4),
-        Text('Last settled snap: $_snap', style: const TextStyle(fontWeight: FontWeight.w600)),
+        Text(
+          'Last settled snap: $_snap',
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
         const SizedBox(height: 12),
         ElevatedButton(
           onPressed: () => showNibBottomSheet<void>(
@@ -154,7 +180,9 @@ class _BottomSheetDeclarativeAdvancedExampleState
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Declarative — NibBottomSheet(controller:, animated spring)'),
+        const Text(
+          'Declarative — NibBottomSheet(controller:, animated spring)',
+        ),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -171,13 +199,18 @@ class _BottomSheetDeclarativeAdvancedExampleState
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Sort by', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Sort by',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     for (final o in ['Relevance', 'Newest', 'Price'])
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: Icon(o == 'Relevance'
-                            ? Icons.radio_button_checked
-                            : Icons.radio_button_off),
+                        leading: Icon(
+                          o == 'Relevance'
+                              ? Icons.radio_button_checked
+                              : Icons.radio_button_off,
+                        ),
                         title: Text(o),
                         onTap: () {},
                       ),
@@ -232,19 +265,23 @@ class BottomSheetNonDismissibleExample extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('You must accept before continuing. Tapping outside '
-                        'or pressing Escape will not close this sheet.'),
+                    const Text(
+                      'You must accept before continuing. Tapping outside '
+                      'or pressing Escape will not close this sheet.',
+                    ),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         TextButton(
-                          onPressed: () => NibBottomSheetScope.of(sctx).close(false),
+                          onPressed: () =>
+                              NibBottomSheetScope.of(sctx).close(false),
                           child: const Text('Decline'),
                         ),
                         const SizedBox(width: 8),
                         FilledButton(
-                          onPressed: () => NibBottomSheetScope.of(sctx).close(true),
+                          onPressed: () =>
+                              NibBottomSheetScope.of(sctx).close(true),
                           child: const Text('Accept'),
                         ),
                       ],

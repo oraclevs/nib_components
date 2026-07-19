@@ -5,7 +5,11 @@ import 'package:nib_components/src/combobox/nib_combobox_option.dart';
 const _options = [
   NibComboboxOption(value: 'apple', label: 'Apple', subtitle: 'A red fruit'),
   NibComboboxOption(value: 'banana', label: 'Banana'),
-  NibComboboxOption(value: 'cherry', label: 'Cherry', subtitle: 'Small and red'),
+  NibComboboxOption(
+    value: 'cherry',
+    label: 'Cherry',
+    subtitle: 'Small and red',
+  ),
 ];
 
 void main() {

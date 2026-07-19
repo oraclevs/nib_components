@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibGlass, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibGlass, NibMotion, NibTransition;
 
 import '../theme/nib_theme.dart';
 
@@ -128,7 +129,8 @@ class _NibLiquidGlassState extends State<NibLiquidGlass> {
   @override
   void didUpdateWidget(covariant NibLiquidGlass oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!_pressed && widget.restLightDirection != oldWidget.restLightDirection) {
+    if (!_pressed &&
+        widget.restLightDirection != oldWidget.restLightDirection) {
       _light = widget.restLightDirection;
     }
   }
@@ -185,10 +187,7 @@ class _NibLiquidGlassState extends State<NibLiquidGlass> {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: widget.clipper == null ? radius : null,
-                  border: Border.all(
-                    color: const Color(0x26FFFFFF),
-                    width: 1,
-                  ),
+                  border: Border.all(color: const Color(0x26FFFFFF), width: 1),
                 ),
               ),
             ),
@@ -215,7 +214,9 @@ class _NibLiquidGlassState extends State<NibLiquidGlass> {
       glass = NibMotion(
         initial: NibAnim.identity,
         animate: NibAnim(scale: _pressed ? 0.98 : 1.0),
-        transition: widget.transition ?? const NibTransition(duration: Duration(milliseconds: 140)),
+        transition:
+            widget.transition ??
+            const NibTransition(duration: Duration(milliseconds: 140)),
         child: glass,
       );
     }

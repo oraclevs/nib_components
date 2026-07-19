@@ -146,7 +146,8 @@ class NibSwitch extends StatelessWidget {
         : Container(
             constraints: const BoxConstraints(minHeight: 48),
             alignment: Alignment.centerLeft,
-            padding: contentPadding ??
+            padding:
+                contentPadding ??
                 const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -162,7 +163,9 @@ class NibSwitch extends StatelessWidget {
                       Text(
                         label!,
                         style: TextStyle(
-                          color: enabled ? theme.foreground : theme.mutedForeground,
+                          color: enabled
+                              ? theme.foreground
+                              : theme.mutedForeground,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),

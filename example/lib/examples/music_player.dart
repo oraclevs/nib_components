@@ -5,7 +5,12 @@ import 'package:flutter/material.dart';
 // `NibNavItem` exists in both packages; this screen uses nib_motion's nav bar.
 import 'package:nib_components/nib_components.dart' hide NibNavItem;
 import 'package:nib_motion/nib_motion.dart'
-    show NibNavBar, NibNavItem, NibNavBarStyle, NibNavIndicatorStyle, NibNavIndicatorType;
+    show
+        NibNavBar,
+        NibNavItem,
+        NibNavBarStyle,
+        NibNavIndicatorStyle,
+        NibNavIndicatorType;
 
 /// The audio file the player loads. Drop your own at
 /// `example/assets/audio/track.mp3` (already wired in pubspec.yaml).
@@ -19,9 +24,15 @@ class _Track {
 }
 
 const List<_Track> _tracks = [
-  _Track('Backseat Driver', 'Kane Brown', [Color(0xFFF472B6), Color(0xFFFB923C)]),
+  _Track('Backseat Driver', 'Kane Brown', [
+    Color(0xFFF472B6),
+    Color(0xFFFB923C),
+  ]),
   _Track('Midnight City', 'M83', [Color(0xFF6366F1), Color(0xFF22D3EE)]),
-  _Track('Blinding Lights', 'The Weeknd', [Color(0xFFEF4444), Color(0xFFF59E0B)]),
+  _Track('Blinding Lights', 'The Weeknd', [
+    Color(0xFFEF4444),
+    Color(0xFFF59E0B),
+  ]),
   _Track('Sunflower', 'Post Malone', [Color(0xFFF59E0B), Color(0xFF84CC16)]),
   _Track('Levitating', 'Dua Lipa', [Color(0xFF8B5CF6), Color(0xFFEC4899)]),
 ];
@@ -40,8 +51,10 @@ class MusicPlayerExample extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('A Spotify-style player built entirely from Liquid Glass — '
-            'real play/pause, seek, and volume.'),
+        const Text(
+          'A Spotify-style player built entirely from Liquid Glass — '
+          'real play/pause, seek, and volume.',
+        ),
         const SizedBox(height: 4),
         const Text(
           'Drop an audio file at  example/assets/audio/track.mp3  to hear it. '
@@ -88,11 +101,17 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
     super.initState();
     _player.setReleaseMode(ReleaseMode.stop);
     _player.setVolume(_volume);
-    _subs.add(_player.onPositionChanged.listen((p) => setState(() => _position = p)));
-    _subs.add(_player.onDurationChanged.listen((d) => setState(() => _duration = d)));
-    _subs.add(_player.onPlayerStateChanged.listen((s) {
-      if (mounted) setState(() => _playing = s == PlayerState.playing);
-    }));
+    _subs.add(
+      _player.onPositionChanged.listen((p) => setState(() => _position = p)),
+    );
+    _subs.add(
+      _player.onDurationChanged.listen((d) => setState(() => _duration = d)),
+    );
+    _subs.add(
+      _player.onPlayerStateChanged.listen((s) {
+        if (mounted) setState(() => _playing = s == PlayerState.playing);
+      }),
+    );
     _subs.add(_player.onPlayerComplete.listen((_) => _onComplete()));
   }
 
@@ -110,9 +129,11 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
       await _player.play(AssetSource(_trackAsset), volume: _volume);
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Add example/assets/audio/track.mp3 to play audio.'),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Add example/assets/audio/track.mp3 to play audio.'),
+          ),
+        );
       }
     }
   }
@@ -204,7 +225,12 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
             child: SafeArea(
               bottom: false,
               child: ListView(
-                padding: EdgeInsets.fromLTRB(18, 8, 18, navHeight + bottomInset + 32),
+                padding: EdgeInsets.fromLTRB(
+                  18,
+                  8,
+                  18,
+                  navHeight + bottomInset + 32,
+                ),
                 children: [
                   _header(),
                   const SizedBox(height: 18),
@@ -218,8 +244,14 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   const SizedBox(height: 16),
                   _volumeCard(),
                   const SizedBox(height: 22),
-                  const Text('Up next',
-                      style: TextStyle(color: _white, fontSize: 18, fontWeight: FontWeight.w700)),
+                  const Text(
+                    'Up next',
+                    style: TextStyle(
+                      color: _white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   for (var i = 0; i < _tracks.length; i++) ...[
                     _playlistRow(i),
@@ -252,10 +284,22 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 color: Color(0x33FFFFFF),
               ),
               items: const [
-                NibNavItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Home'),
+                NibNavItem(
+                  icon: Icon(Icons.home_outlined),
+                  activeIcon: Icon(Icons.home),
+                  label: 'Home',
+                ),
                 NibNavItem(icon: Icon(Icons.search), label: 'Search'),
-                NibNavItem(icon: Icon(Icons.library_music_outlined), activeIcon: Icon(Icons.library_music), label: 'Library'),
-                NibNavItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: 'You'),
+                NibNavItem(
+                  icon: Icon(Icons.library_music_outlined),
+                  activeIcon: Icon(Icons.library_music),
+                  label: 'Library',
+                ),
+                NibNavItem(
+                  icon: Icon(Icons.person_outline),
+                  activeIcon: Icon(Icons.person),
+                  label: 'You',
+                ),
               ],
             ),
           ),
@@ -274,9 +318,18 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
         ),
         const Column(
           children: [
-            Text('PLAYING FROM PLAYLIST',
-                style: TextStyle(color: _white54, fontSize: 10, letterSpacing: 1.2)),
-            Text('Liquid Mix', style: TextStyle(color: _white, fontWeight: FontWeight.w600)),
+            Text(
+              'PLAYING FROM PLAYLIST',
+              style: TextStyle(
+                color: _white54,
+                fontSize: 10,
+                letterSpacing: 1.2,
+              ),
+            ),
+            Text(
+              'Liquid Mix',
+              style: TextStyle(color: _white, fontWeight: FontWeight.w600),
+            ),
           ],
         ),
         IconButton(
@@ -304,7 +357,9 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
               colors: _track.colors,
             ),
           ),
-          child: const Center(child: Icon(Icons.music_note, color: Colors.white70, size: 80)),
+          child: const Center(
+            child: Icon(Icons.music_note, color: Colors.white70, size: 80),
+          ),
         ),
       ),
     );
@@ -317,12 +372,21 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(_track.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: _white, fontSize: 24, fontWeight: FontWeight.w800)),
+              Text(
+                _track.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: _white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(_track.artist, style: const TextStyle(color: _white70, fontSize: 15)),
+              Text(
+                _track.artist,
+                style: const TextStyle(color: _white70, fontSize: 15),
+              ),
             ],
           ),
         ),
@@ -360,8 +424,14 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(_fmt(_position), style: const TextStyle(color: _white70, fontSize: 12)),
-                Text(_fmt(_duration), style: const TextStyle(color: _white70, fontSize: 12)),
+                Text(
+                  _fmt(_position),
+                  style: const TextStyle(color: _white70, fontSize: 12),
+                ),
+                Text(
+                  _fmt(_duration),
+                  style: const TextStyle(color: _white70, fontSize: 12),
+                ),
               ],
             ),
           ),
@@ -391,9 +461,15 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
             child: Container(
               width: 66,
               height: 66,
-              decoration: const BoxDecoration(color: _white, shape: BoxShape.circle),
-              child: Icon(_playing ? Icons.pause : Icons.play_arrow,
-                  color: Colors.black, size: 38),
+              decoration: const BoxDecoration(
+                color: _white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _playing ? Icons.pause : Icons.play_arrow,
+                color: Colors.black,
+                size: 38,
+              ),
             ),
           ),
           IconButton(
@@ -460,7 +536,11 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 gradient: LinearGradient(colors: t.colors),
               ),
               child: active
-                  ? Icon(_playing ? Icons.equalizer : Icons.pause, color: _white, size: 22)
+                  ? Icon(
+                      _playing ? Icons.equalizer : Icons.pause,
+                      color: _white,
+                      size: 22,
+                    )
                   : null,
             ),
             const SizedBox(width: 12),
@@ -469,13 +549,19 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(t.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          color: active ? _white : const Color(0xE6FFFFFF),
-                          fontWeight: FontWeight.w600)),
-                  Text(t.artist, style: const TextStyle(color: _white70, fontSize: 12)),
+                  Text(
+                    t.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: active ? _white : const Color(0xE6FFFFFF),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    t.artist,
+                    style: const TextStyle(color: _white70, fontSize: 12),
+                  ),
                 ],
               ),
             ),
@@ -488,7 +574,11 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
 }
 
 class _QueueRow extends StatelessWidget {
-  const _QueueRow({required this.track, required this.active, required this.onTap});
+  const _QueueRow({
+    required this.track,
+    required this.active,
+    required this.onTap,
+  });
 
   final _Track track;
   final bool active;
@@ -508,8 +598,12 @@ class _QueueRow extends StatelessWidget {
           gradient: LinearGradient(colors: track.colors),
         ),
       ),
-      title: Text(track.title,
-          style: TextStyle(fontWeight: active ? FontWeight.w700 : FontWeight.w500)),
+      title: Text(
+        track.title,
+        style: TextStyle(
+          fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+        ),
+      ),
       subtitle: Text(track.artist),
       trailing: active ? Icon(Icons.equalizer, color: scheme.primary) : null,
     );
@@ -531,16 +625,28 @@ class _Backdrop extends StatelessWidget {
           decoration: BoxDecoration(color: Color(0xFF0B1020)),
           child: SizedBox.expand(),
         ),
-        Positioned(top: -40, left: -40, child: _blob(260, colors.first.withValues(alpha: 0.55))),
-        Positioned(top: 120, right: -60, child: _blob(240, colors.last.withValues(alpha: 0.5))),
-        Positioned(bottom: 40, left: -30, child: _blob(220, colors.first.withValues(alpha: 0.4))),
+        Positioned(
+          top: -40,
+          left: -40,
+          child: _blob(260, colors.first.withValues(alpha: 0.55)),
+        ),
+        Positioned(
+          top: 120,
+          right: -60,
+          child: _blob(240, colors.last.withValues(alpha: 0.5)),
+        ),
+        Positioned(
+          bottom: 40,
+          left: -30,
+          child: _blob(220, colors.first.withValues(alpha: 0.4)),
+        ),
       ],
     );
   }
 
   static Widget _blob(double d, Color c) => Container(
-        width: d,
-        height: d,
-        decoration: BoxDecoration(color: c, shape: BoxShape.circle),
-      );
+    width: d,
+    height: d,
+    decoration: BoxDecoration(color: c, shape: BoxShape.circle),
+  );
 }

@@ -11,7 +11,8 @@ class DatePickerInlineExample extends StatefulWidget {
   const DatePickerInlineExample({super.key});
 
   @override
-  State<DatePickerInlineExample> createState() => _DatePickerInlineExampleState();
+  State<DatePickerInlineExample> createState() =>
+      _DatePickerInlineExampleState();
 }
 
 class _DatePickerInlineExampleState extends State<DatePickerInlineExample> {
@@ -27,7 +28,10 @@ class _DatePickerInlineExampleState extends State<DatePickerInlineExample> {
         const SizedBox(height: 8),
         // animated: the selected highlight slides between nearby days and hops
         // (arcs) between far ones, landing with a small pop.
-        NibDatePicker(animated: true, onDateChanged: (d) => setState(() => _selected = d)),
+        NibDatePicker(
+          animated: true,
+          onDateChanged: (d) => setState(() => _selected = d),
+        ),
       ],
     );
   }
@@ -39,10 +43,12 @@ class DatePickerRangePopoverExample extends StatefulWidget {
   const DatePickerRangePopoverExample({super.key});
 
   @override
-  State<DatePickerRangePopoverExample> createState() => _DatePickerRangePopoverExampleState();
+  State<DatePickerRangePopoverExample> createState() =>
+      _DatePickerRangePopoverExampleState();
 }
 
-class _DatePickerRangePopoverExampleState extends State<DatePickerRangePopoverExample> {
+class _DatePickerRangePopoverExampleState
+    extends State<DatePickerRangePopoverExample> {
   NibDateRange? _range;
 
   @override
@@ -52,7 +58,9 @@ class _DatePickerRangePopoverExampleState extends State<DatePickerRangePopoverEx
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Booking window — only the 5th–25th are selectable (rest greyed)'),
+        const Text(
+          'Booking window — only the 5th–25th are selectable (rest greyed)',
+        ),
         const SizedBox(height: 8),
         SizedBox(
           width: 300,
@@ -68,7 +76,9 @@ class _DatePickerRangePopoverExampleState extends State<DatePickerRangePopoverEx
         ),
         const SizedBox(height: 8),
         if (_range != null)
-          Text('Range: ${_iso(_range!.start)} – ${_range!.end == null ? '…' : _iso(_range!.end!)}'),
+          Text(
+            'Range: ${_iso(_range!.start)} – ${_range!.end == null ? '…' : _iso(_range!.end!)}',
+          ),
       ],
     );
   }
@@ -81,7 +91,8 @@ class DatePickerAdvancedExample extends StatefulWidget {
   const DatePickerAdvancedExample({super.key});
 
   @override
-  State<DatePickerAdvancedExample> createState() => _DatePickerAdvancedExampleState();
+  State<DatePickerAdvancedExample> createState() =>
+      _DatePickerAdvancedExampleState();
 }
 
 class _DatePickerAdvancedExampleState extends State<DatePickerAdvancedExample> {
@@ -125,7 +136,10 @@ class _DatePickerAdvancedExampleState extends State<DatePickerAdvancedExample> {
               onPressed: () => _controller.showMonth(DateTime.now()),
               child: const Text('Today'),
             ),
-            OutlinedButton(onPressed: _controller.clear, child: const Text('Clear')),
+            OutlinedButton(
+              onPressed: _controller.clear,
+              child: const Text('Clear'),
+            ),
             Text('${_dates.length} selected'),
           ],
         ),
@@ -141,10 +155,12 @@ class DatePickerCustomCellExample extends StatefulWidget {
   const DatePickerCustomCellExample({super.key});
 
   @override
-  State<DatePickerCustomCellExample> createState() => _DatePickerCustomCellExampleState();
+  State<DatePickerCustomCellExample> createState() =>
+      _DatePickerCustomCellExampleState();
 }
 
-class _DatePickerCustomCellExampleState extends State<DatePickerCustomCellExample> {
+class _DatePickerCustomCellExampleState
+    extends State<DatePickerCustomCellExample> {
   final _controller = NibDatePickerController();
 
   @override
@@ -162,10 +178,10 @@ class _DatePickerCustomCellExampleState extends State<DatePickerCustomCellExampl
         color: state.selected
             ? theme.primaryForeground
             : state.disabled
-                ? theme.mutedForeground.withValues(alpha: 0.4)
-                : state.outOfMonth
-                    ? theme.mutedForeground
-                    : theme.foreground,
+            ? theme.mutedForeground.withValues(alpha: 0.4)
+            : state.outOfMonth
+            ? theme.mutedForeground
+            : theme.foreground,
       ),
     );
     if (!state.selected) return Center(child: label);
@@ -175,8 +191,13 @@ class _DatePickerCustomCellExampleState extends State<DatePickerCustomCellExampl
         child: Container(
           width: 32,
           height: 32,
-          decoration: BoxDecoration(color: theme.primary, borderRadius: BorderRadius.circular(4)),
-          child: Center(child: Transform.rotate(angle: -math.pi / 4, child: label)),
+          decoration: BoxDecoration(
+            color: theme.primary,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Center(
+            child: Transform.rotate(angle: -math.pi / 4, child: label),
+          ),
         ),
       ),
     );
@@ -202,7 +223,10 @@ class _DatePickerCustomCellExampleState extends State<DatePickerCustomCellExampl
           runSpacing: 8,
           children: [
             OutlinedButton(
-              onPressed: () => _controller.setSelectableBounds(now, now.add(const Duration(days: 7))),
+              onPressed: () => _controller.setSelectableBounds(
+                now,
+                now.add(const Duration(days: 7)),
+              ),
               child: const Text('Only next 7 days'),
             ),
             OutlinedButton(

@@ -42,7 +42,9 @@ class ButtonVariantsExample extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Variants — primary / secondary / outline / ghost / destructive'),
+        const Text(
+          'Variants — primary / secondary / outline / ghost / destructive',
+        ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 12,
@@ -317,7 +319,10 @@ class ButtonContentExample extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Upgrade', style: TextStyle(fontWeight: FontWeight.w700)),
+                  Text(
+                    'Upgrade',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
                   Text('\$9 / month', style: TextStyle(fontSize: 12)),
                 ],
               ),
@@ -329,7 +334,10 @@ class ButtonContentExample extends StatelessWidget {
               content: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircleAvatar(radius: 12, child: Text('N', style: TextStyle(fontSize: 12))),
+                  CircleAvatar(
+                    radius: 12,
+                    child: Text('N', style: TextStyle(fontSize: 12)),
+                  ),
                   SizedBox(width: 8),
                   Text('Signed in as Nib'),
                   SizedBox(width: 6),

@@ -22,8 +22,17 @@ class _LinkTrigger extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (icon != null) ...[Icon(icon, size: 18), const SizedBox(width: 8)],
-            Text(label, style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w600)),
+            if (icon != null) ...[
+              Icon(icon, size: 18),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: scheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),
@@ -59,14 +68,20 @@ class _ProfileCard extends StatelessWidget {
                 backgroundColor: scheme.primary,
                 child: Text(
                   name.isNotEmpty ? name[0] : '?',
-                  style: TextStyle(color: scheme.onPrimary, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    color: scheme.onPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name, style: const TextStyle(fontWeight: FontWeight.w700)),
+                  Text(
+                    name,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                   Text(handle, style: TextStyle(color: scheme.outline)),
                 ],
               ),
@@ -77,11 +92,23 @@ class _ProfileCard extends StatelessWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              Text('268', style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onSurface)),
+              Text(
+                '268',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: scheme.onSurface,
+                ),
+              ),
               const SizedBox(width: 4),
               Text('Following', style: TextStyle(color: scheme.outline)),
               const SizedBox(width: 16),
-              Text('12.4k', style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onSurface)),
+              Text(
+                '12.4k',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: scheme.onSurface,
+                ),
+              ),
               const SizedBox(width: 4),
               Text('Followers', style: TextStyle(color: scheme.outline)),
             ],
@@ -108,8 +135,10 @@ class HoverCardMinimalExample extends StatelessWidget {
           trigger: _LinkTrigger('@flutter', icon: Icons.alternate_email),
           content: SizedBox(
             width: 240,
-            child: Text('The official Flutter account — open-source UI toolkit for '
-                'building natively compiled apps from a single codebase.'),
+            child: Text(
+              'The official Flutter account — open-source UI toolkit for '
+              'building natively compiled apps from a single codebase.',
+            ),
           ),
         ),
       ],
@@ -138,7 +167,8 @@ class HoverCardProfileExample extends StatelessWidget {
           content: _ProfileCard(
             handle: '@ada',
             name: 'Ada Lovelace',
-            bio: 'Wrote the first algorithm. Occasionally tweets about analytical engines.',
+            bio:
+                'Wrote the first algorithm. Occasionally tweets about analytical engines.',
           ),
         ),
       ],
@@ -152,7 +182,8 @@ class HoverCardAdvancedExample extends StatefulWidget {
   const HoverCardAdvancedExample({super.key});
 
   @override
-  State<HoverCardAdvancedExample> createState() => _HoverCardAdvancedExampleState();
+  State<HoverCardAdvancedExample> createState() =>
+      _HoverCardAdvancedExampleState();
 }
 
 class _HoverCardAdvancedExampleState extends State<HoverCardAdvancedExample> {
@@ -164,8 +195,10 @@ class _HoverCardAdvancedExampleState extends State<HoverCardAdvancedExample> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Advanced — hover-only, end placement, spring; the button '
-            'inside keeps its own state (move onto the card to click it)'),
+        const Text(
+          'Advanced — hover-only, end placement, spring; the button '
+          'inside keeps its own state (move onto the card to click it)',
+        ),
         const SizedBox(height: 12),
         NibHoverCard(
           placement: NibHoverCardPlacement.end,
@@ -174,18 +207,25 @@ class _HoverCardAdvancedExampleState extends State<HoverCardAdvancedExample> {
           transition: NibTransition.springSnappy,
           showDelay: const Duration(milliseconds: 200),
           hideDelay: const Duration(milliseconds: 500),
-          trigger: const _LinkTrigger('Preview', icon: Icons.visibility_outlined),
+          trigger: const _LinkTrigger(
+            'Preview',
+            icon: Icons.visibility_outlined,
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Interactive content',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              const Text(
+                'Interactive content',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
               const SizedBox(height: 6),
               const SizedBox(
                 width: 220,
-                child: Text('A hover card is non-modal and keeps focus on the '
-                    'trigger — descendants stay fully interactive.'),
+                child: Text(
+                  'A hover card is non-modal and keeps focus on the '
+                  'trigger — descendants stay fully interactive.',
+                ),
               ),
               const SizedBox(height: 10),
               FilledButton(
@@ -216,8 +256,10 @@ class HoverCardTapFallbackExample extends StatelessWidget {
           trigger: _LinkTrigger('What is this?', icon: Icons.help_outline),
           content: SizedBox(
             width: 240,
-            child: Text('On a device without a pointer, hover intent is replaced '
-                'by tap-to-toggle so the card is still reachable.'),
+            child: Text(
+              'On a device without a pointer, hover intent is replaced '
+              'by tap-to-toggle so the card is still reachable.',
+            ),
           ),
         ),
       ],

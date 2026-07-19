@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibTransition;
 
 import '../theme/nib_theme.dart';
 import '../validation/nib_validators.dart';
@@ -24,6 +25,9 @@ import '../validation/nib_validators.dart';
 /// )
 /// ```
 class NibInput extends FormField<String> {
+  // Forwards a NibValidator?-typed validator to super verbatim; a super
+  // parameter would erase that nicer public type from the API.
+  // ignore: use_super_parameters
   NibInput({
     super.key,
     this.controller,
@@ -86,19 +90,19 @@ class NibInput extends FormField<String> {
     this.footerSpacing,
     this.animated = false,
     this.transition,
-  })  : assert(
-          controller == null || initialValue == null,
-          'NibInput: provide either a controller or an initialValue, not both.',
-        ),
-        disabled = disabled,
-        super(
-          initialValue: controller?.text ?? initialValue,
-          validator: validator,
-          forceErrorText: errorText,
-          autovalidateMode: autovalidateMode,
-          enabled: !disabled,
-          builder: (field) => (field as _NibInputState)._build(),
-        );
+  }) : assert(
+         controller == null || initialValue == null,
+         'NibInput: provide either a controller or an initialValue, not both.',
+       ),
+       disabled = disabled,
+       super(
+         initialValue: controller?.text ?? initialValue,
+         validator: validator,
+         forceErrorText: errorText,
+         autovalidateMode: autovalidateMode,
+         enabled: !disabled,
+         builder: (field) => (field as _NibInputState)._build(),
+       );
 
   /// Optional external controller. When `null`, the widget creates and owns
   /// its own, seeded with the constructor's `initialValue`.
@@ -203,13 +207,16 @@ class _NibInputState extends FormFieldState<String> {
 
   TextEditingController get _effectiveController =>
       widget.controller ??
-      (_internalController ??= TextEditingController(text: widget.initialValue));
+      (_internalController ??= TextEditingController(
+        text: widget.initialValue,
+      ));
 
   FocusNode get _effectiveFocusNode =>
       widget.focusNode ?? (_internalFocusNode ??= FocusNode());
 
   NibTransition get _transition =>
-      widget.transition ?? const NibTransition(duration: Duration(milliseconds: 150));
+      widget.transition ??
+      const NibTransition(duration: Duration(milliseconds: 150));
 
   @override
   void initState() {
@@ -277,9 +284,11 @@ class _NibInputState extends FormFieldState<String> {
     // indicator is a layout-neutral ring overlay (below), so it never
     // shifts the field's inner content box.
     final Color borderColor = hasError ? theme.destructive : theme.border;
-    final radius = widget.borderRadius ?? BorderRadius.circular(theme.radiusDefault);
+    final radius =
+        widget.borderRadius ?? BorderRadius.circular(theme.radiusDefault);
     final padding =
-        widget.padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 12);
+        widget.padding ??
+        const EdgeInsets.symmetric(horizontal: 12, vertical: 12);
 
     final field = TextField(
       controller: _effectiveController,
@@ -292,18 +301,18 @@ class _NibInputState extends FormFieldState<String> {
       keyboardType: widget.keyboardType,
       textInputAction: widget.textInputAction,
       maxLines: 1,
-      style: const TextStyle(fontSize: 14)
-          .copyWith(color: theme.foreground)
-          .merge(widget.style),
+      style: const TextStyle(
+        fontSize: 14,
+      ).copyWith(color: theme.foreground).merge(widget.style),
       cursorColor: theme.primary,
       decoration: InputDecoration(
         border: InputBorder.none,
         isDense: true,
         isCollapsed: true,
         hintText: widget.placeholder,
-        hintStyle: const TextStyle(fontSize: 14)
-            .copyWith(color: theme.mutedForeground)
-            .merge(widget.hintStyle),
+        hintStyle: const TextStyle(
+          fontSize: 14,
+        ).copyWith(color: theme.mutedForeground).merge(widget.hintStyle),
       ),
     );
 
@@ -378,9 +387,10 @@ class _NibInputState extends FormFieldState<String> {
         if (widget.label != null) ...[
           Text(
             widget.label!,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)
-                .copyWith(color: theme.foreground)
-                .merge(widget.labelStyle),
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ).copyWith(color: theme.foreground).merge(widget.labelStyle),
           ),
           SizedBox(height: widget.labelSpacing ?? 6),
         ],

@@ -47,7 +47,10 @@ void main() {
     final c = NibDatePickerController();
     c.setMulti([DateTime(2026, 7, 5), DateTime(2026, 7, 10)]);
     expect(c.selectedDates, [DateTime(2026, 7, 5), DateTime(2026, 7, 10)]);
-    expect(() => c.selectedDates.add(DateTime(2026, 7, 1)), throwsUnsupportedError);
+    expect(
+      () => c.selectedDates.add(DateTime(2026, 7, 1)),
+      throwsUnsupportedError,
+    );
 
     var n = 0;
     c.addListener(() => n++);
@@ -61,10 +64,16 @@ void main() {
     final c = NibDatePickerController();
     var n = 0;
     c.addListener(() => n++);
-    c.setSelectableBounds(DateTime(2026, 7, 5, 9, 30), DateTime(2026, 7, 20, 18));
+    c.setSelectableBounds(
+      DateTime(2026, 7, 5, 9, 30),
+      DateTime(2026, 7, 20, 18),
+    );
     expect(c.minSelectable, DateTime(2026, 7, 5));
     expect(c.maxSelectable, DateTime(2026, 7, 20));
-    c.setSelectableBounds(DateTime(2026, 7, 5), DateTime(2026, 7, 20)); // same day -> no-op
+    c.setSelectableBounds(
+      DateTime(2026, 7, 5),
+      DateTime(2026, 7, 20),
+    ); // same day -> no-op
     expect(n, 1);
     c.setSelectableBounds(null, null);
     expect(c.minSelectable, isNull);
@@ -76,7 +85,9 @@ void main() {
     final c = NibDatePickerController();
     c.setRange(NibDateRange(start: DateTime(2026, 7, 5)));
     expect(c.selectedRange!.isComplete, isFalse);
-    c.setRange(NibDateRange(start: DateTime(2026, 7, 5), end: DateTime(2026, 7, 10)));
+    c.setRange(
+      NibDateRange(start: DateTime(2026, 7, 5), end: DateTime(2026, 7, 10)),
+    );
     expect(c.selectedRange!.isComplete, isTrue);
   });
 }

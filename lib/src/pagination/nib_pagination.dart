@@ -1,7 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibTransition;
 
 import '../button/nib_button.dart';
 import '../button/nib_button_types.dart';
@@ -162,7 +163,8 @@ class _NibPaginationState extends State<NibPagination> {
   // --- compact --------------------------------------------------------------
 
   Widget _buildCompact(NibTheme theme) {
-    final label = widget.compactLabelBuilder?.call(
+    final label =
+        widget.compactLabelBuilder?.call(
           widget.currentPage,
           widget.totalPages,
         ) ??
@@ -229,22 +231,26 @@ class _NibPaginationState extends State<NibPagination> {
     void add(Widget w) => cells.add(w);
 
     if (widget.showFirstLast) {
-      add(_navButton(
-        key: const Key('nib_pagination_first'),
-        icon: Icons.keyboard_double_arrow_left,
-        enabled: widget.currentPage > 1,
-        onTap: () => _go(1),
-        semanticLabel: 'First page',
-      ));
+      add(
+        _navButton(
+          key: const Key('nib_pagination_first'),
+          icon: Icons.keyboard_double_arrow_left,
+          enabled: widget.currentPage > 1,
+          onTap: () => _go(1),
+          semanticLabel: 'First page',
+        ),
+      );
     }
     if (widget.showPrevNext) {
-      add(_navButton(
-        key: const Key('nib_pagination_prev'),
-        icon: Icons.chevron_left,
-        enabled: widget.currentPage > 1,
-        onTap: () => _go(widget.currentPage - 1),
-        semanticLabel: 'Previous page',
-      ));
+      add(
+        _navButton(
+          key: const Key('nib_pagination_prev'),
+          icon: Icons.chevron_left,
+          enabled: widget.currentPage > 1,
+          onTap: () => _go(widget.currentPage - 1),
+          semanticLabel: 'Previous page',
+        ),
+      );
     }
 
     for (final item in items) {
@@ -258,27 +264,30 @@ class _NibPaginationState extends State<NibPagination> {
     }
 
     if (widget.showPrevNext) {
-      add(_navButton(
-        key: const Key('nib_pagination_next'),
-        icon: Icons.chevron_right,
-        enabled: widget.currentPage < widget.totalPages,
-        onTap: () => _go(widget.currentPage + 1),
-        semanticLabel: 'Next page',
-      ));
+      add(
+        _navButton(
+          key: const Key('nib_pagination_next'),
+          icon: Icons.chevron_right,
+          enabled: widget.currentPage < widget.totalPages,
+          onTap: () => _go(widget.currentPage + 1),
+          semanticLabel: 'Next page',
+        ),
+      );
     }
     if (widget.showFirstLast) {
-      add(_navButton(
-        key: const Key('nib_pagination_last'),
-        icon: Icons.keyboard_double_arrow_right,
-        enabled: widget.currentPage < widget.totalPages,
-        onTap: () => _go(widget.totalPages),
-        semanticLabel: 'Last page',
-      ));
+      add(
+        _navButton(
+          key: const Key('nib_pagination_last'),
+          icon: Icons.keyboard_double_arrow_right,
+          enabled: widget.currentPage < widget.totalPages,
+          onTap: () => _go(widget.totalPages),
+          semanticLabel: 'Last page',
+        ),
+      );
     }
 
     final pitch = _cellFootprint + _gap;
-    final rowWidth =
-        cells.length * _cellFootprint + (cells.length - 1) * _gap;
+    final rowWidth = cells.length * _cellFootprint + (cells.length - 1) * _gap;
     // Centre the (possibly smaller) visual pill within the cell footprint.
     final pillInset = (_cellFootprint - _itemSize) / 2;
 
@@ -324,7 +333,8 @@ class _NibPaginationState extends State<NibPagination> {
       decoration: BoxDecoration(
         color: widget.activeColor ?? theme.primary,
         borderRadius:
-            widget.itemBorderRadius ?? BorderRadius.circular(theme.radiusDefault),
+            widget.itemBorderRadius ??
+            BorderRadius.circular(theme.radiusDefault),
       ),
     );
 

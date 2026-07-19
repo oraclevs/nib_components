@@ -4,19 +4,20 @@ import 'package:nib_components/nib_components.dart';
 import 'package:nib_motion/nib_motion.dart' show NibMotion;
 
 Widget _wrap(Widget child) => MaterialApp(
-      home: Scaffold(body: Center(child: child)),
-    );
+  home: Scaffold(body: Center(child: child)),
+);
 
 List<NibAccordionItem> _items() => const [
-      NibAccordionItem(title: Text('First'), content: Text('First body')),
-      NibAccordionItem(title: Text('Second'), content: Text('Second body')),
-      NibAccordionItem(title: Text('Third'), content: Text('Third body')),
-    ];
+  NibAccordionItem(title: Text('First'), content: Text('First body')),
+  NibAccordionItem(title: Text('Second'), content: Text('Second body')),
+  NibAccordionItem(title: Text('Third'), content: Text('Third body')),
+];
 
 void main() {
   group('NibAccordion', () {
-    testWidgets('renders every item title, content hidden until opened',
-        (tester) async {
+    testWidgets('renders every item title, content hidden until opened', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap(NibAccordion(items: _items())));
       expect(find.text('First'), findsOneWidget);
       expect(find.text('Second'), findsOneWidget);
@@ -35,8 +36,9 @@ void main() {
       expect(find.text('First body'), findsNothing);
     });
 
-    testWidgets('single-open by default — opening one closes the others',
-        (tester) async {
+    testWidgets('single-open by default — opening one closes the others', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap(NibAccordion(items: _items())));
 
       await tester.tap(find.text('First'));
@@ -49,11 +51,12 @@ void main() {
       expect(find.text('First body'), findsNothing); // coordinated closed
     });
 
-    testWidgets('allowMultipleOpen keeps siblings open together', (tester) async {
-      await tester.pumpWidget(_wrap(NibAccordion(
-        items: _items(),
-        allowMultipleOpen: true,
-      )));
+    testWidgets('allowMultipleOpen keeps siblings open together', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(NibAccordion(items: _items(), allowMultipleOpen: true)),
+      );
 
       await tester.tap(find.text('First'));
       await tester.pumpAndSettle();
@@ -64,25 +67,28 @@ void main() {
     });
 
     testWidgets('defaultOpenIndex starts that item expanded', (tester) async {
-      await tester.pumpWidget(_wrap(NibAccordion(
-        items: _items(),
-        defaultOpenIndex: 1,
-      )));
+      await tester.pumpWidget(
+        _wrap(NibAccordion(items: _items(), defaultOpenIndex: 1)),
+      );
       await tester.pumpAndSettle();
       expect(find.text('Second body'), findsOneWidget);
       expect(find.text('First body'), findsNothing);
     });
 
     testWidgets('a disabled item does not open', (tester) async {
-      await tester.pumpWidget(_wrap(NibAccordion(
-        items: const [
-          NibAccordionItem(
-            title: Text('Locked'),
-            content: Text('Locked body'),
-            enabled: false,
+      await tester.pumpWidget(
+        _wrap(
+          NibAccordion(
+            items: const [
+              NibAccordionItem(
+                title: Text('Locked'),
+                content: Text('Locked body'),
+                enabled: false,
+              ),
+            ],
           ),
-        ],
-      )));
+        ),
+      );
       await tester.tap(find.text('Locked'));
       await tester.pumpAndSettle();
       expect(find.text('Locked body'), findsNothing);
@@ -91,10 +97,9 @@ void main() {
     testWidgets('external controller drives open/close', (tester) async {
       final controller = NibAccordionController();
       addTearDown(controller.dispose);
-      await tester.pumpWidget(_wrap(NibAccordion(
-        items: _items(),
-        controller: controller,
-      )));
+      await tester.pumpWidget(
+        _wrap(NibAccordion(items: _items(), controller: controller)),
+      );
 
       controller.open(2);
       await tester.pumpAndSettle();
@@ -107,10 +112,14 @@ void main() {
 
     testWidgets('onExpansionChanged fires with index + state', (tester) async {
       final events = <(int, bool)>[];
-      await tester.pumpWidget(_wrap(NibAccordion(
-        items: _items(),
-        onExpansionChanged: (i, open) => events.add((i, open)),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          NibAccordion(
+            items: _items(),
+            onExpansionChanged: (i, open) => events.add((i, open)),
+          ),
+        ),
+      );
       await tester.tap(find.text('First'));
       await tester.pumpAndSettle();
       expect(events.last, (0, true));
@@ -125,10 +134,9 @@ void main() {
     });
 
     testWidgets('uses NibMotion for the chevron when animated', (tester) async {
-      await tester.pumpWidget(_wrap(NibAccordion(
-        items: _items(),
-        animated: true,
-      )));
+      await tester.pumpWidget(
+        _wrap(NibAccordion(items: _items(), animated: true)),
+      );
       expect(find.byType(NibMotion), findsWidgets);
     });
   });

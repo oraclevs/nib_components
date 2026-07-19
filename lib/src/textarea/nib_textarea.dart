@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibTransition;
 
 import '../theme/nib_theme.dart';
 import '../validation/nib_validators.dart';
@@ -23,6 +24,9 @@ import '../validation/nib_validators.dart';
 /// NibTextarea(label: 'Bio', validator: NibValidators.required())
 /// ```
 class NibTextarea extends FormField<String> {
+  // Forwards a NibValidator?-typed validator to super verbatim; a super
+  // parameter would erase that nicer public type from the API.
+  // ignore: use_super_parameters
   NibTextarea({
     super.key,
     this.controller,
@@ -83,23 +87,23 @@ class NibTextarea extends FormField<String> {
     this.footerSpacing,
     this.animated = false,
     this.transition,
-  })  : assert(
-          controller == null || initialValue == null,
-          'NibTextarea: provide either a controller or an initialValue, not both.',
-        ),
-        assert(
-          maxLines == null || maxLines >= minLines,
-          'NibTextarea: maxLines must be >= minLines when set.',
-        ),
-        disabled = disabled,
-        super(
-          initialValue: controller?.text ?? initialValue,
-          validator: validator,
-          forceErrorText: errorText,
-          autovalidateMode: autovalidateMode,
-          enabled: !disabled,
-          builder: (field) => (field as _NibTextareaState)._build(),
-        );
+  }) : assert(
+         controller == null || initialValue == null,
+         'NibTextarea: provide either a controller or an initialValue, not both.',
+       ),
+       assert(
+         maxLines == null || maxLines >= minLines,
+         'NibTextarea: maxLines must be >= minLines when set.',
+       ),
+       disabled = disabled,
+       super(
+         initialValue: controller?.text ?? initialValue,
+         validator: validator,
+         forceErrorText: errorText,
+         autovalidateMode: autovalidateMode,
+         enabled: !disabled,
+         builder: (field) => (field as _NibTextareaState)._build(),
+       );
 
   /// Optional external controller. When `null`, the widget creates and owns
   /// its own, seeded with the constructor's `initialValue`.
@@ -199,13 +203,16 @@ class _NibTextareaState extends FormFieldState<String> {
 
   TextEditingController get _effectiveController =>
       widget.controller ??
-      (_internalController ??= TextEditingController(text: widget.initialValue));
+      (_internalController ??= TextEditingController(
+        text: widget.initialValue,
+      ));
 
   FocusNode get _effectiveFocusNode =>
       widget.focusNode ?? (_internalFocusNode ??= FocusNode());
 
   NibTransition get _transition =>
-      widget.transition ?? const NibTransition(duration: Duration(milliseconds: 150));
+      widget.transition ??
+      const NibTransition(duration: Duration(milliseconds: 150));
 
   @override
   void initState() {
@@ -267,9 +274,10 @@ class _NibTextareaState extends FormFieldState<String> {
     // indicator is a layout-neutral ring overlay (below), so it never
     // shifts the field's inner content box.
     final Color borderColor = hasError ? theme.destructive : theme.border;
-    final radius = widget.borderRadius ??
-        BorderRadius.circular(theme.radiusDefault);
-    final padding = widget.padding ??
+    final radius =
+        widget.borderRadius ?? BorderRadius.circular(theme.radiusDefault);
+    final padding =
+        widget.padding ??
         const EdgeInsets.symmetric(horizontal: 12, vertical: 10);
 
     final field = TextField(
@@ -284,18 +292,19 @@ class _NibTextareaState extends FormFieldState<String> {
       inputFormatters: widget.maxLength == null
           ? null
           : [LengthLimitingTextInputFormatter(widget.maxLength)],
-      style: const TextStyle(fontSize: 14, height: 1.4)
-          .copyWith(color: theme.foreground)
-          .merge(widget.style),
+      style: const TextStyle(
+        fontSize: 14,
+        height: 1.4,
+      ).copyWith(color: theme.foreground).merge(widget.style),
       cursorColor: theme.primary,
       decoration: InputDecoration(
         border: InputBorder.none,
         isDense: true,
         isCollapsed: true,
         hintText: widget.placeholder,
-        hintStyle: const TextStyle(fontSize: 14)
-            .copyWith(color: theme.mutedForeground)
-            .merge(widget.hintStyle),
+        hintStyle: const TextStyle(
+          fontSize: 14,
+        ).copyWith(color: theme.mutedForeground).merge(widget.hintStyle),
         counterText: '',
       ),
     );
@@ -339,9 +348,10 @@ class _NibTextareaState extends FormFieldState<String> {
         if (widget.label != null) ...[
           Text(
             widget.label!,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)
-                .copyWith(color: theme.foreground)
-                .merge(widget.labelStyle),
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ).copyWith(color: theme.foreground).merge(widget.labelStyle),
           ),
           SizedBox(height: widget.labelSpacing ?? 6),
         ],
@@ -372,8 +382,9 @@ class _NibTextareaState extends FormFieldState<String> {
         .copyWith(color: hasError ? theme.destructive : theme.mutedForeground)
         .merge(hasError ? widget.errorStyle : widget.helperStyle);
 
-    Widget? messageText =
-        message == null ? null : Text(message, style: messageStyle);
+    Widget? messageText = message == null
+        ? null
+        : Text(message, style: messageStyle);
 
     if (widget.animated && messageText != null) {
       messageText = NibMotion(
@@ -387,9 +398,13 @@ class _NibTextareaState extends FormFieldState<String> {
 
     final Widget? counter = widget.showCounter
         ? Text(
-            widget.maxLength == null ? '$_length' : '$_length/${widget.maxLength}',
+            widget.maxLength == null
+                ? '$_length'
+                : '$_length/${widget.maxLength}',
             style: const TextStyle(fontSize: 12)
-                .copyWith(color: atLimit ? theme.destructive : theme.mutedForeground)
+                .copyWith(
+                  color: atLimit ? theme.destructive : theme.mutedForeground,
+                )
                 .merge(widget.counterStyle),
           )
         : null;
@@ -400,10 +415,7 @@ class _NibTextareaState extends FormFieldState<String> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: messageText ?? const SizedBox.shrink()),
-          if (counter != null) ...[
-            const SizedBox(width: 8),
-            counter,
-          ],
+          if (counter != null) ...[const SizedBox(width: 8), counter],
         ],
       ),
     );

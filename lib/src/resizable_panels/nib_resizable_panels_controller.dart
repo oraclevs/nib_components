@@ -13,7 +13,9 @@ class NibResizablePanelsController extends ChangeNotifier {
   /// otherwise [sizes] is empty until [attach] runs.
   NibResizablePanelsController({List<double>? initialSizes})
     : _sizes = initialSizes == null ? null : List<double>.of(initialSizes),
-      _initialSizes = initialSizes == null ? null : List<double>.of(initialSizes);
+      _initialSizes = initialSizes == null
+          ? null
+          : List<double>.of(initialSizes);
 
   List<double>? _sizes;
   List<double>? _initialSizes;
@@ -21,7 +23,8 @@ class NibResizablePanelsController extends ChangeNotifier {
   /// The current per-panel size fractions, always summing to `1.0` once
   /// seeded. Empty until [attach] has run (or [initialSizes] was passed to
   /// the constructor).
-  List<double> get sizes => List<double>.unmodifiable(_sizes ?? const <double>[]);
+  List<double> get sizes =>
+      List<double>.unmodifiable(_sizes ?? const <double>[]);
 
   /// Seeds [sizes] from `normalizedInitialSizes(panels)` the first time it's
   /// called (or whenever [panels]' length changes, e.g. a panel was added or
@@ -40,13 +43,19 @@ class NibResizablePanelsController extends ChangeNotifier {
   /// driving this directly are responsible for passing a sane layout.
   void setSizes(List<double> sizes) {
     final total = sizes.fold<double>(0.0, (sum, v) => sum + v);
-    _sizes = total > 0.0 ? [for (final v in sizes) v / total] : List<double>.of(sizes);
+    _sizes = total > 0.0
+        ? [for (final v in sizes) v / total]
+        : List<double>.of(sizes);
     notifyListeners();
   }
 
   /// Applies a drag/keyboard delta to the panel pair adjacent to
   /// [handleIndex]. See [applyHandleDelta].
-  void applyDelta(List<NibResizablePanel> panels, int handleIndex, double deltaFraction) {
+  void applyDelta(
+    List<NibResizablePanel> panels,
+    int handleIndex,
+    double deltaFraction,
+  ) {
     if (_sizes == null) return;
     _sizes = applyHandleDelta(
       sizes: _sizes!,
@@ -61,7 +70,11 @@ class NibResizablePanelsController extends ChangeNotifier {
   /// initial-size ratio. See [resetHandlePair].
   void resetPanelPair(int handleIndex) {
     if (_sizes == null || _initialSizes == null) return;
-    _sizes = resetHandlePair(sizes: _sizes!, initialSizes: _initialSizes!, handleIndex: handleIndex);
+    _sizes = resetHandlePair(
+      sizes: _sizes!,
+      initialSizes: _initialSizes!,
+      handleIndex: handleIndex,
+    );
     notifyListeners();
   }
 

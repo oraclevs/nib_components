@@ -160,8 +160,7 @@ class FlipCardControlledExample extends StatefulWidget {
       _FlipCardControlledExampleState();
 }
 
-class _FlipCardControlledExampleState
-    extends State<FlipCardControlledExample> {
+class _FlipCardControlledExampleState extends State<FlipCardControlledExample> {
   bool _flipped = false;
 
   @override

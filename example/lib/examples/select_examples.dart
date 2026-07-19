@@ -193,10 +193,12 @@ class SelectAnimationGalleryExample extends StatefulWidget {
   const SelectAnimationGalleryExample({super.key});
 
   @override
-  State<SelectAnimationGalleryExample> createState() => _SelectAnimationGalleryExampleState();
+  State<SelectAnimationGalleryExample> createState() =>
+      _SelectAnimationGalleryExampleState();
 }
 
-class _SelectAnimationGalleryExampleState extends State<SelectAnimationGalleryExample> {
+class _SelectAnimationGalleryExampleState
+    extends State<SelectAnimationGalleryExample> {
   NibSelectAnimation _animation = NibSelectAnimation.fadeScale;
   bool _stagger = false;
 
@@ -222,14 +224,18 @@ class _SelectAnimationGalleryExampleState extends State<SelectAnimationGalleryEx
           child: NibSelect<NibSelectAnimation>(
             value: _animation,
             options: _presetOptions,
-            onChanged: (v) => setState(() => _animation = v ?? NibSelectAnimation.fadeScale),
+            onChanged: (v) =>
+                setState(() => _animation = v ?? NibSelectAnimation.fadeScale),
           ),
         ),
         const SizedBox(height: 8),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Switch(value: _stagger, onChanged: (v) => setState(() => _stagger = v)),
+            Switch(
+              value: _stagger,
+              onChanged: (v) => setState(() => _stagger = v),
+            ),
             const Text('Stagger option rows'),
           ],
         ),

@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibTransition;
 
 import '../overlay/measure_size.dart';
 import '../overlay/overlay_positioning.dart';
@@ -33,7 +34,9 @@ Future<NibMenuItem?> showNibContextMenu(
     theme: theme,
     onItemSelected: onItemSelected,
     animated: animated,
-    transition: transition ?? const NibTransition(duration: Duration(milliseconds: 140)),
+    transition:
+        transition ??
+        const NibTransition(duration: Duration(milliseconds: 140)),
     onClosed: (selected) {
       if (!completer.isCompleted) completer.complete(selected);
       previousFocus?.requestFocus();
@@ -87,7 +90,12 @@ class _MenuSession {
     );
   }
 
-  void openSubmenu(int parentLevel, List<NibMenuEntry> entries, LayerLink link, Rect anchorRect) {
+  void openSubmenu(
+    int parentLevel,
+    List<NibMenuEntry> entries,
+    LayerLink link,
+    Rect anchorRect,
+  ) {
     _closeToLevel(parentLevel);
     _insertLevel(
       (key) => _MenuPanel(
@@ -205,9 +213,9 @@ class _MenuPanelState extends State<_MenuPanel> {
   GlobalKey _keyFor(int i) => _itemKeys.putIfAbsent(i, GlobalKey.new);
 
   List<int> get _itemIndices => [
-        for (var i = 0; i < widget.entries.length; i++)
-          if (widget.entries[i] case NibMenuItem(enabled: true)) i,
-      ];
+    for (var i = 0; i < widget.entries.length; i++)
+      if (widget.entries[i] case NibMenuItem(enabled: true)) i,
+  ];
 
   void _move(int delta) {
     final indices = _itemIndices;
@@ -235,7 +243,12 @@ class _MenuPanelState extends State<_MenuPanel> {
     if (box == null || !box.hasSize) return;
     final rect = box.localToGlobal(Offset.zero) & box.size;
     setState(() => _highlight = index);
-    widget.session.openSubmenu(widget.level, item.submenu!, _linkFor(index), rect);
+    widget.session.openSubmenu(
+      widget.level,
+      item.submenu!,
+      _linkFor(index),
+      rect,
+    );
   }
 
   void _tapItem(int index, NibMenuItem item) {
@@ -328,7 +341,11 @@ class _MenuPanelState extends State<_MenuPanel> {
         type: MaterialType.transparency,
         child: InkWell(
           onTap: item.enabled ? () => _tapItem(index, item) : null,
-          onHover: item.enabled ? (h) { if (h) setState(() => _highlight = index); } : null,
+          onHover: item.enabled
+              ? (h) {
+                  if (h) setState(() => _highlight = index);
+                }
+              : null,
           borderRadius: BorderRadius.circular(theme.radiusSm),
           excludeFromSemantics: true,
           child: row,
@@ -340,7 +357,10 @@ class _MenuPanelState extends State<_MenuPanel> {
       button: true,
       enabled: item.enabled,
       label: item.label,
-      child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: row),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: row,
+      ),
     );
 
     if (!item.hasSubmenu) return row;
@@ -394,34 +414,42 @@ class _MenuPanelState extends State<_MenuPanel> {
   // --- Keyboard --------------------------------------------------------------
 
   Map<ShortcutActivator, Intent> get _shortcuts => const {
-        SingleActivator(LogicalKeyboardKey.arrowDown): _MoveIntent(1),
-        SingleActivator(LogicalKeyboardKey.arrowUp): _MoveIntent(-1),
-        SingleActivator(LogicalKeyboardKey.arrowRight): _EnterSubmenuIntent(),
-        SingleActivator(LogicalKeyboardKey.arrowLeft): _BackIntent(),
-        SingleActivator(LogicalKeyboardKey.enter): _ActivateIntent(),
-        SingleActivator(LogicalKeyboardKey.numpadEnter): _ActivateIntent(),
-        SingleActivator(LogicalKeyboardKey.space): _ActivateIntent(),
-        SingleActivator(LogicalKeyboardKey.escape): _BackIntent(),
-      };
+    SingleActivator(LogicalKeyboardKey.arrowDown): _MoveIntent(1),
+    SingleActivator(LogicalKeyboardKey.arrowUp): _MoveIntent(-1),
+    SingleActivator(LogicalKeyboardKey.arrowRight): _EnterSubmenuIntent(),
+    SingleActivator(LogicalKeyboardKey.arrowLeft): _BackIntent(),
+    SingleActivator(LogicalKeyboardKey.enter): _ActivateIntent(),
+    SingleActivator(LogicalKeyboardKey.numpadEnter): _ActivateIntent(),
+    SingleActivator(LogicalKeyboardKey.space): _ActivateIntent(),
+    SingleActivator(LogicalKeyboardKey.escape): _BackIntent(),
+  };
 
   Map<Type, Action<Intent>> get _actions => {
-        _MoveIntent: CallbackAction<_MoveIntent>(onInvoke: (i) {
-          _move(i.delta);
-          return null;
-        }),
-        _EnterSubmenuIntent: CallbackAction<_EnterSubmenuIntent>(onInvoke: (_) {
-          _activateHighlighted(submenuOnly: true);
-          return null;
-        }),
-        _ActivateIntent: CallbackAction<_ActivateIntent>(onInvoke: (_) {
-          _activateHighlighted(submenuOnly: false);
-          return null;
-        }),
-        _BackIntent: CallbackAction<_BackIntent>(onInvoke: (_) {
-          widget.session.back(widget.level);
-          return null;
-        }),
-      };
+    _MoveIntent: CallbackAction<_MoveIntent>(
+      onInvoke: (i) {
+        _move(i.delta);
+        return null;
+      },
+    ),
+    _EnterSubmenuIntent: CallbackAction<_EnterSubmenuIntent>(
+      onInvoke: (_) {
+        _activateHighlighted(submenuOnly: true);
+        return null;
+      },
+    ),
+    _ActivateIntent: CallbackAction<_ActivateIntent>(
+      onInvoke: (_) {
+        _activateHighlighted(submenuOnly: false);
+        return null;
+      },
+    ),
+    _BackIntent: CallbackAction<_BackIntent>(
+      onInvoke: (_) {
+        widget.session.back(widget.level);
+        return null;
+      },
+    ),
+  };
 
   // --- Positioning -----------------------------------------------------------
 

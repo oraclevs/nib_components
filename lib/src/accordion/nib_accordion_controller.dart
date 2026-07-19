@@ -10,7 +10,7 @@ import 'package:flutter/foundation.dart';
 /// drive it with [open]/[close]/[toggle]/[openAll]/[closeAll].
 class NibAccordionController extends ChangeNotifier {
   NibAccordionController({Set<int>? initialOpen, this.allowMultiple = false})
-      : _open = {...?initialOpen} {
+    : _open = {...?initialOpen} {
     if (!allowMultiple && _open.length > 1) {
       final first = _open.first;
       _open

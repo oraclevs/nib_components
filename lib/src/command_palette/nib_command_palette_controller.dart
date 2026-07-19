@@ -14,7 +14,8 @@ class NibCommandPaletteController extends ChangeNotifier {
   bool get isOpen => _isOpen;
 
   /// Most-recently-used action ids, most recent first.
-  List<String> get recentActionIds => List<String>.unmodifiable(_recentActionIds);
+  List<String> get recentActionIds =>
+      List<String>.unmodifiable(_recentActionIds);
 
   void open() {
     if (_isOpen) return;

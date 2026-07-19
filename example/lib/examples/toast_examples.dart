@@ -48,28 +48,43 @@ class _ToastTriggerBoardExampleState extends State<ToastTriggerBoardExample> {
             runSpacing: 12,
             children: [
               FilledButton(
-                onPressed: () =>
-                    _fire(NibToastVariant.success, 'Saved', 'Your changes are stored.'),
+                onPressed: () => _fire(
+                  NibToastVariant.success,
+                  'Saved',
+                  'Your changes are stored.',
+                ),
                 child: const Text('Success'),
               ),
               FilledButton.tonal(
-                onPressed: () =>
-                    _fire(NibToastVariant.error, 'Failed', 'Something went wrong.'),
+                onPressed: () => _fire(
+                  NibToastVariant.error,
+                  'Failed',
+                  'Something went wrong.',
+                ),
                 child: const Text('Error'),
               ),
               OutlinedButton(
                 onPressed: () => _fire(
-                    NibToastVariant.warning, 'Heads up', 'Storage is almost full.'),
+                  NibToastVariant.warning,
+                  'Heads up',
+                  'Storage is almost full.',
+                ),
                 child: const Text('Warning'),
               ),
               OutlinedButton(
-                onPressed: () =>
-                    _fire(NibToastVariant.info, 'FYI', 'A new version is available.'),
+                onPressed: () => _fire(
+                  NibToastVariant.info,
+                  'FYI',
+                  'A new version is available.',
+                ),
                 child: const Text('Info'),
               ),
               TextButton(
-                onPressed: () =>
-                    _fire(NibToastVariant.normal, 'Just so you know', 'Plain toast.'),
+                onPressed: () => _fire(
+                  NibToastVariant.normal,
+                  'Just so you know',
+                  'Plain toast.',
+                ),
                 child: const Text('Normal'),
               ),
             ],
@@ -126,20 +141,23 @@ class _ToastDedupExampleState extends State<ToastDedupExample> {
           SegmentedButton<NibToastDuplicateBehavior>(
             segments: const [
               ButtonSegment(
-                  value: NibToastDuplicateBehavior.shake, label: Text('shake')),
+                value: NibToastDuplicateBehavior.shake,
+                label: Text('shake'),
+              ),
               ButtonSegment(
-                  value: NibToastDuplicateBehavior.ignore, label: Text('ignore')),
+                value: NibToastDuplicateBehavior.ignore,
+                label: Text('ignore'),
+              ),
               ButtonSegment(
-                  value: NibToastDuplicateBehavior.replace, label: Text('replace')),
+                value: NibToastDuplicateBehavior.replace,
+                label: Text('replace'),
+              ),
             ],
             selected: {_behavior},
             onSelectionChanged: (s) => setState(() => _behavior = s.first),
           ),
           const SizedBox(height: 16),
-          FilledButton(
-            onPressed: _save,
-            child: const Text('Save (spam me)'),
-          ),
+          FilledButton(onPressed: _save, child: const Text('Save (spam me)')),
           const SizedBox(height: 8),
           const Text(
             'shake: the one toast wobbles · ignore: nothing happens · '
@@ -243,11 +261,17 @@ class ToastCustomContentExample extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Ada Lovelace',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.w600)),
-                Text('sent you a message',
-                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 12)),
+                Text(
+                  'Ada Lovelace',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  'sent you a message',
+                  style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 12),
+                ),
               ],
             ),
           ),

@@ -3,7 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibTransition;
 
 import '../theme/nib_theme.dart';
 import 'nib_slider_types.dart';
@@ -59,18 +60,18 @@ class NibSlider extends StatefulWidget {
     this.label,
     this.focusNode,
     this.autofocus = false,
-  })  : _isRange = false,
-        // Public param must be named `value`; the field is `_value`.
-        // ignore: prefer_initializing_formals
-        _value = value,
-        _values = null,
-        _onChangedSingle = onChanged,
-        _onChangeStartSingle = onChangeStart,
-        _onChangeEndSingle = onChangeEnd,
-        _onChangedRange = null,
-        _onChangeStartRange = null,
-        _onChangeEndRange = null,
-        assert(min < max, 'NibSlider requires min < max.');
+  }) : _isRange = false,
+       // Public param must be named `value`; the field is `_value`.
+       // ignore: prefer_initializing_formals
+       _value = value,
+       _values = null,
+       _onChangedSingle = onChanged,
+       _onChangeStartSingle = onChangeStart,
+       _onChangeEndSingle = onChangeEnd,
+       _onChangedRange = null,
+       _onChangeStartRange = null,
+       _onChangeEndRange = null,
+       assert(min < max, 'NibSlider requires min < max.');
 
   /// A two-thumb range slider (controlled via [values]/[onChanged]). The thumbs
   /// clamp against each other (they never cross).
@@ -101,18 +102,18 @@ class NibSlider extends StatefulWidget {
     this.label,
     this.focusNode,
     this.autofocus = false,
-  })  : _isRange = true,
-        _value = 0,
-        // Public param must be named `values`; the field is `_values`.
-        // ignore: prefer_initializing_formals
-        _values = values,
-        _onChangedSingle = null,
-        _onChangeStartSingle = null,
-        _onChangeEndSingle = null,
-        _onChangedRange = onChanged,
-        _onChangeStartRange = onChangeStart,
-        _onChangeEndRange = onChangeEnd,
-        assert(min < max, 'NibSlider requires min < max.');
+  }) : _isRange = true,
+       _value = 0,
+       // Public param must be named `values`; the field is `_values`.
+       // ignore: prefer_initializing_formals
+       _values = values,
+       _onChangedSingle = null,
+       _onChangeStartSingle = null,
+       _onChangeEndSingle = null,
+       _onChangedRange = onChanged,
+       _onChangeStartRange = onChangeStart,
+       _onChangeEndRange = onChangeEnd,
+       assert(min < max, 'NibSlider requires min < max.');
 
   final bool _isRange;
   final double _value;
@@ -283,10 +284,12 @@ class _NibSliderState extends State<NibSlider> {
 
   /// Value at a local main-axis coordinate (relative to the gesture box).
   double _valueFromLocalMain(double localMain) {
-    final along =
-        widget.axis == Axis.horizontal ? localMain : (_mainExtent - localMain);
-    final frac =
-        _trackLen <= 0 ? 0.0 : ((along - _trackStart) / _trackLen).clamp(0.0, 1.0);
+    final along = widget.axis == Axis.horizontal
+        ? localMain
+        : (_mainExtent - localMain);
+    final frac = _trackLen <= 0
+        ? 0.0
+        : ((along - _trackStart) / _trackLen).clamp(0.0, 1.0);
     return _snap(widget.min + frac * (widget.max - widget.min));
   }
 
@@ -370,7 +373,9 @@ class _NibSliderState extends State<NibSlider> {
 
   void _nudge(int thumb, double delta) {
     if (!_interactive) return;
-    final value = _snap((_thumbValue(thumb) + delta).clamp(widget.min, widget.max));
+    final value = _snap(
+      (_thumbValue(thumb) + delta).clamp(widget.min, widget.max),
+    );
     _emit(thumb, value, _Phase.update);
   }
 
@@ -389,7 +394,8 @@ class _NibSliderState extends State<NibSlider> {
       _nudge(thumb, _step);
       return KeyEventResult.handled;
     }
-    if (k == LogicalKeyboardKey.arrowLeft || k == LogicalKeyboardKey.arrowDown) {
+    if (k == LogicalKeyboardKey.arrowLeft ||
+        k == LogicalKeyboardKey.arrowDown) {
       _nudge(thumb, -_step);
       return KeyEventResult.handled;
     }
@@ -426,8 +432,9 @@ class _NibSliderState extends State<NibSlider> {
 
     Widget content = LayoutBuilder(
       builder: (context, constraints) {
-        final rawMain =
-            horizontal ? constraints.maxWidth : constraints.maxHeight;
+        final rawMain = horizontal
+            ? constraints.maxWidth
+            : constraints.maxHeight;
         _mainExtent = rawMain.isFinite ? rawMain : 200;
         final r = _thumbSize / 2;
         _trackStart = r;
@@ -473,15 +480,19 @@ class _NibSliderState extends State<NibSlider> {
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTapUp: (d) => _onTapUp(d.localPosition),
-            onHorizontalDragStart:
-                horizontal ? (d) => _onDragStart(d.localPosition) : null,
-            onHorizontalDragUpdate:
-                horizontal ? (d) => _onDragUpdate(d.localPosition) : null,
+            onHorizontalDragStart: horizontal
+                ? (d) => _onDragStart(d.localPosition)
+                : null,
+            onHorizontalDragUpdate: horizontal
+                ? (d) => _onDragUpdate(d.localPosition)
+                : null,
             onHorizontalDragEnd: horizontal ? (_) => _onDragEnd() : null,
-            onVerticalDragStart:
-                horizontal ? null : (d) => _onDragStart(d.localPosition),
-            onVerticalDragUpdate:
-                horizontal ? null : (d) => _onDragUpdate(d.localPosition),
+            onVerticalDragStart: horizontal
+                ? null
+                : (d) => _onDragStart(d.localPosition),
+            onVerticalDragUpdate: horizontal
+                ? null
+                : (d) => _onDragUpdate(d.localPosition),
             onVerticalDragEnd: horizontal ? null : (_) => _onDragEnd(),
             child: Stack(clipBehavior: Clip.none, children: children),
           ),
@@ -490,9 +501,17 @@ class _NibSliderState extends State<NibSlider> {
     );
 
     if (horizontal) {
-      content = SizedBox(width: double.infinity, height: crossThickness, child: content);
+      content = SizedBox(
+        width: double.infinity,
+        height: crossThickness,
+        child: content,
+      );
     } else {
-      content = SizedBox(width: crossThickness, height: double.infinity, child: content);
+      content = SizedBox(
+        width: crossThickness,
+        height: double.infinity,
+        child: content,
+      );
     }
 
     if (widget.padding != null) {
@@ -571,7 +590,8 @@ class _NibSliderState extends State<NibSlider> {
       knob = NibMotion(
         initial: NibAnim.identity,
         animate: dragging ? const NibAnim(scale: 1.3) : NibAnim.identity,
-        transition: widget.transition ??
+        transition:
+            widget.transition ??
             const NibTransition(duration: Duration(milliseconds: 120)),
         child: knob,
       );
@@ -650,7 +670,8 @@ class _NibSliderState extends State<NibSlider> {
       bubble = NibMotion(
         initial: const NibAnim(opacity: 0, scale: 0.8),
         animate: const NibAnim(opacity: 1, scale: 1),
-        transition: widget.transition ??
+        transition:
+            widget.transition ??
             const NibTransition(duration: Duration(milliseconds: 120)),
         child: bubble,
       );
@@ -755,10 +776,7 @@ class _NibSliderPainter extends CustomPainter {
       );
     } else if (fillPositions.isNotEmpty) {
       canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          _band(size, trackStart, fillPositions[0]),
-          rr,
-        ),
+        RRect.fromRectAndRadius(_band(size, trackStart, fillPositions[0]), rr),
         activePaint,
       );
     }

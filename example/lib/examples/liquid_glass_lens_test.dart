@@ -12,9 +12,11 @@ class LiquidGlassLensTestExample extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Glass over a fine grid — the clearest way to see the lens. '
-            'Drag the shapes around: the grid should bend and magnify through '
-            'them like a real concave lens (like the reference).'),
+        const Text(
+          'Glass over a fine grid — the clearest way to see the lens. '
+          'Drag the shapes around: the grid should bend and magnify through '
+          'them like a real concave lens (like the reference).',
+        ),
         const SizedBox(height: 4),
         const Text(
           'Needs Impeller: run on Android, or  flutter run -d linux --enable-impeller.',
@@ -84,8 +86,10 @@ class _LensTestScreen extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: Padding(
                 padding: EdgeInsets.all(16),
-                child: Text('Drag the glass shapes across the grid',
-                    style: TextStyle(color: Colors.black54)),
+                child: Text(
+                  'Drag the glass shapes across the grid',
+                  style: TextStyle(color: Colors.black54),
+                ),
               ),
             ),
           ),
@@ -126,8 +130,12 @@ class _DraggableGlassState extends State<_DraggableGlass> {
         // shader path isn't active — then a bent grid inside = real refraction.
         child: DecoratedBox(
           decoration: BoxDecoration(
-            borderRadius: widget.clipper == null ? BorderRadius.circular(widget.radius) : null,
-            shape: widget.clipper == null ? BoxShape.rectangle : BoxShape.circle,
+            borderRadius: widget.clipper == null
+                ? BorderRadius.circular(widget.radius)
+                : null,
+            shape: widget.clipper == null
+                ? BoxShape.rectangle
+                : BoxShape.circle,
             border: Border.all(color: const Color(0x66FFFFFF), width: 1.5),
           ),
           child: NibLiquidGlass(
@@ -164,16 +172,29 @@ class _DiagnosticBanner extends StatelessWidget {
       builder: (context, snap) {
         final ok = snap.data;
         final (text, color) = switch (ok) {
-          true => ('Shader glass: RUNNING (real refraction) ✓', const Color(0xCC1B5E20)),
-          false => ('Shader glass: FALLBACK (no refraction) ✗', const Color(0xCCB71C1C)),
+          true => (
+            'Shader glass: RUNNING (real refraction) ✓',
+            const Color(0xCC1B5E20),
+          ),
+          false => (
+            'Shader glass: FALLBACK (no refraction) ✗',
+            const Color(0xCCB71C1C),
+          ),
           null => ('Checking shader…', const Color(0xCC424242)),
         };
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(8),
+          ),
           child: Text(
             text,
-            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         );
       },
@@ -195,7 +216,10 @@ class _GridPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawRect(Offset.zero & size, Paint()..color = const Color(0xFFECE7DE));
+    canvas.drawRect(
+      Offset.zero & size,
+      Paint()..color = const Color(0xFFECE7DE),
+    );
     final thin = Paint()
       ..color = const Color(0x2247618A)
       ..strokeWidth = 1;
@@ -205,11 +229,19 @@ class _GridPainter extends CustomPainter {
     const step = 22.0;
     var i = 0;
     for (double x = 0; x <= size.width; x += step, i++) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), i % 5 == 0 ? thick : thin);
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x, size.height),
+        i % 5 == 0 ? thick : thin,
+      );
     }
     i = 0;
     for (double y = 0; y <= size.height; y += step, i++) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), i % 5 == 0 ? thick : thin);
+      canvas.drawLine(
+        Offset(0, y),
+        Offset(size.width, y),
+        i % 5 == 0 ? thick : thin,
+      );
     }
   }
 

@@ -33,9 +33,10 @@ class NibRadioOption<T> {
 /// Builds a fully custom row for one option, replacing the built-in
 /// dot+label layout. The group still owns tap/ripple/focus/keyboard/shape —
 /// the builder only paints the row's content.
-typedef NibRadioOptionBuilder<T> = Widget Function(
-  BuildContext context,
-  NibRadioOption<T> option,
-  bool selected,
-  bool disabled,
-);
+typedef NibRadioOptionBuilder<T> =
+    Widget Function(
+      BuildContext context,
+      NibRadioOption<T> option,
+      bool selected,
+      bool disabled,
+    );

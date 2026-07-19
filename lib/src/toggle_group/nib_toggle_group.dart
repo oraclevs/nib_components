@@ -58,13 +58,13 @@ class NibToggleGroup<T> extends StatefulWidget {
     this.transition,
     this.semanticLabel,
     this.autofocus = false,
-  })  : _multiple = false,
-        // Public param must be named `value`; the field is `_value`.
-        // ignore: prefer_initializing_formals
-        _value = value,
-        _values = null,
-        _onChangedSingle = onChanged,
-        _onChangedMultiple = null;
+  }) : _multiple = false,
+       // Public param must be named `value`; the field is `_value`.
+       // ignore: prefer_initializing_formals
+       _value = value,
+       _values = null,
+       _onChangedSingle = onChanged,
+       _onChangedMultiple = null;
 
   /// A multi-select toggle group (controlled via [values]/[onChanged]) —
   /// each segment toggles independently.
@@ -82,13 +82,13 @@ class NibToggleGroup<T> extends StatefulWidget {
     this.transition,
     this.semanticLabel,
     this.autofocus = false,
-  })  : _multiple = true,
-        _value = null,
-        // Public param must be named `values`; the field is `_values`.
-        // ignore: prefer_initializing_formals
-        _values = values,
-        _onChangedSingle = null,
-        _onChangedMultiple = onChanged;
+  }) : _multiple = true,
+       _value = null,
+       // Public param must be named `values`; the field is `_values`.
+       // ignore: prefer_initializing_formals
+       _values = values,
+       _onChangedSingle = null,
+       _onChangedMultiple = onChanged;
 
   /// The segments.
   final List<NibToggleOption<T>> options;

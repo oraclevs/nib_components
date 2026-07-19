@@ -224,8 +224,7 @@ class SwitchBesideButtonExample extends StatefulWidget {
       _SwitchBesideButtonExampleState();
 }
 
-class _SwitchBesideButtonExampleState
-    extends State<SwitchBesideButtonExample> {
+class _SwitchBesideButtonExampleState extends State<SwitchBesideButtonExample> {
   bool _bare = false;
   bool _labelled = false;
 
@@ -240,7 +239,10 @@ class _SwitchBesideButtonExampleState
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            NibSwitch(value: _bare, onChanged: (v) => setState(() => _bare = v)),
+            NibSwitch(
+              value: _bare,
+              onChanged: (v) => setState(() => _bare = v),
+            ),
             const SizedBox(width: 12),
             NibButton(label: 'Small', size: NibButtonSize.sm, onPressed: () {}),
             const SizedBox(width: 12),
@@ -261,7 +263,11 @@ class _SwitchBesideButtonExampleState
               ),
             ),
             const SizedBox(width: 12),
-            NibButton(label: 'Manage', variant: NibButtonVariant.outline, onPressed: () {}),
+            NibButton(
+              label: 'Manage',
+              variant: NibButtonVariant.outline,
+              onPressed: () {},
+            ),
           ],
         ),
       ],

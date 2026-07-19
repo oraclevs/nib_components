@@ -91,36 +91,38 @@ Future<bool?> showNibAlertDialog(
     'showNibAlertDialog requires at least one of title/description/content.',
   );
 
-  final cupertino = adaptive &&
+  final cupertino =
+      adaptive &&
       (defaultTargetPlatform == TargetPlatform.iOS ||
           defaultTargetPlatform == TargetPlatform.macOS);
   final destructive = severity == NibAlertSeverity.error;
-  final resolvedConfirmVariant = confirmVariant ??
+  final resolvedConfirmVariant =
+      confirmVariant ??
       (destructive ? NibButtonVariant.destructive : NibButtonVariant.primary);
 
   Widget buildBody() => Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Absorbs `showNibDialog`'s FocusScope(autofocus: true) — without
-          // this, it auto-focuses the first actionable descendant (Cancel),
-          // which then permanently shows NibButton's focus ring/highlight
-          // the instant the dialog opens, regardless of variant. See
-          // _noAutofocusSink's doc comment.
-          _noAutofocusSink,
-          content ??
-              _AlertBody(
-                title: title,
-                description: description,
-                severity: severity,
-                icon: icon,
-                iconColor: iconColor,
-                titleTextStyle: titleTextStyle,
-                descriptionTextStyle: descriptionTextStyle,
-                centered: cupertino,
-              ),
-        ],
-      );
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      // Absorbs `showNibDialog`'s FocusScope(autofocus: true) — without
+      // this, it auto-focuses the first actionable descendant (Cancel),
+      // which then permanently shows NibButton's focus ring/highlight
+      // the instant the dialog opens, regardless of variant. See
+      // _noAutofocusSink's doc comment.
+      _noAutofocusSink,
+      content ??
+          _AlertBody(
+            title: title,
+            description: description,
+            severity: severity,
+            icon: icon,
+            iconColor: iconColor,
+            titleTextStyle: titleTextStyle,
+            descriptionTextStyle: descriptionTextStyle,
+            centered: cupertino,
+          ),
+    ],
+  );
 
   Widget buildFooter(BuildContext dialogContext) {
     if (actions != null) {
@@ -209,7 +211,8 @@ class _AlertBody extends StatelessWidget {
     final theme = NibTheme.of(context);
     final align = centered ? TextAlign.center : TextAlign.start;
 
-    final resolvedIcon = icon ??
+    final resolvedIcon =
+        icon ??
         (severity != null
             ? Icon(
                 severity!.defaultIcon(),
@@ -219,8 +222,9 @@ class _AlertBody extends StatelessWidget {
             : null);
 
     return Column(
-      crossAxisAlignment:
-          centered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      crossAxisAlignment: centered
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         if (resolvedIcon != null) ...[
@@ -249,8 +253,10 @@ class _AlertBody extends StatelessWidget {
           Text(
             description!,
             textAlign: align,
-            style: TextStyle(color: theme.mutedForeground, fontSize: 14)
-                .merge(descriptionTextStyle),
+            style: TextStyle(
+              color: theme.mutedForeground,
+              fontSize: 14,
+            ).merge(descriptionTextStyle),
           ),
       ],
     );
@@ -314,13 +320,7 @@ class _MaterialAlertActions extends StatelessWidget {
       overflowAlignment: overflowAlignment,
       overflowDirection: overflowDirection,
       children: [
-        if (cancelFirst) ...[
-          ?cancel,
-          confirm,
-        ] else ...[
-          confirm,
-          ?cancel,
-        ],
+        if (cancelFirst) ...[?cancel, confirm] else ...[confirm, ?cancel],
       ],
     );
   }
@@ -364,33 +364,38 @@ class _CupertinoAlertActions extends StatelessWidget {
 
     final row = cancelText == null
         ? SizedBox(width: double.infinity, child: confirmButton)
-        : Builder(builder: (context) {
-            final cancelButton = _CupertinoAlertButton(
-              label: cancelText!,
-              emphasized: false,
-              color: theme.primary,
-              padding: buttonPadding,
-              onTap: onCancel,
-            );
-            final divider =
-                VerticalDivider(width: 1, thickness: 1, color: theme.border);
-            return IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: cancelFirst
-                    ? [
-                        Expanded(child: cancelButton),
-                        divider,
-                        Expanded(child: confirmButton),
-                      ]
-                    : [
-                        Expanded(child: confirmButton),
-                        divider,
-                        Expanded(child: cancelButton),
-                      ],
-              ),
-            );
-          });
+        : Builder(
+            builder: (context) {
+              final cancelButton = _CupertinoAlertButton(
+                label: cancelText!,
+                emphasized: false,
+                color: theme.primary,
+                padding: buttonPadding,
+                onTap: onCancel,
+              );
+              final divider = VerticalDivider(
+                width: 1,
+                thickness: 1,
+                color: theme.border,
+              );
+              return IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: cancelFirst
+                      ? [
+                          Expanded(child: cancelButton),
+                          divider,
+                          Expanded(child: confirmButton),
+                        ]
+                      : [
+                          Expanded(child: confirmButton),
+                          divider,
+                          Expanded(child: cancelButton),
+                        ],
+                ),
+              );
+            },
+          );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -465,16 +470,20 @@ class _CupertinoAlertButtonState extends State<_CupertinoAlertButton> {
                   constraints: const BoxConstraints(minHeight: 48),
                   child: Center(
                     child: Padding(
-                      padding: widget.padding ??
+                      padding:
+                          widget.padding ??
                           const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 12),
+                            horizontal: 12,
+                            vertical: 12,
+                          ),
                       child: Text(
                         widget.label,
                         style: TextStyle(
                           color: widget.color,
                           fontSize: 16,
-                          fontWeight:
-                              widget.emphasized ? FontWeight.w600 : FontWeight.w400,
+                          fontWeight: widget.emphasized
+                              ? FontWeight.w600
+                              : FontWeight.w400,
                         ),
                       ),
                     ),

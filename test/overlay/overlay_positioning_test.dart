@@ -60,20 +60,22 @@ void main() {
       );
     });
 
-    test('when neither side fits, picks the side with more room (not blind flip)',
-        () {
-      // Trigger just below vertical centre: more room above than below. Content
-      // taller than both gaps → must land on the roomier side (top), not blindly
-      // flip to the preferred-opposite.
-      const target = Rect.fromLTWH(300, 320, 80, 40);
-      final geo = resolveOverlayGeometry(
-        placement: NibOverlayPlacement.bottom,
-        target: target,
-        content: const Size(100, 400),
-        screen: screen,
-      );
-      expect(geo.side, NibOverlaySide.top);
-    });
+    test(
+      'when neither side fits, picks the side with more room (not blind flip)',
+      () {
+        // Trigger just below vertical centre: more room above than below. Content
+        // taller than both gaps → must land on the roomier side (top), not blindly
+        // flip to the preferred-opposite.
+        const target = Rect.fromLTWH(300, 320, 80, 40);
+        final geo = resolveOverlayGeometry(
+          placement: NibOverlayPlacement.bottom,
+          target: target,
+          content: const Size(100, 400),
+          screen: screen,
+        );
+        expect(geo.side, NibOverlaySide.top);
+      },
+    );
   });
 
   group('resolveOverlayGeometry — clamping', () {
@@ -91,40 +93,44 @@ void main() {
       expect(rect.left, greaterThanOrEqualTo(0));
     });
 
-    test('clamps the MAIN axis so a start-side card never goes off the left edge',
-        () {
-      // Regression: hover card opening to the start near the left edge used to
-      // render off-screen because the main (horizontal) axis was never clamped.
-      const nearLeft = Rect.fromLTWH(40, 280, 40, 40);
-      final geo = resolveOverlayGeometry(
-        placement: NibOverlayPlacement.start,
-        target: nearLeft,
-        content: const Size(200, 60),
-        screen: screen,
-        margin: 8,
-      );
-      final rect = _contentRect(geo, nearLeft, const Size(200, 60));
-      expect(rect.left, greaterThanOrEqualTo(8));
-    });
+    test(
+      'clamps the MAIN axis so a start-side card never goes off the left edge',
+      () {
+        // Regression: hover card opening to the start near the left edge used to
+        // render off-screen because the main (horizontal) axis was never clamped.
+        const nearLeft = Rect.fromLTWH(40, 280, 40, 40);
+        final geo = resolveOverlayGeometry(
+          placement: NibOverlayPlacement.start,
+          target: nearLeft,
+          content: const Size(200, 60),
+          screen: screen,
+          margin: 8,
+        );
+        final rect = _contentRect(geo, nearLeft, const Size(200, 60));
+        expect(rect.left, greaterThanOrEqualTo(8));
+      },
+    );
 
-    test('respects the top safe-area inset (status bar) — never draws under it',
-        () {
-      // Regression: profile hover card opened above and drew under the status
-      // bar because the top inset was ignored. Trigger low enough that "above"
-      // is chosen, content tall enough to reach the top.
-      const target = Rect.fromLTWH(100, 300, 80, 40);
-      const safe = EdgeInsets.only(top: 44); // status bar
-      final geo = resolveOverlayGeometry(
-        placement: NibOverlayPlacement.top,
-        target: target,
-        content: const Size(200, 320),
-        screen: screen,
-        safeInsets: safe,
-        margin: 8,
-      );
-      final rect = _contentRect(geo, target, const Size(200, 320));
-      expect(rect.top, greaterThanOrEqualTo(44 + 8));
-    });
+    test(
+      'respects the top safe-area inset (status bar) — never draws under it',
+      () {
+        // Regression: profile hover card opened above and drew under the status
+        // bar because the top inset was ignored. Trigger low enough that "above"
+        // is chosen, content tall enough to reach the top.
+        const target = Rect.fromLTWH(100, 300, 80, 40);
+        const safe = EdgeInsets.only(top: 44); // status bar
+        final geo = resolveOverlayGeometry(
+          placement: NibOverlayPlacement.top,
+          target: target,
+          content: const Size(200, 320),
+          screen: screen,
+          safeInsets: safe,
+          margin: 8,
+        );
+        final rect = _contentRect(geo, target, const Size(200, 320));
+        expect(rect.top, greaterThanOrEqualTo(44 + 8));
+      },
+    );
 
     test('respects the bottom safe-area inset (nav bar / keyboard)', () {
       const target = Rect.fromLTWH(100, 200, 80, 40);

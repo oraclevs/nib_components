@@ -4,18 +4,24 @@ import 'package:nib_components/nib_components.dart';
 const _faq = [
   NibAccordionItem(
     title: Text('What is Nib?'),
-    content: Text('A native Flutter component library — installable widgets, '
-        'not copy-pasted snippets, built on nib_motion.'),
+    content: Text(
+      'A native Flutter component library — installable widgets, '
+      'not copy-pasted snippets, built on nib_motion.',
+    ),
   ),
   NibAccordionItem(
     title: Text('Does it support dark mode?'),
-    content: Text('Yes. Every component reads its colours from NibTheme and '
-        'works in light and dark out of the box.'),
+    content: Text(
+      'Yes. Every component reads its colours from NibTheme and '
+      'works in light and dark out of the box.',
+    ),
   ),
   NibAccordionItem(
     title: Text('Is it responsive?'),
-    content: Text('Components adapt to mobile, tablet, and desktop widths and '
-        'never clip or overflow silently.'),
+    content: Text(
+      'Components adapt to mobile, tablet, and desktop widths and '
+      'never clip or overflow silently.',
+    ),
   ),
 ];
 
@@ -59,20 +65,26 @@ class AccordionMultiExample extends StatelessWidget {
               NibAccordionItem(
                 leading: Icon(Icons.local_shipping_outlined),
                 title: Text('Shipping'),
-                content: Text('Free standard shipping on orders over \$50. '
-                    'Arrives in 2–4 business days.'),
+                content: Text(
+                  'Free standard shipping on orders over \$50. '
+                  'Arrives in 2–4 business days.',
+                ),
               ),
               NibAccordionItem(
                 leading: Icon(Icons.assignment_return_outlined),
                 title: Text('Returns'),
-                content: Text('30-day free returns. Items must be unworn with '
-                    'tags attached.'),
+                content: Text(
+                  '30-day free returns. Items must be unworn with '
+                  'tags attached.',
+                ),
               ),
               NibAccordionItem(
                 leading: Icon(Icons.verified_user_outlined),
                 title: Text('Warranty'),
-                content: Text('Two-year limited warranty covering manufacturing '
-                    'defects.'),
+                content: Text(
+                  'Two-year limited warranty covering manufacturing '
+                  'defects.',
+                ),
               ),
             ],
           ),
@@ -87,10 +99,12 @@ class AccordionControllerExample extends StatefulWidget {
   const AccordionControllerExample({super.key});
 
   @override
-  State<AccordionControllerExample> createState() => _AccordionControllerExampleState();
+  State<AccordionControllerExample> createState() =>
+      _AccordionControllerExampleState();
 }
 
-class _AccordionControllerExampleState extends State<AccordionControllerExample> {
+class _AccordionControllerExampleState
+    extends State<AccordionControllerExample> {
   final _controller = NibAccordionController(allowMultiple: true);
 
   @override

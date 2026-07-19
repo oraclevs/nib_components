@@ -26,7 +26,10 @@ class NibCircularLoader extends StatefulWidget {
     this.child,
     this.duration = const Duration(milliseconds: 1100),
     this.sweep = 0.72,
-  }) : assert(sweep > 0 && sweep < 1, 'sweep is a fraction of the circle (0–1)');
+  }) : assert(
+         sweep > 0 && sweep < 1,
+         'sweep is a fraction of the circle (0–1)',
+       );
 
   /// Overall diameter.
   final double size;
@@ -56,8 +59,10 @@ class NibCircularLoader extends StatefulWidget {
 
 class _NibCircularLoaderState extends State<NibCircularLoader>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: widget.duration)..repeat();
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: widget.duration,
+  )..repeat();
 
   @override
   void didUpdateWidget(covariant NibCircularLoader old) {

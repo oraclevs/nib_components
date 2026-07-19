@@ -9,10 +9,7 @@ void main() {
     });
 
     test('sorts, de-duplicates, and clamps into range', () {
-      expect(
-        normalizeSnapExtents([0.9, 0.25, 0.5, 0.25]),
-        [0.25, 0.5, 0.9],
-      );
+      expect(normalizeSnapExtents([0.9, 0.25, 0.5, 0.25]), [0.25, 0.5, 0.9]);
       expect(normalizeSnapExtents([1.5, -0.2]), [kNibSheetMinExtent, 1.0]);
     });
   });

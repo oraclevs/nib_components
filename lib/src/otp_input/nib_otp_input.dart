@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibTransition;
 
 import '../loader/nib_circular_loader.dart';
 import '../theme/nib_theme.dart';
@@ -235,7 +236,9 @@ class _NibOtpInputState extends State<NibOtpInput> {
 
   String _sanitize(String raw) {
     final digits = raw.replaceAll(RegExp(r'[^0-9]'), '');
-    return digits.length > widget.length ? digits.substring(0, widget.length) : digits;
+    return digits.length > widget.length
+        ? digits.substring(0, widget.length)
+        : digits;
   }
 
   void _onExternalChanged() {
@@ -281,7 +284,8 @@ class _NibOtpInputState extends State<NibOtpInput> {
   bool _cellActive(int i) {
     if (!_interactive) return false;
     // On-screen mode has no OS focus, so the next cell is always the active one.
-    final focused = widget.keyboard == NibOtpKeyboard.onScreen || _focus.hasFocus;
+    final focused =
+        widget.keyboard == NibOtpKeyboard.onScreen || _focus.hasFocus;
     return focused && i == _activeIndex;
   }
 
@@ -309,18 +313,20 @@ class _NibOtpInputState extends State<NibOtpInput> {
     for (var i = 0; i < widget.length; i++) {
       if (i > 0) cells.add(SizedBox(width: widget.spacing));
       final hasChar = i < text.length;
-      cells.add(NibOtpCell(
-        char: hasChar ? text[i] : '',
-        obscured: hasChar && widget.obscureText,
-        active: _cellActive(i),
-        error: hasError,
-        enabled: _interactive,
-        animated: widget.animated,
-        transition: widget.transition,
-        width: widget.cellWidth,
-        height: widget.cellHeight,
-        theme: theme,
-      ));
+      cells.add(
+        NibOtpCell(
+          char: hasChar ? text[i] : '',
+          obscured: hasChar && widget.obscureText,
+          active: _cellActive(i),
+          error: hasError,
+          enabled: _interactive,
+          animated: widget.animated,
+          transition: widget.transition,
+          width: widget.cellWidth,
+          height: widget.cellHeight,
+          theme: theme,
+        ),
+      );
     }
 
     final cellsRow = Row(mainAxisSize: MainAxisSize.min, children: cells);
@@ -439,12 +445,12 @@ class NibOtpCell extends StatelessWidget {
     final borderColor = !enabled
         ? theme.border
         : error
-            ? theme.destructive
-            : active
-                ? theme.ring
-                : filled
-                    ? theme.foreground.withValues(alpha: 0.35)
-                    : theme.border;
+        ? theme.destructive
+        : active
+        ? theme.ring
+        : filled
+        ? theme.foreground.withValues(alpha: 0.35)
+        : theme.border;
 
     Widget? glyph;
     if (filled) {
@@ -461,7 +467,9 @@ class NibOtpCell extends StatelessWidget {
           key: ValueKey(char),
           initial: const NibAnim(scale: 0.4, opacity: 0),
           animate: NibAnim.identity,
-          transition: transition ?? const NibTransition(duration: Duration(milliseconds: 180)),
+          transition:
+              transition ??
+              const NibTransition(duration: Duration(milliseconds: 180)),
           child: glyph,
         );
       }
@@ -527,30 +535,30 @@ class NibOtpKeypad extends StatelessWidget {
     final radius = s.keyRadius ?? theme.radiusDefault;
 
     Widget digit(String d) => NibOtpKey(
-          label: d,
-          enabled: enabled,
-          theme: theme,
-          onTap: () => onDigit(d),
-          color: s.keyColor,
-          textStyle: s.keyTextStyle,
-          textColor: s.keyTextColor,
-          width: s.keyWidth,
-          height: s.keyHeight,
-          radius: radius,
-        );
+      label: d,
+      enabled: enabled,
+      theme: theme,
+      onTap: () => onDigit(d),
+      color: s.keyColor,
+      textStyle: s.keyTextStyle,
+      textColor: s.keyTextColor,
+      width: s.keyWidth,
+      height: s.keyHeight,
+      radius: radius,
+    );
 
     Widget row(List<Widget> children) => Padding(
-          padding: EdgeInsets.only(bottom: s.verticalSpacing),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (var i = 0; i < children.length; i++) ...[
-                if (i > 0) SizedBox(width: s.horizontalSpacing),
-                children[i],
-              ],
-            ],
-          ),
-        );
+      padding: EdgeInsets.only(bottom: s.verticalSpacing),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) SizedBox(width: s.horizontalSpacing),
+            children[i],
+          ],
+        ],
+      ),
+    );
 
     final confirmSlot = SizedBox(
       width: s.keyWidth,
@@ -563,19 +571,19 @@ class NibOtpKeypad extends StatelessWidget {
               ),
             )
           : !showConfirmButton
-              ? const SizedBox.shrink()
-              : confirmButton ??
-                  NibOtpKey(
-                    icon: Icons.check_rounded,
-                    enabled: enabled,
-                    theme: theme,
-                    onTap: onConfirm ?? () {},
-                    color: s.confirmColor ?? theme.primary,
-                    iconColor: s.confirmIconColor ?? theme.primaryForeground,
-                    width: s.keyWidth,
-                    height: s.keyHeight,
-                    radius: radius,
-                  ),
+          ? const SizedBox.shrink()
+          : confirmButton ??
+                NibOtpKey(
+                  icon: Icons.check_rounded,
+                  enabled: enabled,
+                  theme: theme,
+                  onTap: onConfirm ?? () {},
+                  color: s.confirmColor ?? theme.primary,
+                  iconColor: s.confirmIconColor ?? theme.primaryForeground,
+                  width: s.keyWidth,
+                  height: s.keyHeight,
+                  radius: radius,
+                ),
     );
 
     return ConstrainedBox(
@@ -663,9 +671,17 @@ class NibOtpKey extends StatelessWidget {
                   ? Icon(icon, size: 22, color: fg)
                   : Text(
                       label!,
-                      style: (textStyle ??
-                              const TextStyle(fontSize: 22, fontWeight: FontWeight.w600))
-                          .copyWith(color: enabled ? (textColor ?? theme.foreground) : theme.mutedForeground),
+                      style:
+                          (textStyle ??
+                                  const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w600,
+                                  ))
+                              .copyWith(
+                                color: enabled
+                                    ? (textColor ?? theme.foreground)
+                                    : theme.mutedForeground,
+                              ),
                     ),
             ),
           ),

@@ -61,26 +61,26 @@ class NibButtonSizeMetrics {
 
   /// The locked metrics for [size].
   static NibButtonSizeMetrics of(NibButtonSize size) => switch (size) {
-        NibButtonSize.sm => const NibButtonSizeMetrics(
-            height: 36,
-            fontSize: 13,
-            horizontalPadding: 12,
-            iconSize: 16,
-            gap: 6,
-          ),
-        NibButtonSize.md => const NibButtonSizeMetrics(
-            height: 44,
-            fontSize: 14,
-            horizontalPadding: 16,
-            iconSize: 18,
-            gap: 8,
-          ),
-        NibButtonSize.lg => const NibButtonSizeMetrics(
-            height: 52,
-            fontSize: 16,
-            horizontalPadding: 20,
-            iconSize: 20,
-            gap: 10,
-          ),
-      };
+    NibButtonSize.sm => const NibButtonSizeMetrics(
+      height: 36,
+      fontSize: 13,
+      horizontalPadding: 12,
+      iconSize: 16,
+      gap: 6,
+    ),
+    NibButtonSize.md => const NibButtonSizeMetrics(
+      height: 44,
+      fontSize: 14,
+      horizontalPadding: 16,
+      iconSize: 18,
+      gap: 8,
+    ),
+    NibButtonSize.lg => const NibButtonSizeMetrics(
+      height: 52,
+      fontSize: 16,
+      horizontalPadding: 20,
+      iconSize: 20,
+      gap: 10,
+    ),
+  };
 }

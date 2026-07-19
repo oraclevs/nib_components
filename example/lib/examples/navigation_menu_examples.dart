@@ -27,7 +27,8 @@ class NavigationMenuFlyoutExample extends StatefulWidget {
       _NavigationMenuFlyoutExampleState();
 }
 
-class _NavigationMenuFlyoutExampleState extends State<NavigationMenuFlyoutExample> {
+class _NavigationMenuFlyoutExampleState
+    extends State<NavigationMenuFlyoutExample> {
   String _activeId = 'home';
 
   @override
@@ -123,7 +124,10 @@ class _NavigationMenuAdvancedExampleState
                 width: 8,
                 height: 8,
                 child: DecoratedBox(
-                  decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.red,
+                  ),
                 ),
               ),
               children: const [

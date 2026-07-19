@@ -20,7 +20,11 @@ class _Target extends StatelessWidget {
         border: Border.all(color: scheme.outline),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(hint, textAlign: TextAlign.center, style: TextStyle(color: scheme.onSurfaceVariant)),
+      child: Text(
+        hint,
+        textAlign: TextAlign.center,
+        style: TextStyle(color: scheme.onSurfaceVariant),
+      ),
     );
   }
 }
@@ -47,7 +51,11 @@ class ContextMenuMinimalExample extends StatelessWidget {
             NibMenuItem(label: 'Copy', icon: Icon(Icons.copy)),
             NibMenuItem(label: 'Paste', icon: Icon(Icons.paste)),
             NibMenuDivider(),
-            NibMenuItem(label: 'Delete', icon: Icon(Icons.delete_outline), destructive: true),
+            NibMenuItem(
+              label: 'Delete',
+              icon: Icon(Icons.delete_outline),
+              destructive: true,
+            ),
           ],
           child: const _Target('Copy · Paste · Delete'),
         ),
@@ -75,15 +83,27 @@ class ContextMenuSubmenuExample extends StatelessWidget {
           onItemSelected: (item) => _toast(context, item.label),
           items: const [
             NibMenuSection('Edit'),
-            NibMenuItem(label: 'Undo', icon: Icon(Icons.undo), trailing: Text('⌘Z')),
-            NibMenuItem(label: 'Redo', icon: Icon(Icons.redo), enabled: false, trailing: Text('⇧⌘Z')),
+            NibMenuItem(
+              label: 'Undo',
+              icon: Icon(Icons.undo),
+              trailing: Text('⌘Z'),
+            ),
+            NibMenuItem(
+              label: 'Redo',
+              icon: Icon(Icons.redo),
+              enabled: false,
+              trailing: Text('⇧⌘Z'),
+            ),
             NibMenuDivider(),
             NibMenuSection('Share'),
             NibMenuItem(
               label: 'Share to',
               icon: Icon(Icons.ios_share),
               submenu: [
-                NibMenuItem(label: 'Messages', icon: Icon(Icons.message_outlined)),
+                NibMenuItem(
+                  label: 'Messages',
+                  icon: Icon(Icons.message_outlined),
+                ),
                 NibMenuItem(label: 'Mail', icon: Icon(Icons.mail_outline)),
                 NibMenuItem(
                   label: 'More…',
@@ -95,7 +115,11 @@ class ContextMenuSubmenuExample extends StatelessWidget {
               ],
             ),
             NibMenuDivider(),
-            NibMenuItem(label: 'Move to trash', icon: Icon(Icons.delete_outline), destructive: true),
+            NibMenuItem(
+              label: 'Move to trash',
+              icon: Icon(Icons.delete_outline),
+              destructive: true,
+            ),
           ],
           child: const _Target('Nested submenu · sections · disabled'),
         ),
@@ -124,13 +148,20 @@ class ContextMenuImperativeExample extends StatelessWidget {
               globalPosition: d.globalPosition,
               animated: true,
               items: const [
-                NibMenuItem(label: 'New file', icon: Icon(Icons.insert_drive_file_outlined)),
-                NibMenuItem(label: 'New folder', icon: Icon(Icons.create_new_folder_outlined)),
+                NibMenuItem(
+                  label: 'New file',
+                  icon: Icon(Icons.insert_drive_file_outlined),
+                ),
+                NibMenuItem(
+                  label: 'New folder',
+                  icon: Icon(Icons.create_new_folder_outlined),
+                ),
                 NibMenuDivider(),
                 NibMenuItem(label: 'Refresh', icon: Icon(Icons.refresh)),
               ],
             );
-            if (context.mounted && choice != null) _toast(context, 'Chose: ${choice.label}');
+            if (context.mounted && choice != null)
+              _toast(context, 'Chose: ${choice.label}');
           },
           child: const _Target('Tap me to open a menu here'),
         ),

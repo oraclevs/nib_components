@@ -17,15 +17,19 @@ class NibDatePickerController extends ChangeNotifier {
     NibDateRange? selectedRange,
     List<DateTime>? selectedDates,
     DateTime? displayedMonth,
-  })  : _single = selectedDate == null ? null : dateOnly(selectedDate),
-        _range = selectedRange,
-        _multi = [for (final d in selectedDates ?? const <DateTime>[]) dateOnly(d)],
-        _displayedMonth = firstOfMonth(
-          displayedMonth ??
-              selectedDate ??
-              selectedRange?.start ??
-              (selectedDates != null && selectedDates.isNotEmpty ? selectedDates.first : DateTime.now()),
-        );
+  }) : _single = selectedDate == null ? null : dateOnly(selectedDate),
+       _range = selectedRange,
+       _multi = [
+         for (final d in selectedDates ?? const <DateTime>[]) dateOnly(d),
+       ],
+       _displayedMonth = firstOfMonth(
+         displayedMonth ??
+             selectedDate ??
+             selectedRange?.start ??
+             (selectedDates != null && selectedDates.isNotEmpty
+                 ? selectedDates.first
+                 : DateTime.now()),
+       );
 
   DateTime? _single;
   NibDateRange? _range;
@@ -65,7 +69,8 @@ class NibDatePickerController extends ChangeNotifier {
   void setSelectableBounds(DateTime? min, DateTime? max) {
     final newMin = min == null ? null : dateOnly(min);
     final newMax = max == null ? null : dateOnly(max);
-    if (_sameNullableDay(newMin, _minSelectable) && _sameNullableDay(newMax, _maxSelectable)) {
+    if (_sameNullableDay(newMin, _minSelectable) &&
+        _sameNullableDay(newMax, _maxSelectable)) {
       return;
     }
     _minSelectable = newMin;

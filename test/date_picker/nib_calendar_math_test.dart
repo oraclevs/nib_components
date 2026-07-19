@@ -5,7 +5,10 @@ import 'package:nib_components/src/date_picker/nib_date_picker_types.dart';
 void main() {
   group('isSameDay / dateOnly', () {
     test('same day ignores time', () {
-      expect(isSameDay(DateTime(2026, 7, 12, 9), DateTime(2026, 7, 12, 23, 59)), isTrue);
+      expect(
+        isSameDay(DateTime(2026, 7, 12, 9), DateTime(2026, 7, 12, 23, 59)),
+        isTrue,
+      );
       expect(isSameDay(DateTime(2026, 7, 12), DateTime(2026, 7, 13)), isFalse);
     });
 
@@ -58,11 +61,14 @@ void main() {
       expect(mondayFirst.first, DateTime(2026, 6, 29));
     });
 
-    test('a month starting exactly on the first weekday has no leading spill', () {
-      // Feb 2026 starts on a Sunday.
-      final grid = calendarDays(DateTime(2026, 2, 1), 0);
-      expect(grid.first, DateTime(2026, 2, 1));
-    });
+    test(
+      'a month starting exactly on the first weekday has no leading spill',
+      () {
+        // Feb 2026 starts on a Sunday.
+        final grid = calendarDays(DateTime(2026, 2, 1), 0);
+        expect(grid.first, DateTime(2026, 2, 1));
+      },
+    );
   });
 
   group('isInRange', () {
@@ -86,16 +92,35 @@ void main() {
     test('min/max bounds are inclusive', () {
       final min = DateTime(2026, 7, 5);
       final max = DateTime(2026, 7, 10);
-      expect(isDayDisabled(DateTime(2026, 7, 4), minDate: min, maxDate: max), isTrue);
-      expect(isDayDisabled(DateTime(2026, 7, 5), minDate: min, maxDate: max), isFalse);
-      expect(isDayDisabled(DateTime(2026, 7, 10), minDate: min, maxDate: max), isFalse);
-      expect(isDayDisabled(DateTime(2026, 7, 11), minDate: min, maxDate: max), isTrue);
+      expect(
+        isDayDisabled(DateTime(2026, 7, 4), minDate: min, maxDate: max),
+        isTrue,
+      );
+      expect(
+        isDayDisabled(DateTime(2026, 7, 5), minDate: min, maxDate: max),
+        isFalse,
+      );
+      expect(
+        isDayDisabled(DateTime(2026, 7, 10), minDate: min, maxDate: max),
+        isFalse,
+      );
+      expect(
+        isDayDisabled(DateTime(2026, 7, 11), minDate: min, maxDate: max),
+        isTrue,
+      );
     });
 
     test('predicate disables matching days', () {
-      bool weekends(DateTime d) => d.weekday == DateTime.saturday || d.weekday == DateTime.sunday;
-      expect(isDayDisabled(DateTime(2026, 7, 11), predicate: weekends), isTrue); // Sat
-      expect(isDayDisabled(DateTime(2026, 7, 13), predicate: weekends), isFalse); // Mon
+      bool weekends(DateTime d) =>
+          d.weekday == DateTime.saturday || d.weekday == DateTime.sunday;
+      expect(
+        isDayDisabled(DateTime(2026, 7, 11), predicate: weekends),
+        isTrue,
+      ); // Sat
+      expect(
+        isDayDisabled(DateTime(2026, 7, 13), predicate: weekends),
+        isFalse,
+      ); // Mon
     });
   });
 
@@ -108,20 +133,29 @@ void main() {
     });
 
     test('second later tap completes the range', () {
-      final r = nextRange(NibDateRange(start: DateTime(2026, 7, 5)), DateTime(2026, 7, 10));
+      final r = nextRange(
+        NibDateRange(start: DateTime(2026, 7, 5)),
+        DateTime(2026, 7, 10),
+      );
       expect(r.start, DateTime(2026, 7, 5));
       expect(r.end, DateTime(2026, 7, 10));
       expect(r.isComplete, isTrue);
     });
 
     test('second earlier tap swaps ends', () {
-      final r = nextRange(NibDateRange(start: DateTime(2026, 7, 10)), DateTime(2026, 7, 5));
+      final r = nextRange(
+        NibDateRange(start: DateTime(2026, 7, 10)),
+        DateTime(2026, 7, 5),
+      );
       expect(r.start, DateTime(2026, 7, 5));
       expect(r.end, DateTime(2026, 7, 10));
     });
 
     test('tapping again after a complete range restarts', () {
-      final complete = NibDateRange(start: DateTime(2026, 7, 5), end: DateTime(2026, 7, 10));
+      final complete = NibDateRange(
+        start: DateTime(2026, 7, 5),
+        end: DateTime(2026, 7, 10),
+      );
       final r = nextRange(complete, DateTime(2026, 7, 20));
       expect(r.start, DateTime(2026, 7, 20));
       expect(r.end, isNull);
@@ -137,7 +171,10 @@ void main() {
     });
 
     test('removes when present', () {
-      final dates = toggleDate([DateTime(2026, 7, 5), DateTime(2026, 7, 10)], DateTime(2026, 7, 5));
+      final dates = toggleDate([
+        DateTime(2026, 7, 5),
+        DateTime(2026, 7, 10),
+      ], DateTime(2026, 7, 5));
       expect(dates, [DateTime(2026, 7, 10)]);
     });
   });

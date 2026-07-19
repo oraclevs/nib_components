@@ -8,9 +8,11 @@ import 'package:flutter/foundation.dart';
 /// open item ids). [openIds] tracks vertical inline-expand state (every
 /// currently-expanded item id, at any depth).
 class NibNavMenuController extends ChangeNotifier {
-  NibNavMenuController({List<String> openChain = const [], Set<String>? openIds})
-    : _openChain = List<String>.of(openChain),
-      _openIds = Set<String>.of(openIds ?? const {});
+  NibNavMenuController({
+    List<String> openChain = const [],
+    Set<String>? openIds,
+  }) : _openChain = List<String>.of(openChain),
+       _openIds = Set<String>.of(openIds ?? const {});
 
   final List<String> _openChain;
   final Set<String> _openIds;

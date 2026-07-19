@@ -259,14 +259,17 @@ class _NibPopoverState extends State<NibPopover> {
   }
 
   NibTransition _effectiveTransition() =>
-      widget.transition ?? const NibTransition(duration: Duration(milliseconds: 140));
+      widget.transition ??
+      const NibTransition(duration: Duration(milliseconds: 140));
 
   /// How long to keep the overlay mounted after a close so the exit motion can
   /// finish before removal. Springs have no fixed duration, so estimate — same
   /// approach (and same deferred caveat) as `NibSelect`/`NibDialog`.
   Duration _exitDuration() {
     final t = _effectiveTransition();
-    final base = t.spring != null ? const Duration(milliseconds: 450) : t.duration;
+    final base = t.spring != null
+        ? const Duration(milliseconds: 450)
+        : t.duration;
     return base + t.delay + const Duration(milliseconds: 40);
   }
 
@@ -432,28 +435,35 @@ class _NibPopoverOverlayState extends State<_NibPopoverOverlay> {
             border: Border.all(color: theme.border),
             borderRadius: BorderRadius.circular(theme.radiusLg),
           ),
-          child: Padding(padding: const EdgeInsets.all(14), child: widget.child),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: widget.child,
+          ),
         ),
       ),
     );
   }
 
   Map<ShortcutActivator, Intent> get _shortcuts => const {
-        SingleActivator(LogicalKeyboardKey.escape): _ClosePopoverIntent(),
-      };
+    SingleActivator(LogicalKeyboardKey.escape): _ClosePopoverIntent(),
+  };
 
   Map<Type, Action<Intent>> get _actions => {
-        _ClosePopoverIntent: CallbackAction<_ClosePopoverIntent>(onInvoke: (_) {
-          widget.onRequestClose();
-          return null;
-        }),
-      };
+    _ClosePopoverIntent: CallbackAction<_ClosePopoverIntent>(
+      onInvoke: (_) {
+        widget.onRequestClose();
+        return null;
+      },
+    ),
+  };
 
   @override
   Widget build(BuildContext context) {
     final measuredCard = MeasureSize(
       onChange: (size) {
-        if (mounted && _contentSize != size) setState(() => _contentSize = size);
+        if (mounted && _contentSize != size) {
+          setState(() => _contentSize = size);
+        }
       },
       child: _buildCard(),
     );
@@ -471,19 +481,19 @@ class _NibPopoverOverlayState extends State<_NibPopoverOverlay> {
         : null;
 
     Widget wrap(Widget positioned) => FocusScope(
-          node: _focusScopeNode,
-          autofocus: true,
-          child: Shortcuts(
-            shortcuts: _shortcuts,
-            child: Actions(
-              actions: _actions,
-              child: Focus(
-                autofocus: true,
-                child: Stack(children: [?barrier, positioned]),
-              ),
-            ),
+      node: _focusScopeNode,
+      autofocus: true,
+      child: Shortcuts(
+        shortcuts: _shortcuts,
+        child: Actions(
+          actions: _actions,
+          child: Focus(
+            autofocus: true,
+            child: Stack(children: [?barrier, positioned]),
           ),
-        );
+        ),
+      ),
+    );
 
     if (_contentSize == null) {
       // First pass: measure invisibly before we can resolve the side.
@@ -536,7 +546,8 @@ class _PopoverArrow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final horizontal = side == NibOverlaySide.bottom || side == NibOverlaySide.top;
+    final horizontal =
+        side == NibOverlaySide.bottom || side == NibOverlaySide.top;
     return CustomPaint(
       size: horizontal ? const Size(_long, _short) : const Size(_short, _long),
       painter: _ArrowPainter(side, color),
@@ -585,5 +596,6 @@ class _ArrowPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_ArrowPainter old) => old.side != side || old.color != color;
+  bool shouldRepaint(_ArrowPainter old) =>
+      old.side != side || old.color != color;
 }

@@ -24,7 +24,10 @@ class _SkeletonMinimalExampleState extends State<SkeletonMinimalExample> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Nib Components', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                'Nib Components',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               SizedBox(height: 6),
               Text('A native, installable Flutter UI component library.'),
             ],
@@ -57,7 +60,10 @@ class _ProfileHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Ada Lovelace', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                'Ada Lovelace',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
               Text('@ada'),
               SizedBox(height: 4),
               Text('Mathematician and writer, first computer programmer.'),
@@ -108,7 +114,8 @@ class SkeletonAdvancedExample extends StatefulWidget {
   const SkeletonAdvancedExample({super.key});
 
   @override
-  State<SkeletonAdvancedExample> createState() => _SkeletonAdvancedExampleState();
+  State<SkeletonAdvancedExample> createState() =>
+      _SkeletonAdvancedExampleState();
 }
 
 class _SkeletonAdvancedExampleState extends State<SkeletonAdvancedExample> {
@@ -128,7 +135,9 @@ class _SkeletonAdvancedExampleState extends State<SkeletonAdvancedExample> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const NibSkeletonIgnore(child: Icon(Icons.star, color: Colors.amber)),
+              const NibSkeletonIgnore(
+                child: Icon(Icons.star, color: Colors.amber),
+              ),
               const SizedBox(width: 12),
               NibSkeletonBone(
                 width: 140,
@@ -141,7 +150,10 @@ class _SkeletonAdvancedExampleState extends State<SkeletonAdvancedExample> {
                     color: Theme.of(context).colorScheme.primary,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text('Custom chart', style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    'Custom chart',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ],
@@ -185,7 +197,10 @@ class _ProfileCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Grace Hopper', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(
+                  'Grace Hopper',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
                 Text('Rear Admiral, US Navy'),
               ],
             ),
@@ -282,16 +297,20 @@ class _SkeletonMaterialExampleState extends State<SkeletonMaterialExample> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Stock Material card',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Stock Material card',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     const Text(
-                        'Card and ElevatedButton chrome comes from '
-                        'PhysicalShape, not DecoratedBox.'),
+                      'Card and ElevatedButton chrome comes from '
+                      'PhysicalShape, not DecoratedBox.',
+                    ),
                     const SizedBox(height: 12),
-                    ElevatedButton(
-                        onPressed: () {}, child: const Text('Act')),
+                    ElevatedButton(onPressed: () {}, child: const Text('Act')),
                   ],
                 ),
               ),

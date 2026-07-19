@@ -45,7 +45,10 @@ class NibResizablePanels extends StatefulWidget {
     this.handleThickness = 1.0,
     this.animated = false,
     this.transition,
-  }) : assert(panels.length >= 2, 'NibResizablePanels requires at least 2 panels.');
+  }) : assert(
+         panels.length >= 2,
+         'NibResizablePanels requires at least 2 panels.',
+       );
 
   /// Whether panels are arranged left-to-right ([Axis.horizontal]) or
   /// top-to-bottom ([Axis.vertical]).
@@ -126,8 +129,11 @@ class _NibResizablePanelsState extends State<NibResizablePanels> {
     final sizes = _controller.sizes;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final groupMainExtent = widget.direction == Axis.horizontal ? constraints.maxWidth : constraints.maxHeight;
-        final narrowThreshold = widget.panels.length * kNibResizablePanelsNarrowFallbackPanelExtent;
+        final groupMainExtent = widget.direction == Axis.horizontal
+            ? constraints.maxWidth
+            : constraints.maxHeight;
+        final narrowThreshold =
+            widget.panels.length * kNibResizablePanelsNarrowFallbackPanelExtent;
 
         if (groupMainExtent < narrowThreshold) {
           // Always a vertical stack + vertical scroll, regardless of
@@ -157,8 +163,10 @@ class _NibResizablePanelsState extends State<NibResizablePanels> {
                 sizeFraction: sizes[handleIndex],
                 animated: widget.animated,
                 transition: widget.transition,
-                onDeltaFraction: (delta) => _controller.applyDelta(widget.panels, handleIndex, delta),
-                onDragEnd: () => widget.onLayoutChanged?.call(_controller.sizes),
+                onDeltaFraction: (delta) =>
+                    _controller.applyDelta(widget.panels, handleIndex, delta),
+                onDragEnd: () =>
+                    widget.onLayoutChanged?.call(_controller.sizes),
                 onReset: () {
                   _controller.resetPanelPair(handleIndex);
                   widget.onLayoutChanged?.call(_controller.sizes);
@@ -168,7 +176,11 @@ class _NibResizablePanelsState extends State<NibResizablePanels> {
           }
         }
 
-        return NibResizablePanelsLayout(direction: widget.direction, sizes: sizes, children: children);
+        return NibResizablePanelsLayout(
+          direction: widget.direction,
+          sizes: sizes,
+          children: children,
+        );
       },
     );
   }

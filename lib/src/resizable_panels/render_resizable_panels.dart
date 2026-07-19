@@ -26,7 +26,10 @@ class NibResizablePanelsRenderObject extends RenderBox
     with
         ContainerRenderObjectMixin<RenderBox, _PanelsParentData>,
         RenderBoxContainerDefaultsMixin<RenderBox, _PanelsParentData> {
-  NibResizablePanelsRenderObject({required this._sizes, required this._direction});
+  NibResizablePanelsRenderObject({
+    required this._sizes,
+    required this._direction,
+  });
 
   List<double> _sizes;
   List<double> get sizes => _sizes;
@@ -63,9 +66,12 @@ class NibResizablePanelsRenderObject extends RenderBox
 
     final horizontal = _direction == Axis.horizontal;
     final totalMain = horizontal ? constraints.maxWidth : constraints.maxHeight;
-    final crossExtent = horizontal ? constraints.maxHeight : constraints.maxWidth;
+    final crossExtent = horizontal
+        ? constraints.maxHeight
+        : constraints.maxWidth;
     final handleCount = _panelCount - 1;
-    final panelsMain = totalMain - (handleCount * kNibResizablePanelsHandleHitWidth);
+    final panelsMain =
+        totalMain - (handleCount * kNibResizablePanelsHandleHitWidth);
 
     var child = firstChild;
     var index = 0;
@@ -82,7 +88,9 @@ class NibResizablePanelsRenderObject extends RenderBox
         mainExtent = kNibResizablePanelsHandleHitWidth;
       } else {
         final isLastPanel = panelIndex == _panelCount - 1;
-        mainExtent = isLastPanel ? panelsMain - panelMainSum : panelsMain * _sizes[panelIndex];
+        mainExtent = isLastPanel
+            ? panelsMain - panelMainSum
+            : panelsMain * _sizes[panelIndex];
         panelMainSum += mainExtent;
         panelIndex++;
       }
@@ -98,11 +106,14 @@ class NibResizablePanelsRenderObject extends RenderBox
       child = parentData.nextSibling;
     }
 
-    size = constraints.constrain(horizontal ? Size(totalMain, crossExtent) : Size(crossExtent, totalMain));
+    size = constraints.constrain(
+      horizontal ? Size(totalMain, crossExtent) : Size(crossExtent, totalMain),
+    );
   }
 
   @override
-  void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
+  void paint(PaintingContext context, Offset offset) =>
+      defaultPaint(context, offset);
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
@@ -115,7 +126,12 @@ class NibResizablePanelsRenderObject extends RenderBox
 /// total. Not part of the public API; `NibResizablePanels` is the
 /// consumer-facing widget.
 class NibResizablePanelsLayout extends MultiChildRenderObjectWidget {
-  const NibResizablePanelsLayout({super.key, required this.direction, required this.sizes, required super.children});
+  const NibResizablePanelsLayout({
+    super.key,
+    required this.direction,
+    required this.sizes,
+    required super.children,
+  });
 
   final Axis direction;
   final List<double> sizes;

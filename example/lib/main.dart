@@ -63,7 +63,8 @@ class _CatalogHomePageState extends State<CatalogHomePage> {
     if (!_listController.hasClients) return;
     final position = _listController.position;
     final centred =
-        (_selectedIndex * _tileExtent) - (position.viewportDimension - _tileExtent) / 2;
+        (_selectedIndex * _tileExtent) -
+        (position.viewportDimension - _tileExtent) / 2;
     _listController.jumpTo(
       centred.clamp(position.minScrollExtent, position.maxScrollExtent),
     );
@@ -115,7 +116,10 @@ class _CatalogHomePageState extends State<CatalogHomePage> {
           return Scaffold(
             body: Row(
               children: [
-                SizedBox(width: 220, child: _buildCatalogList(closeDrawerOnTap: false)),
+                SizedBox(
+                  width: 220,
+                  child: _buildCatalogList(closeDrawerOnTap: false),
+                ),
                 const VerticalDivider(width: 1),
                 Expanded(child: content),
               ],

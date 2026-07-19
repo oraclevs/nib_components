@@ -81,7 +81,8 @@ class NibCalendarDayState {
 
 /// Builds a fully custom day cell. Return just the cell's *content* — the
 /// calendar still wraps it in the tap target and enforces the 44px cell size.
-typedef NibCalendarDayBuilder = Widget Function(BuildContext context, NibCalendarDayState state);
+typedef NibCalendarDayBuilder =
+    Widget Function(BuildContext context, NibCalendarDayState state);
 
 /// An inclusive date range. [end] is `null` while a range is mid-selection
 /// (only the start has been picked).

@@ -89,9 +89,7 @@ class _SliderRangeExampleState extends State<SliderRangeExample> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          'Range — \$${_range.start.round()} … \$${_range.end.round()}',
-        ),
+        Text('Range — \$${_range.start.round()} … \$${_range.end.round()}'),
         const SizedBox(height: 16),
         SizedBox(
           width: 320,

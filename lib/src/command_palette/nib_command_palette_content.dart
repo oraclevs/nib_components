@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibTransition;
 
 import '../theme/nib_theme.dart';
 import 'nib_command_action.dart';
@@ -40,7 +41,8 @@ class NibCommandPaletteContent extends StatefulWidget {
   final VoidCallback onRequestClose;
 
   @override
-  State<NibCommandPaletteContent> createState() => _NibCommandPaletteContentState();
+  State<NibCommandPaletteContent> createState() =>
+      _NibCommandPaletteContentState();
 }
 
 class _NibCommandPaletteContentState extends State<NibCommandPaletteContent> {
@@ -75,20 +77,26 @@ class _NibCommandPaletteContentState extends State<NibCommandPaletteContent> {
   List<NibCommandAction> get _currentLevelActions =>
       _stack.isEmpty ? widget.actions : _stack.last.children;
 
-  GlobalKey _rowKeyFor(String slotId) => _rowKeys.putIfAbsent(slotId, GlobalKey.new);
+  GlobalKey _rowKeyFor(String slotId) =>
+      _rowKeys.putIfAbsent(slotId, GlobalKey.new);
 
   // A "Recent" action and its root-list counterpart are the same
   // NibCommandAction (and id) rendered in two different rows at once, so
   // row identity (for GlobalKeys, highlight, and nav) has to be keyed by
   // (bucket, action) — bare action.id would collide across the two rows.
-  String _slotIdFor(String? group, NibCommandAction action) => '${group ?? ''}#${action.id}';
+  String _slotIdFor(String? group, NibCommandAction action) =>
+      '${group ?? ''}#${action.id}';
 
   List<NibCommandActionBucket> _visibleBuckets() {
     final query = _queryController.text;
     final level = _currentLevelActions;
-    if (widget.showRecent && _stack.isEmpty && query.isEmpty && widget.recentActionIds.isNotEmpty) {
+    if (widget.showRecent &&
+        _stack.isEmpty &&
+        query.isEmpty &&
+        widget.recentActionIds.isNotEmpty) {
       final recent = [
-        for (final id in widget.recentActionIds) ?findActionById(widget.actions, id),
+        for (final id in widget.recentActionIds)
+          ?findActionById(widget.actions, id),
       ];
       if (recent.isNotEmpty) {
         return [(group: 'Recent', actions: recent), ...groupActions(level)];
@@ -101,7 +109,8 @@ class _NibCommandPaletteContentState extends State<NibCommandPaletteContent> {
   List<_Slot> _flatEnabled(List<NibCommandActionBucket> buckets) => [
     for (final bucket in buckets)
       for (final action in bucket.actions)
-        if (!action.disabled) (slotId: _slotIdFor(bucket.group, action), action: action),
+        if (!action.disabled)
+          (slotId: _slotIdFor(bucket.group, action), action: action),
   ];
 
   void _handleQueryChanged(String _) {
@@ -113,14 +122,17 @@ class _NibCommandPaletteContentState extends State<NibCommandPaletteContent> {
       _highlightedId = null;
       return;
     }
-    if (_highlightedId == null || !flatEnabled.any((s) => s.slotId == _highlightedId)) {
+    if (_highlightedId == null ||
+        !flatEnabled.any((s) => s.slotId == _highlightedId)) {
       _highlightedId = flatEnabled.first.slotId;
     }
   }
 
   void _moveHighlight(int delta, List<_Slot> flatEnabled) {
     if (flatEnabled.isEmpty) return;
-    final currentIndex = flatEnabled.indexWhere((s) => s.slotId == _highlightedId);
+    final currentIndex = flatEnabled.indexWhere(
+      (s) => s.slotId == _highlightedId,
+    );
     final nextIndex = currentIndex == -1
         ? 0
         : (currentIndex + delta) % flatEnabled.length;
@@ -131,7 +143,11 @@ class _NibCommandPaletteContentState extends State<NibCommandPaletteContent> {
     if (rowContext != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (rowContext.mounted) {
-          Scrollable.ensureVisible(rowContext, alignment: 0.5, duration: const Duration(milliseconds: 100));
+          Scrollable.ensureVisible(
+            rowContext,
+            alignment: 0.5,
+            duration: const Duration(milliseconds: 100),
+          );
         }
       });
     }
@@ -154,7 +170,10 @@ class _NibCommandPaletteContentState extends State<NibCommandPaletteContent> {
   void _activateHighlighted(List<_Slot> flatEnabled) {
     final id = _highlightedId;
     if (id == null) return;
-    final slot = flatEnabled.firstWhere((s) => s.slotId == id, orElse: () => flatEnabled.first);
+    final slot = flatEnabled.firstWhere(
+      (s) => s.slotId == id,
+      orElse: () => flatEnabled.first,
+    );
     _activate(slot.action);
   }
 
@@ -220,14 +239,22 @@ class _NibCommandPaletteContentState extends State<NibCommandPaletteContent> {
     );
   }
 
-  Widget _buildRow(NibTheme theme, NibCommandAction action, String slotId, bool highlighted) {
+  Widget _buildRow(
+    NibTheme theme,
+    NibCommandAction action,
+    String slotId,
+    bool highlighted,
+  ) {
     final content = ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         child: Row(
           children: [
-            if (action.icon != null) ...[action.icon!, const SizedBox(width: 10)],
+            if (action.icon != null) ...[
+              action.icon!,
+              const SizedBox(width: 10),
+            ],
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -236,21 +263,31 @@ class _NibCommandPaletteContentState extends State<NibCommandPaletteContent> {
                   Text(
                     action.label,
                     style: TextStyle(
-                      color: action.disabled ? theme.mutedForeground : theme.foreground,
-                      fontWeight: highlighted ? FontWeight.w600 : FontWeight.normal,
+                      color: action.disabled
+                          ? theme.mutedForeground
+                          : theme.foreground,
+                      fontWeight: highlighted
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                   ),
                   if (action.subtitle != null)
                     Text(
                       action.subtitle!,
-                      style: TextStyle(color: theme.mutedForeground, fontSize: 12),
+                      style: TextStyle(
+                        color: theme.mutedForeground,
+                        fontSize: 12,
+                      ),
                     ),
                 ],
               ),
             ),
             if (action.shortcutLabel != null) ...[
               const SizedBox(width: 8),
-              Text(action.shortcutLabel!, style: TextStyle(color: theme.mutedForeground, fontSize: 12)),
+              Text(
+                action.shortcutLabel!,
+                style: TextStyle(color: theme.mutedForeground, fontSize: 12),
+              ),
             ],
             if (action.hasChildren) ...[
               const SizedBox(width: 8),
@@ -291,7 +328,10 @@ class _NibCommandPaletteContentState extends State<NibCommandPaletteContent> {
     if (buckets.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(24),
-        child: Text('No results', style: TextStyle(color: theme.mutedForeground)),
+        child: Text(
+          'No results',
+          style: TextStyle(color: theme.mutedForeground),
+        ),
       );
     }
     return ListView(
@@ -341,11 +381,17 @@ class _NibCommandPaletteContentState extends State<NibCommandPaletteContent> {
 
     return Shortcuts(
       shortcuts: {
-        LogicalKeySet(LogicalKeyboardKey.arrowDown): const _MoveHighlightIntent(1),
-        LogicalKeySet(LogicalKeyboardKey.arrowUp): const _MoveHighlightIntent(-1),
+        LogicalKeySet(LogicalKeyboardKey.arrowDown): const _MoveHighlightIntent(
+          1,
+        ),
+        LogicalKeySet(LogicalKeyboardKey.arrowUp): const _MoveHighlightIntent(
+          -1,
+        ),
         LogicalKeySet(LogicalKeyboardKey.escape): const _EscapeIntent(),
-        LogicalKeySet(LogicalKeyboardKey.enter): const _ActivateHighlightedIntent(),
-        LogicalKeySet(LogicalKeyboardKey.numpadEnter): const _ActivateHighlightedIntent(),
+        LogicalKeySet(LogicalKeyboardKey.enter):
+            const _ActivateHighlightedIntent(),
+        LogicalKeySet(LogicalKeyboardKey.numpadEnter):
+            const _ActivateHighlightedIntent(),
       },
       child: Actions(
         actions: {
@@ -361,12 +407,13 @@ class _NibCommandPaletteContentState extends State<NibCommandPaletteContent> {
               return null;
             },
           ),
-          _ActivateHighlightedIntent: CallbackAction<_ActivateHighlightedIntent>(
-            onInvoke: (intent) {
-              _activateHighlighted(flatEnabled);
-              return null;
-            },
-          ),
+          _ActivateHighlightedIntent:
+              CallbackAction<_ActivateHighlightedIntent>(
+                onInvoke: (intent) {
+                  _activateHighlighted(flatEnabled);
+                  return null;
+                },
+              ),
         },
         child: Material(
           color: theme.card,
@@ -377,7 +424,11 @@ class _NibCommandPaletteContentState extends State<NibCommandPaletteContent> {
               ? NibMotion(
                   initial: const NibAnim(opacity: 0, scale: 0.96, y: -8),
                   animate: const NibAnim(opacity: 1, scale: 1, y: 0),
-                  transition: widget.transition ?? const NibTransition(duration: Duration(milliseconds: 160)),
+                  transition:
+                      widget.transition ??
+                      const NibTransition(
+                        duration: Duration(milliseconds: 160),
+                      ),
                   child: body,
                 )
               : body,

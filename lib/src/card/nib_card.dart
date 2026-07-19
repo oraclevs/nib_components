@@ -37,9 +37,9 @@ class NibCard extends StatefulWidget {
     this.animated = false,
     this.transition,
   }) : assert(
-          child != null || header != null || footer != null,
-          'NibCard requires at least one of header/child/footer.',
-        );
+         child != null || header != null || footer != null,
+         'NibCard requires at least one of header/child/footer.',
+       );
 
   /// The card's main content.
   final Widget? child;

@@ -10,8 +10,7 @@ class ToggleGroupMinimalExample extends StatefulWidget {
       _ToggleGroupMinimalExampleState();
 }
 
-class _ToggleGroupMinimalExampleState
-    extends State<ToggleGroupMinimalExample> {
+class _ToggleGroupMinimalExampleState extends State<ToggleGroupMinimalExample> {
   String? _align;
 
   @override

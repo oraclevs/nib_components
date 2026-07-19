@@ -266,14 +266,17 @@ class _NibHoverCardState extends State<NibHoverCard> {
   }
 
   NibTransition _effectiveTransition() =>
-      widget.transition ?? const NibTransition(duration: Duration(milliseconds: 140));
+      widget.transition ??
+      const NibTransition(duration: Duration(milliseconds: 140));
 
   /// How long to keep the overlay mounted after a close so the exit motion can
   /// finish before removal. Springs have no fixed duration, so estimate — same
   /// approach (and same deferred caveat) as `NibPopover`/`NibSelect`.
   Duration _exitDuration() {
     final t = _effectiveTransition();
-    final base = t.spring != null ? const Duration(milliseconds: 450) : t.duration;
+    final base = t.spring != null
+        ? const Duration(milliseconds: 450)
+        : t.duration;
     return base + t.delay + const Duration(milliseconds: 40);
   }
 
@@ -417,7 +420,10 @@ class _NibHoverCardOverlayState extends State<_NibHoverCardOverlay> {
             border: Border.all(color: theme.border),
             borderRadius: BorderRadius.circular(theme.radiusLg),
           ),
-          child: Padding(padding: const EdgeInsets.all(14), child: widget.child),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: widget.child,
+          ),
         ),
       ),
     );
@@ -427,7 +433,9 @@ class _NibHoverCardOverlayState extends State<_NibHoverCardOverlay> {
   Widget build(BuildContext context) {
     final measuredCard = MeasureSize(
       onChange: (size) {
-        if (mounted && _contentSize != size) setState(() => _contentSize = size);
+        if (mounted && _contentSize != size) {
+          setState(() => _contentSize = size);
+        }
       },
       child: MouseRegion(
         onEnter: (_) => widget.onCardEnter(),

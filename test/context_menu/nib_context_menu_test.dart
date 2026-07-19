@@ -5,7 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
 import 'package:nib_motion/nib_motion.dart' show NibMotion;
 
-Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: Center(child: child)));
+Widget _wrap(Widget child) => MaterialApp(
+  home: Scaffold(body: Center(child: child)),
+);
 
 /// A distinct trigger type so `find.byType` is unambiguous (a bare `ColoredBox`
 /// also appears elsewhere in the Material scaffold).
@@ -13,20 +15,27 @@ class _Trigger extends StatelessWidget {
   const _Trigger();
 
   @override
-  Widget build(BuildContext context) =>
-      const SizedBox(width: 200, height: 100, child: ColoredBox(color: Colors.grey));
+  Widget build(BuildContext context) => const SizedBox(
+    width: 200,
+    height: 100,
+    child: ColoredBox(color: Colors.grey),
+  );
 }
 
 void main() {
   group('NibContextMenu (trigger wrapper)', () {
     testWidgets('a right-click opens the menu', (tester) async {
-      await tester.pumpWidget(_wrap(const NibContextMenu(
-        items: [
-          NibMenuItem(label: 'Copy'),
-          NibMenuItem(label: 'Paste'),
-        ],
-        child: _Trigger(),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          const NibContextMenu(
+            items: [
+              NibMenuItem(label: 'Copy'),
+              NibMenuItem(label: 'Paste'),
+            ],
+            child: _Trigger(),
+          ),
+        ),
+      );
 
       expect(find.text('Copy'), findsNothing);
       await tester.tap(find.byType(_Trigger), buttons: kSecondaryButton);
@@ -36,10 +45,14 @@ void main() {
     });
 
     testWidgets('a long-press opens the menu', (tester) async {
-      await tester.pumpWidget(_wrap(const NibContextMenu(
-        items: [NibMenuItem(label: 'Item A')],
-        child: _Trigger(),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          const NibContextMenu(
+            items: [NibMenuItem(label: 'Item A')],
+            child: _Trigger(),
+          ),
+        ),
+      );
 
       await tester.longPress(find.byType(_Trigger));
       await tester.pumpAndSettle();
@@ -47,15 +60,19 @@ void main() {
     });
 
     testWidgets('dividers and section headers render', (tester) async {
-      await tester.pumpWidget(_wrap(const NibContextMenu(
-        items: [
-          NibMenuSection('Edit'),
-          NibMenuItem(label: 'Cut'),
-          NibMenuDivider(),
-          NibMenuItem(label: 'Delete', destructive: true),
-        ],
-        child: _Trigger(),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          const NibContextMenu(
+            items: [
+              NibMenuSection('Edit'),
+              NibMenuItem(label: 'Cut'),
+              NibMenuDivider(),
+              NibMenuItem(label: 'Delete', destructive: true),
+            ],
+            child: _Trigger(),
+          ),
+        ),
+      );
       await tester.tap(find.byType(_Trigger), buttons: kSecondaryButton);
       await tester.pumpAndSettle();
 
@@ -64,17 +81,22 @@ void main() {
       expect(find.text('Delete'), findsOneWidget);
     });
 
-    testWidgets('selecting a leaf fires callbacks and closes the menu',
-        (tester) async {
+    testWidgets('selecting a leaf fires callbacks and closes the menu', (
+      tester,
+    ) async {
       var selected = '';
       var tapped = false;
-      await tester.pumpWidget(_wrap(NibContextMenu(
-        onItemSelected: (item) => selected = item.label,
-        items: [
-          NibMenuItem(label: 'Rename', onSelected: () => tapped = true),
-        ],
-        child: const _Trigger(),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          NibContextMenu(
+            onItemSelected: (item) => selected = item.label,
+            items: [
+              NibMenuItem(label: 'Rename', onSelected: () => tapped = true),
+            ],
+            child: const _Trigger(),
+          ),
+        ),
+      );
       await tester.tap(find.byType(_Trigger), buttons: kSecondaryButton);
       await tester.pumpAndSettle();
 
@@ -88,11 +110,15 @@ void main() {
 
     testWidgets('an outside tap dismisses without selecting', (tester) async {
       var selected = false;
-      await tester.pumpWidget(_wrap(NibContextMenu(
-        onItemSelected: (_) => selected = true,
-        items: const [NibMenuItem(label: 'Only')],
-        child: const _Trigger(),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          NibContextMenu(
+            onItemSelected: (_) => selected = true,
+            items: const [NibMenuItem(label: 'Only')],
+            child: const _Trigger(),
+          ),
+        ),
+      );
       await tester.tap(find.byType(_Trigger), buttons: kSecondaryButton);
       await tester.pumpAndSettle();
       expect(find.text('Only'), findsOneWidget);
@@ -103,49 +129,60 @@ void main() {
       expect(selected, isFalse);
     });
 
-    testWidgets('a submenu opens and a nested leaf selection closes everything',
-        (tester) async {
-      var selected = '';
-      await tester.pumpWidget(_wrap(NibContextMenu(
-        onItemSelected: (item) => selected = item.label,
-        items: const [
-          NibMenuItem(label: 'Top'),
-          NibMenuItem(
-            label: 'More',
-            submenu: [
-              NibMenuItem(label: 'Nested A'),
-              NibMenuItem(label: 'Nested B'),
-            ],
+    testWidgets(
+      'a submenu opens and a nested leaf selection closes everything',
+      (tester) async {
+        var selected = '';
+        await tester.pumpWidget(
+          _wrap(
+            NibContextMenu(
+              onItemSelected: (item) => selected = item.label,
+              items: const [
+                NibMenuItem(label: 'Top'),
+                NibMenuItem(
+                  label: 'More',
+                  submenu: [
+                    NibMenuItem(label: 'Nested A'),
+                    NibMenuItem(label: 'Nested B'),
+                  ],
+                ),
+              ],
+              child: const _Trigger(),
+            ),
           ),
-        ],
-        child: const _Trigger(),
-      )));
-      await tester.tap(find.byType(_Trigger), buttons: kSecondaryButton);
-      await tester.pumpAndSettle();
+        );
+        await tester.tap(find.byType(_Trigger), buttons: kSecondaryButton);
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.text('More'));
-      await tester.pumpAndSettle();
-      expect(find.text('Nested A'), findsOneWidget);
-      expect(find.text('Top'), findsOneWidget); // parent stays open
+        await tester.tap(find.text('More'));
+        await tester.pumpAndSettle();
+        expect(find.text('Nested A'), findsOneWidget);
+        expect(find.text('Top'), findsOneWidget); // parent stays open
 
-      await tester.tap(find.text('Nested B'));
-      await tester.pumpAndSettle();
-      expect(selected, 'Nested B');
-      expect(find.text('Top'), findsNothing); // whole chain closed
-      expect(find.text('Nested A'), findsNothing);
-    });
+        await tester.tap(find.text('Nested B'));
+        await tester.pumpAndSettle();
+        expect(selected, 'Nested B');
+        expect(find.text('Top'), findsNothing); // whole chain closed
+        expect(find.text('Nested A'), findsNothing);
+      },
+    );
 
-    testWidgets('keyboard: ArrowDown then Enter selects the first item',
-        (tester) async {
+    testWidgets('keyboard: ArrowDown then Enter selects the first item', (
+      tester,
+    ) async {
       var selected = '';
-      await tester.pumpWidget(_wrap(NibContextMenu(
-        onItemSelected: (item) => selected = item.label,
-        items: const [
-          NibMenuItem(label: 'First'),
-          NibMenuItem(label: 'Second'),
-        ],
-        child: const _Trigger(),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          NibContextMenu(
+            onItemSelected: (item) => selected = item.label,
+            items: const [
+              NibMenuItem(label: 'First'),
+              NibMenuItem(label: 'Second'),
+            ],
+            child: const _Trigger(),
+          ),
+        ),
+      );
       await tester.tap(find.byType(_Trigger), buttons: kSecondaryButton);
       await tester.pumpAndSettle();
 
@@ -159,10 +196,14 @@ void main() {
     });
 
     testWidgets('Escape closes the menu', (tester) async {
-      await tester.pumpWidget(_wrap(const NibContextMenu(
-        items: [NibMenuItem(label: 'Esc me')],
-        child: _Trigger(),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          const NibContextMenu(
+            items: [NibMenuItem(label: 'Esc me')],
+            child: _Trigger(),
+          ),
+        ),
+      );
       await tester.tap(find.byType(_Trigger), buttons: kSecondaryButton);
       await tester.pumpAndSettle();
       expect(find.text('Esc me'), findsOneWidget);
@@ -172,12 +213,17 @@ void main() {
       expect(find.text('Esc me'), findsNothing);
     });
 
-    testWidgets('builds no NibMotion when not animated, some when animated',
-        (tester) async {
-      await tester.pumpWidget(_wrap(const NibContextMenu(
-        items: [NibMenuItem(label: 'Plain')],
-        child: _Trigger(),
-      )));
+    testWidgets('builds no NibMotion when not animated, some when animated', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          const NibContextMenu(
+            items: [NibMenuItem(label: 'Plain')],
+            child: _Trigger(),
+          ),
+        ),
+      );
       await tester.tap(find.byType(_Trigger), buttons: kSecondaryButton);
       await tester.pumpAndSettle();
       expect(find.byType(NibMotion), findsNothing);
@@ -185,11 +231,15 @@ void main() {
       await tester.tapAt(const Offset(5, 5));
       await tester.pumpAndSettle();
 
-      await tester.pumpWidget(_wrap(const NibContextMenu(
-        animated: true,
-        items: [NibMenuItem(label: 'Anim')],
-        child: _Trigger(),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          const NibContextMenu(
+            animated: true,
+            items: [NibMenuItem(label: 'Anim')],
+            child: _Trigger(),
+          ),
+        ),
+      );
       await tester.tap(find.byType(_Trigger), buttons: kSecondaryButton);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 40));
@@ -199,16 +249,23 @@ void main() {
   });
 
   group('showNibContextMenu (imperative)', () {
-    testWidgets('completes with the chosen item and clamps to the viewport',
-        (tester) async {
+    testWidgets('completes with the chosen item and clamps to the viewport', (
+      tester,
+    ) async {
       NibMenuItem? result;
       late BuildContext ctx;
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(body: Builder(builder: (c) {
-          ctx = c;
-          return const SizedBox.expand();
-        })),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (c) {
+                ctx = c;
+                return const SizedBox.expand();
+              },
+            ),
+          ),
+        ),
+      );
 
       // Open near the bottom-right corner (screen is 800x600 in tests).
       final future = showNibContextMenu(

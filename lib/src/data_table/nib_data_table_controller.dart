@@ -9,6 +9,9 @@ class NibDataTableController<T> extends ChangeNotifier {
   NibDataTableController({
     NibDataTableSort sort = const NibDataTableSort(),
     Set<T>? selected,
+    // Public `sort` param maps to the private `_sort` field (clean public API);
+    // an initializing formal would expose `_sort` as the parameter name.
+    // ignore: prefer_initializing_formals
   }) : _sort = sort,
        _selected = Set<T>.of(selected ?? const {});
 

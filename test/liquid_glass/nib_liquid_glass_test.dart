@@ -11,15 +11,15 @@ class _CircleClipper extends CustomClipper<Path> {
 }
 
 Widget _wrap(Widget child) => MaterialApp(
-      home: Scaffold(
-        body: Stack(
-          children: [
-            const Positioned.fill(child: ColoredBox(color: Colors.teal)),
-            Center(child: child),
-          ],
-        ),
-      ),
-    );
+  home: Scaffold(
+    body: Stack(
+      children: [
+        const Positioned.fill(child: ColoredBox(color: Colors.teal)),
+        Center(child: child),
+      ],
+    ),
+  ),
+);
 
 void main() {
   group('glassLightFromPointer', () {
@@ -35,22 +35,29 @@ void main() {
     });
 
     test('defaults to "from the top" at the exact center', () {
-      expect(glassLightFromPointer(const Offset(100, 50), size), const Offset(0, -1));
+      expect(
+        glassLightFromPointer(const Offset(100, 50), size),
+        const Offset(0, -1),
+      );
     });
 
     test('defaults to "from the top" for an empty size', () {
-      expect(glassLightFromPointer(const Offset(5, 5), Size.zero), const Offset(0, -1));
+      expect(
+        glassLightFromPointer(const Offset(5, 5), Size.zero),
+        const Offset(0, -1),
+      );
     });
   });
 
   group('NibLiquidGlass', () {
-    testWidgets('renders its child over a glass surface without throwing',
-        (tester) async {
-      await tester.pumpWidget(_wrap(const NibLiquidGlass(
-        width: 220,
-        height: 140,
-        child: Text('Glass'),
-      )));
+    testWidgets('renders its child over a glass surface without throwing', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          const NibLiquidGlass(width: 220, height: 140, child: Text('Glass')),
+        ),
+      );
       await tester.pump();
 
       expect(find.text('Glass'), findsOneWidget);
@@ -60,71 +67,84 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('clips to a ClipRRect by default, ClipPath with a clipper',
-        (tester) async {
-      await tester.pumpWidget(_wrap(NibLiquidGlass(
-        width: 200,
-        height: 120,
-        child: const SizedBox(),
-      )));
+    testWidgets('clips to a ClipRRect by default, ClipPath with a clipper', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(NibLiquidGlass(width: 200, height: 120, child: const SizedBox())),
+      );
       await tester.pump();
       expect(find.byType(ClipRRect), findsWidgets);
 
-      await tester.pumpWidget(_wrap(NibLiquidGlass(
-        width: 200,
-        height: 120,
-        clipper: _CircleClipper(),
-        child: const SizedBox(),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          NibLiquidGlass(
+            width: 200,
+            height: 120,
+            clipper: _CircleClipper(),
+            child: const SizedBox(),
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.byType(ClipPath), findsWidgets);
     });
 
-    testWidgets('builds no NibMotion when not animated, one when animated',
-        (tester) async {
-      await tester.pumpWidget(_wrap(const NibLiquidGlass(
-        width: 200,
-        height: 120,
-        child: SizedBox(),
-      )));
+    testWidgets('builds no NibMotion when not animated, one when animated', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(const NibLiquidGlass(width: 200, height: 120, child: SizedBox())),
+      );
       await tester.pump();
       expect(find.byType(NibMotion), findsNothing);
 
-      await tester.pumpWidget(_wrap(const NibLiquidGlass(
-        width: 200,
-        height: 120,
-        animated: true,
-        child: SizedBox(),
-      )));
+      await tester.pumpWidget(
+        _wrap(
+          const NibLiquidGlass(
+            width: 200,
+            height: 120,
+            animated: true,
+            child: SizedBox(),
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.byType(NibMotion), findsOneWidget);
     });
 
-    testWidgets('interactive wraps a pointer listener; a press does not throw',
-        (tester) async {
-      await tester.pumpWidget(_wrap(const NibLiquidGlass(
-        width: 220,
-        height: 140,
-        child: Text('Press'),
-      )));
-      await tester.pump();
-      expect(find.byType(Listener), findsWidgets);
+    testWidgets(
+      'interactive wraps a pointer listener; a press does not throw',
+      (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            const NibLiquidGlass(width: 220, height: 140, child: Text('Press')),
+          ),
+        );
+        await tester.pump();
+        expect(find.byType(Listener), findsWidgets);
 
-      final gesture = await tester.press(find.text('Press'));
-      await tester.pump();
-      await gesture.up();
-      await tester.pump();
-      expect(tester.takeException(), isNull);
-    });
+        final gesture = await tester.press(find.text('Press'));
+        await tester.pump();
+        await gesture.up();
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+      },
+    );
 
-    testWidgets('non-interactive omits the pointer listener wrapper',
-        (tester) async {
-      await tester.pumpWidget(_wrap(const NibLiquidGlass(
-        width: 200,
-        height: 120,
-        interactive: false,
-        child: Text('Static'),
-      )));
+    testWidgets('non-interactive omits the pointer listener wrapper', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          const NibLiquidGlass(
+            width: 200,
+            height: 120,
+            interactive: false,
+            child: Text('Static'),
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.text('Static'), findsOneWidget);
       expect(tester.takeException(), isNull);

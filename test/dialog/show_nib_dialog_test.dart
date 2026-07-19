@@ -44,16 +44,21 @@ Future<void> _open(WidgetTester tester) async {
 
 bool _focusInsideDialog() {
   final ctx = FocusManager.instance.primaryFocus?.context;
-  return ctx != null && ctx.findAncestorWidgetOfExactType<NibDialogScope>() != null;
+  return ctx != null &&
+      ctx.findAncestorWidgetOfExactType<NibDialogScope>() != null;
 }
 
 void main() {
-  testWidgets('renders title, content, footer, and a close button', (tester) async {
-    await tester.pumpWidget(_app(
-      title: 'Delete?',
-      content: const Text('body'),
-      footer: const Text('foot'),
-    ));
+  testWidgets('renders title, content, footer, and a close button', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _app(
+        title: 'Delete?',
+        content: const Text('body'),
+        footer: const Text('foot'),
+      ),
+    );
     await _open(tester);
 
     expect(find.text('Delete?'), findsOneWidget);
@@ -82,7 +87,9 @@ void main() {
   });
 
   testWidgets('barrier tap does nothing when not dismissible', (tester) async {
-    await tester.pumpWidget(_app(content: const Text('body'), barrierDismissible: false));
+    await tester.pumpWidget(
+      _app(content: const Text('body'), barrierDismissible: false),
+    );
     await _open(tester);
 
     await tester.tapAt(const Offset(10, 10));
@@ -100,7 +107,9 @@ void main() {
   });
 
   testWidgets('Escape does nothing when not dismissible', (tester) async {
-    await tester.pumpWidget(_app(content: const Text('body'), barrierDismissible: false));
+    await tester.pumpWidget(
+      _app(content: const Text('body'), barrierDismissible: false),
+    );
     await _open(tester);
 
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
@@ -109,34 +118,49 @@ void main() {
   });
 
   testWidgets('traps focus inside the dialog on Tab', (tester) async {
-    await tester.pumpWidget(_app(
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextButton(onPressed: () {}, child: const Text('one')),
-          TextButton(onPressed: () {}, child: const Text('two')),
-        ],
+    await tester.pumpWidget(
+      _app(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextButton(onPressed: () {}, child: const Text('one')),
+            TextButton(onPressed: () {}, child: const Text('two')),
+          ],
+        ),
       ),
-    ));
+    );
     await _open(tester);
 
-    expect(_focusInsideDialog(), isTrue, reason: 'autofocus should land inside the dialog');
+    expect(
+      _focusInsideDialog(),
+      isTrue,
+      reason: 'autofocus should land inside the dialog',
+    );
     for (var i = 0; i < 5; i++) {
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pumpAndSettle();
-      expect(_focusInsideDialog(), isTrue, reason: 'Tab must not escape the dialog');
+      expect(
+        _focusInsideDialog(),
+        isTrue,
+        reason: 'Tab must not escape the dialog',
+      );
     }
   });
 
-  testWidgets('stacking: Escape closes only the topmost dialog', (tester) async {
-    await tester.pumpWidget(_app(
-      content: Builder(
-        builder: (ctx) => TextButton(
-          onPressed: () => showNibDialog<void>(ctx, content: const Text('B body')),
-          child: const Text('open B'),
+  testWidgets('stacking: Escape closes only the topmost dialog', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _app(
+        content: Builder(
+          builder: (ctx) => TextButton(
+            onPressed: () =>
+                showNibDialog<void>(ctx, content: const Text('B body')),
+            child: const Text('open B'),
+          ),
         ),
       ),
-    ));
+    );
     // Dialog A is opened by the app's "open" button; give A a marker too.
     await _open(tester);
     await tester.tap(find.text('open B'));
@@ -170,9 +194,9 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(_app(
-      content: const SizedBox(height: 2000, child: Text('tall')),
-    ));
+    await tester.pumpWidget(
+      _app(content: const SizedBox(height: 2000, child: Text('tall'))),
+    );
     await _open(tester);
     expect(find.byType(Scrollable), findsWidgets);
   });
@@ -182,9 +206,15 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(_app(
-      content: const SizedBox(key: Key('body'), width: double.infinity, height: 40),
-    ));
+    await tester.pumpWidget(
+      _app(
+        content: const SizedBox(
+          key: Key('body'),
+          width: double.infinity,
+          height: 40,
+        ),
+      ),
+    );
     await _open(tester);
 
     // card maxWidth <= 300 - 48 margins = 252; body inner = card - 40 padding.
@@ -197,9 +227,15 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(_app(
-      content: const SizedBox(key: Key('body'), width: double.infinity, height: 40),
-    ));
+    await tester.pumpWidget(
+      _app(
+        content: const SizedBox(
+          key: Key('body'),
+          width: double.infinity,
+          height: 40,
+        ),
+      ),
+    );
     await _open(tester);
 
     // md ceiling 512, minus 40 card padding = 472.
@@ -207,44 +243,56 @@ void main() {
     expect(w, closeTo(472, 1));
   });
 
-  testWidgets('showNibDialog completes with the scope close result', (tester) async {
+  testWidgets('showNibDialog completes with the scope close result', (
+    tester,
+  ) async {
     Object? result = 'unset';
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Builder(
-            builder: (ctx) => ElevatedButton(
-              onPressed: () async {
-                result = await showNibDialog<bool>(
-                  ctx,
-                  content: Builder(
-                    builder: (dctx) => TextButton(
-                      onPressed: () => NibDialogScope.of(dctx).close(true),
-                      child: const Text('confirm'),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Builder(
+              builder: (ctx) => ElevatedButton(
+                onPressed: () async {
+                  result = await showNibDialog<bool>(
+                    ctx,
+                    content: Builder(
+                      builder: (dctx) => TextButton(
+                        onPressed: () => NibDialogScope.of(dctx).close(true),
+                        child: const Text('confirm'),
+                      ),
                     ),
-                  ),
-                );
-              },
-              child: const Text('open'),
+                  );
+                },
+                child: const Text('open'),
+              ),
             ),
           ),
         ),
       ),
-    ));
+    );
     await _open(tester);
     await tester.tap(find.text('confirm'));
     await tester.pumpAndSettle();
     expect(result, isTrue);
   });
 
-  testWidgets('openNibDialog handle reports isOpen and closes with a result', (tester) async {
+  testWidgets('openNibDialog handle reports isOpen and closes with a result', (
+    tester,
+  ) async {
     late BuildContext ctx;
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(body: Builder(builder: (c) {
-        ctx = c;
-        return const SizedBox.shrink();
-      })),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (c) {
+              ctx = c;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      ),
+    );
 
     final handle = openNibDialog<int>(ctx, content: const Text('x'));
     await tester.pumpAndSettle();

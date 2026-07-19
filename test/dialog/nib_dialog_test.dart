@@ -5,14 +5,13 @@ import 'package:nib_components/nib_components.dart';
 
 void main() {
   testWidgets('opens on trigger tap', (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: Scaffold(
-        body: NibDialog(
-          trigger: Text('open'),
-          content: Text('body'),
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: NibDialog(trigger: Text('open'), content: Text('body')),
         ),
       ),
-    ));
+    );
 
     expect(find.text('body'), findsNothing);
     await tester.tap(find.text('open'));
@@ -24,15 +23,17 @@ void main() {
     final controller = NibDialogController();
     addTearDown(controller.dispose);
 
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: NibDialog(
-          controller: controller,
-          trigger: const Text('open'),
-          content: const Text('body'),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: NibDialog(
+            controller: controller,
+            trigger: const Text('open'),
+            content: const Text('body'),
+          ),
         ),
       ),
-    ));
+    );
 
     controller.open();
     await tester.pumpAndSettle();
@@ -43,19 +44,23 @@ void main() {
     expect(find.text('body'), findsNothing);
   });
 
-  testWidgets('dismissing via Escape syncs the controller back to closed', (tester) async {
+  testWidgets('dismissing via Escape syncs the controller back to closed', (
+    tester,
+  ) async {
     final controller = NibDialogController();
     addTearDown(controller.dispose);
 
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: NibDialog(
-          controller: controller,
-          trigger: const Text('open'),
-          content: const Text('body'),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: NibDialog(
+            controller: controller,
+            trigger: const Text('open'),
+            content: const Text('body'),
+          ),
         ),
       ),
-    ));
+    );
 
     controller.open();
     await tester.pumpAndSettle();
@@ -69,15 +74,17 @@ void main() {
 
   testWidgets('onClose fires when dismissed', (tester) async {
     var closed = 0;
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: NibDialog(
-          trigger: const Text('open'),
-          content: const Text('body'),
-          onClose: () => closed++,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: NibDialog(
+            trigger: const Text('open'),
+            content: const Text('body'),
+            onClose: () => closed++,
+          ),
         ),
       ),
-    ));
+    );
 
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
@@ -86,18 +93,24 @@ void main() {
     expect(closed, 1);
   });
 
-  testWidgets('unmounting while open removes the overlay without throwing', (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: Scaffold(
-        body: NibDialog(trigger: Text('open'), content: Text('body')),
+  testWidgets('unmounting while open removes the overlay without throwing', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: NibDialog(trigger: Text('open'), content: Text('body')),
+        ),
       ),
-    ));
+    );
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
     expect(find.text('body'), findsOneWidget);
 
     // Replace the subtree — disposes NibDialog (which owns its controller).
-    await tester.pumpWidget(const MaterialApp(home: Scaffold(body: SizedBox())));
+    await tester.pumpWidget(
+      const MaterialApp(home: Scaffold(body: SizedBox())),
+    );
     await tester.pumpAndSettle();
     expect(find.text('body'), findsNothing);
     expect(tester.takeException(), isNull);

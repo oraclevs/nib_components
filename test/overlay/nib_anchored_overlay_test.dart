@@ -95,11 +95,15 @@ void main() {
     await tester.pumpAndSettle();
 
     final targetTop = tester.getTopLeft(find.byType(SizedBox).first);
-    final contentBottom = tester.getBottomLeft(find.byKey(const ValueKey('content')));
+    final contentBottom = tester.getBottomLeft(
+      find.byKey(const ValueKey('content')),
+    );
     expect(contentBottom.dy, lessThanOrEqualTo(targetTop.dy));
   });
 
-  testWidgets('tapping outside dismisses and removes the content', (tester) async {
+  testWidgets('tapping outside dismisses and removes the content', (
+    tester,
+  ) async {
     final link = LayerLink();
     late BuildContext ctx;
     await tester.pumpWidget(
@@ -140,7 +144,9 @@ void main() {
     expect(find.text('flyout'), findsNothing);
   });
 
-  testWidgets('handle.remove() removes the content without a tap', (tester) async {
+  testWidgets('handle.remove() removes the content without a tap', (
+    tester,
+  ) async {
     final link = LayerLink();
     late BuildContext ctx;
     await tester.pumpWidget(

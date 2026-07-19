@@ -3,7 +3,10 @@ import 'nib_command_action.dart';
 /// One display bucket produced by [groupActions]: a run of consecutive
 /// actions sharing the same [group] key (`null` for a run of ungrouped
 /// actions, rendered without a section header).
-typedef NibCommandActionBucket = ({String? group, List<NibCommandAction> actions});
+typedef NibCommandActionBucket = ({
+  String? group,
+  List<NibCommandAction> actions,
+});
 
 /// Default [NibCommandActionFilter]: case-insensitive substring match
 /// against [NibCommandAction.label] or [NibCommandAction.subtitle]. An

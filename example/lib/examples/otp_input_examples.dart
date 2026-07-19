@@ -87,7 +87,9 @@ class _OtpOnScreenExampleState extends State<OtpOnScreenExample> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('On-screen keypad — masked 5-digit PIN, auto-verify + loader'),
+        const Text(
+          'On-screen keypad — masked 5-digit PIN, auto-verify + loader',
+        ),
         const SizedBox(height: 12),
         NibOtpInput(
           length: 5,
@@ -135,7 +137,9 @@ class OtpStyledKeypadExample extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Styled keypad — custom colours, font, spacing, confirm widget'),
+        const Text(
+          'Styled keypad — custom colours, font, spacing, confirm widget',
+        ),
         const SizedBox(height: 12),
         NibOtpInput(
           length: 4,
@@ -159,8 +163,13 @@ class OtpStyledKeypadExample extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
             ),
             child: const Center(
-              child: Text('OK',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
           ),
         ),
@@ -208,7 +217,9 @@ class _OtpAdvancedExampleState extends State<OtpAdvancedExample> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Advanced — controller, validation, error state (code: 2468)'),
+        const Text(
+          'Advanced — controller, validation, error state (code: 2468)',
+        ),
         const SizedBox(height: 12),
         NibOtpInput(
           length: 4,

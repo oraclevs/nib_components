@@ -9,7 +9,9 @@ import 'package:nib_motion/nib_motion.dart' show NibMotion;
 Widget _wrap(Widget child) {
   return MaterialApp(
     theme: ThemeData(extensions: const [NibTheme.light]),
-    home: Scaffold(body: Center(child: SizedBox(width: 320, child: child))),
+    home: Scaffold(
+      body: Center(child: SizedBox(width: 320, child: child)),
+    ),
   );
 }
 
@@ -27,14 +29,20 @@ Future<void> _key(WidgetTester tester, LogicalKeyboardKey k) async {
 
 void main() {
   testWidgets('closed by default: options not shown', (tester) async {
-    await tester.pumpWidget(_wrap(const NibCombobox<String>(options: _options)));
+    await tester.pumpWidget(
+      _wrap(const NibCombobox<String>(options: _options)),
+    );
     expect(find.byType(TextField), findsOneWidget);
     expect(find.text('Apple'), findsNothing);
     expect(find.text('Cherry'), findsNothing);
   });
 
-  testWidgets('tapping the field opens the dropdown with all options', (tester) async {
-    await tester.pumpWidget(_wrap(const NibCombobox<String>(options: _options)));
+  testWidgets('tapping the field opens the dropdown with all options', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(const NibCombobox<String>(options: _options)),
+    );
     await tester.tap(find.byType(TextField));
     await tester.pump();
     expect(find.text('Apple'), findsOneWidget);
@@ -43,7 +51,9 @@ void main() {
   });
 
   testWidgets('typing filters the option list', (tester) async {
-    await tester.pumpWidget(_wrap(const NibCombobox<String>(options: _options)));
+    await tester.pumpWidget(
+      _wrap(const NibCombobox<String>(options: _options)),
+    );
     await tester.tap(find.byType(TextField));
     await tester.pump();
     await tester.enterText(find.byType(TextField), 'err');
@@ -52,10 +62,14 @@ void main() {
     expect(find.text('Apple'), findsNothing);
   });
 
-  testWidgets('tapping an option selects it and closes (single-select)', (tester) async {
+  testWidgets('tapping an option selects it and closes (single-select)', (
+    tester,
+  ) async {
     String? changed;
     await tester.pumpWidget(
-      _wrap(NibCombobox<String>(options: _options, onChanged: (v) => changed = v)),
+      _wrap(
+        NibCombobox<String>(options: _options, onChanged: (v) => changed = v),
+      ),
     );
     await tester.tap(find.byType(TextField));
     await tester.pump();
@@ -68,10 +82,14 @@ void main() {
     expect(find.text('Cherry'), findsOneWidget);
   });
 
-  testWidgets('arrow-down skips the disabled option, enter selects', (tester) async {
+  testWidgets('arrow-down skips the disabled option, enter selects', (
+    tester,
+  ) async {
     String? changed;
     await tester.pumpWidget(
-      _wrap(NibCombobox<String>(options: _options, onChanged: (v) => changed = v)),
+      _wrap(
+        NibCombobox<String>(options: _options, onChanged: (v) => changed = v),
+      ),
     );
     await tester.tap(find.byType(TextField));
     await tester.pump();
@@ -86,7 +104,9 @@ void main() {
   testWidgets('escape closes without changing selection', (tester) async {
     String? changed;
     await tester.pumpWidget(
-      _wrap(NibCombobox<String>(options: _options, onChanged: (v) => changed = v)),
+      _wrap(
+        NibCombobox<String>(options: _options, onChanged: (v) => changed = v),
+      ),
     );
     await tester.tap(find.byType(TextField));
     await tester.pump();
@@ -98,7 +118,9 @@ void main() {
   });
 
   testWidgets('tapping the barrier closes the dropdown', (tester) async {
-    await tester.pumpWidget(_wrap(const NibCombobox<String>(options: _options)));
+    await tester.pumpWidget(
+      _wrap(const NibCombobox<String>(options: _options)),
+    );
     await tester.tap(find.byType(TextField));
     await tester.pump();
     expect(find.text('Apple'), findsOneWidget);
@@ -108,8 +130,12 @@ void main() {
     expect(find.text('Apple'), findsNothing);
   });
 
-  testWidgets('selection-only mode reverts the field text on escape', (tester) async {
-    await tester.pumpWidget(_wrap(const NibCombobox<String>(options: _options)));
+  testWidgets('selection-only mode reverts the field text on escape', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(const NibCombobox<String>(options: _options)),
+    );
     await tester.tap(find.byType(TextField));
     await tester.pump();
     await tester.tap(find.text('Apple'));
@@ -127,7 +153,9 @@ void main() {
     expect(find.text('Apple'), findsOneWidget);
   });
 
-  testWidgets('free-text mode commits typed text via onFreeTextSubmitted', (tester) async {
+  testWidgets('free-text mode commits typed text via onFreeTextSubmitted', (
+    tester,
+  ) async {
     String? freeText;
     await tester.pumpWidget(
       _wrap(
@@ -147,7 +175,9 @@ void main() {
     expect(freeText, 'custom value');
   });
 
-  testWidgets('multi-select toggles chips and keeps the dropdown open', (tester) async {
+  testWidgets('multi-select toggles chips and keeps the dropdown open', (
+    tester,
+  ) async {
     List<String>? selection;
     await tester.pumpWidget(
       _wrap(
@@ -170,7 +200,9 @@ void main() {
     expect(selection, ['apple', 'cherry']);
   });
 
-  testWidgets('multi-select backspace on empty query removes the last chip', (tester) async {
+  testWidgets('multi-select backspace on empty query removes the last chip', (
+    tester,
+  ) async {
     List<String>? selection;
     await tester.pumpWidget(
       _wrap(
@@ -196,7 +228,9 @@ void main() {
   testWidgets('clear button clears selection and query', (tester) async {
     String? changed = 'sentinel';
     await tester.pumpWidget(
-      _wrap(NibCombobox<String>(options: _options, onChanged: (v) => changed = v)),
+      _wrap(
+        NibCombobox<String>(options: _options, onChanged: (v) => changed = v),
+      ),
     );
     await tester.tap(find.byType(TextField));
     await tester.pump();
@@ -213,56 +247,71 @@ void main() {
   });
 
   testWidgets('disabled combobox does not open', (tester) async {
-    await tester.pumpWidget(_wrap(const NibCombobox<String>(options: _options, disabled: true)));
+    await tester.pumpWidget(
+      _wrap(const NibCombobox<String>(options: _options, disabled: true)),
+    );
     await tester.tap(find.byType(TextField), warnIfMissed: false);
     await tester.pump();
     expect(find.text('Apple'), findsNothing);
   });
 
-  testWidgets('async loader shows a spinner then results, latest request wins', (tester) async {
-    final completers = <Completer<List<NibComboboxOption<String>>>>[];
-    await tester.pumpWidget(
-      _wrap(
-        NibCombobox<String>(
-          debounceDuration: const Duration(milliseconds: 100),
-          asyncOptionsLoader: (query) {
-            final c = Completer<List<NibComboboxOption<String>>>();
-            completers.add(c);
-            return c.future;
-          },
+  testWidgets(
+    'async loader shows a spinner then results, latest request wins',
+    (tester) async {
+      final completers = <Completer<List<NibComboboxOption<String>>>>[];
+      await tester.pumpWidget(
+        _wrap(
+          NibCombobox<String>(
+            debounceDuration: const Duration(milliseconds: 100),
+            asyncOptionsLoader: (query) {
+              final c = Completer<List<NibComboboxOption<String>>>();
+              completers.add(c);
+              return c.future;
+            },
+          ),
         ),
-      ),
-    );
+      );
 
-    // opening triggers an immediate load('')
-    await tester.tap(find.byType(TextField));
-    await tester.pump();
-    expect(completers, hasLength(1));
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      // opening triggers an immediate load('')
+      await tester.tap(find.byType(TextField));
+      await tester.pump();
+      expect(completers, hasLength(1));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-    // type -> debounced second load
-    await tester.enterText(find.byType(TextField), 'a');
-    await tester.pump(const Duration(milliseconds: 150));
-    expect(completers, hasLength(2));
+      // type -> debounced second load
+      await tester.enterText(find.byType(TextField), 'a');
+      await tester.pump(const Duration(milliseconds: 150));
+      expect(completers, hasLength(2));
 
-    // stale first response is ignored; only the latest applies
-    completers[0].complete(const [NibComboboxOption(value: 'stale', label: 'Stale')]);
-    completers[1].complete(const [NibComboboxOption(value: 'fresh', label: 'Fresh')]);
-    await tester.pump();
+      // stale first response is ignored; only the latest applies
+      completers[0].complete(const [
+        NibComboboxOption(value: 'stale', label: 'Stale'),
+      ]);
+      completers[1].complete(const [
+        NibComboboxOption(value: 'fresh', label: 'Fresh'),
+      ]);
+      await tester.pump();
 
-    expect(find.text('Fresh'), findsOneWidget);
-    expect(find.text('Stale'), findsNothing);
-  });
+      expect(find.text('Fresh'), findsOneWidget);
+      expect(find.text('Stale'), findsNothing);
+    },
+  );
 
   testWidgets('animated: false builds zero NibMotion widgets', (tester) async {
-    await tester.pumpWidget(_wrap(const NibCombobox<String>(options: _options)));
+    await tester.pumpWidget(
+      _wrap(const NibCombobox<String>(options: _options)),
+    );
     await tester.tap(find.byType(TextField));
     await tester.pump();
     expect(find.byType(NibMotion), findsNothing);
   });
 
-  testWidgets('animated: true wraps the dropdown in a NibMotion', (tester) async {
-    await tester.pumpWidget(_wrap(const NibCombobox<String>(options: _options, animated: true)));
+  testWidgets('animated: true wraps the dropdown in a NibMotion', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(const NibCombobox<String>(options: _options, animated: true)),
+    );
     await tester.tap(find.byType(TextField));
     await tester.pump();
     expect(find.byType(NibMotion), findsOneWidget);
@@ -278,7 +327,11 @@ void main() {
       _wrap(
         const NibCombobox<String>(
           options: [
-            NibComboboxOption(value: 'a', label: 'A very long option label that could overflow a narrow field'),
+            NibComboboxOption(
+              value: 'a',
+              label:
+                  'A very long option label that could overflow a narrow field',
+            ),
             NibComboboxOption(value: 'b', label: 'Beta'),
           ],
         ),

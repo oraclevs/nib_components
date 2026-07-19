@@ -105,10 +105,12 @@ class _NibAnchoredOverlayContent extends StatefulWidget {
   final WidgetBuilder contentBuilder;
 
   @override
-  State<_NibAnchoredOverlayContent> createState() => _NibAnchoredOverlayContentState();
+  State<_NibAnchoredOverlayContent> createState() =>
+      _NibAnchoredOverlayContentState();
 }
 
-class _NibAnchoredOverlayContentState extends State<_NibAnchoredOverlayContent> {
+class _NibAnchoredOverlayContentState
+    extends State<_NibAnchoredOverlayContent> {
   Size? _contentSize;
 
   Rect get _targetRect => widget.targetGlobalTopLeft & widget.targetSize;
@@ -117,7 +119,9 @@ class _NibAnchoredOverlayContentState extends State<_NibAnchoredOverlayContent> 
   Widget build(BuildContext context) {
     final content = MeasureSize(
       onChange: (size) {
-        if (mounted && _contentSize != size) setState(() => _contentSize = size);
+        if (mounted && _contentSize != size) {
+          setState(() => _contentSize = size);
+        }
       },
       child: widget.contentBuilder(context),
     );
@@ -136,7 +140,12 @@ class _NibAnchoredOverlayContentState extends State<_NibAnchoredOverlayContent> 
         : null;
 
     if (_contentSize == null) {
-      return Stack(children: [?barrier, Opacity(opacity: 0, child: content)]);
+      return Stack(
+        children: [
+          ?barrier,
+          Opacity(opacity: 0, child: content),
+        ],
+      );
     }
 
     final mq = MediaQuery.of(context);

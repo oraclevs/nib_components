@@ -5,7 +5,11 @@ void main() {
   group('NibNavItem', () {
     test('hasChildren reflects whether children is non-empty', () {
       const leaf = NibNavItem(id: 'a', label: 'A');
-      const branch = NibNavItem(id: 'b', label: 'B', children: [NibNavItem(id: 'c', label: 'C')]);
+      const branch = NibNavItem(
+        id: 'b',
+        label: 'B',
+        children: [NibNavItem(id: 'c', label: 'C')],
+      );
       expect(leaf.hasChildren, isFalse);
       expect(branch.hasChildren, isTrue);
     });
@@ -55,11 +59,14 @@ void main() {
       expect(notified, 2);
     });
 
-    test('toggleOpenId with exclusiveSiblings closes siblings when opening', () {
-      final controller = NibNavMenuController(openIds: {'sibling'});
-      controller.toggleOpenId('a', exclusiveSiblings: {'sibling'});
-      expect(controller.openIds, {'a'});
-    });
+    test(
+      'toggleOpenId with exclusiveSiblings closes siblings when opening',
+      () {
+        final controller = NibNavMenuController(openIds: {'sibling'});
+        controller.toggleOpenId('a', exclusiveSiblings: {'sibling'});
+        expect(controller.openIds, {'a'});
+      },
+    );
 
     test('openChain/openIds are unmodifiable', () {
       final controller = NibNavMenuController(openChain: ['a'], openIds: {'x'});

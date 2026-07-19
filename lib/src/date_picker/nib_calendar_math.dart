@@ -42,7 +42,8 @@ List<DateTime> calendarDays(DateTime month, int firstDayOfWeekIndex) {
   final leading = (firstWeekdaySunZero - firstDayOfWeekIndex + 7) % 7;
   final start = DateTime(first.year, first.month, first.day - leading);
   return [
-    for (var i = 0; i < 42; i++) DateTime(start.year, start.month, start.day + i),
+    for (var i = 0; i < 42; i++)
+      DateTime(start.year, start.month, start.day + i),
   ];
 }
 

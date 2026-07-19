@@ -24,14 +24,30 @@ class _Backdrop extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFF7C3AED), Color(0xFF2563EB), Color(0xFF06B6D4)],
+                  colors: [
+                    Color(0xFF7C3AED),
+                    Color(0xFF2563EB),
+                    Color(0xFF06B6D4),
+                  ],
                 ),
               ),
               child: SizedBox.expand(),
             ),
-            Positioned(top: -20, left: 30, child: _blob(120, const Color(0x66F472B6))),
-            Positioned(bottom: -10, right: 40, child: _blob(140, const Color(0x66FDE047))),
-            Positioned(top: 60, right: 80, child: _blob(70, const Color(0x6634D399))),
+            Positioned(
+              top: -20,
+              left: 30,
+              child: _blob(120, const Color(0x66F472B6)),
+            ),
+            Positioned(
+              bottom: -10,
+              right: 40,
+              child: _blob(140, const Color(0x66FDE047)),
+            ),
+            Positioned(
+              top: 60,
+              right: 80,
+              child: _blob(70, const Color(0x6634D399)),
+            ),
             child,
           ],
         ),
@@ -40,20 +56,22 @@ class _Backdrop extends StatelessWidget {
   }
 
   static Widget _blob(double d, Color c) => Container(
-        width: d,
-        height: d,
-        decoration: BoxDecoration(color: c, shape: BoxShape.circle),
-      );
+    width: d,
+    height: d,
+    decoration: BoxDecoration(color: c, shape: BoxShape.circle),
+  );
 }
 
 /// A capsule-ish rounded-rect that also works as a custom clipper demo.
 class _CapsuleClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) => Path()
-    ..addRRect(RRect.fromRectAndRadius(
-      Offset.zero & size,
-      Radius.circular(size.shortestSide / 2),
-    ));
+    ..addRRect(
+      RRect.fromRectAndRadius(
+        Offset.zero & size,
+        Radius.circular(size.shortestSide / 2),
+      ),
+    );
   @override
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
@@ -84,7 +102,11 @@ class LiquidGlassMinimalExample extends StatelessWidget {
             child: Center(
               child: Text(
                 'Liquid Glass',
-                style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
@@ -131,10 +153,12 @@ class LiquidGlassAdvancedExample extends StatefulWidget {
   const LiquidGlassAdvancedExample({super.key});
 
   @override
-  State<LiquidGlassAdvancedExample> createState() => _LiquidGlassAdvancedExampleState();
+  State<LiquidGlassAdvancedExample> createState() =>
+      _LiquidGlassAdvancedExampleState();
 }
 
-class _LiquidGlassAdvancedExampleState extends State<LiquidGlassAdvancedExample> {
+class _LiquidGlassAdvancedExampleState
+    extends State<LiquidGlassAdvancedExample> {
   double _value = 0.4;
 
   @override
@@ -143,7 +167,9 @@ class _LiquidGlassAdvancedExampleState extends State<LiquidGlassAdvancedExample>
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Advanced — custom capsule clip, tint, a live control inside'),
+        const Text(
+          'Advanced — custom capsule clip, tint, a live control inside',
+        ),
         const SizedBox(height: 12),
         _Backdrop(
           height: 220,
@@ -164,8 +190,13 @@ class _LiquidGlassAdvancedExampleState extends State<LiquidGlassAdvancedExample>
                     onChanged: (v) => setState(() => _value = v),
                   ),
                 ),
-                Text('${(_value * 100).round()}%',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                Text(
+                  '${(_value * 100).round()}%',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ),

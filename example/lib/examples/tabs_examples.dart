@@ -12,7 +12,9 @@ class TabsMinimalExample extends StatelessWidget {
         NibTab(
           label: 'Account',
           builder: (_) => const _Pad(
-            child: Text('Manage your account details, email, and password here.'),
+            child: Text(
+              'Manage your account details, email, and password here.',
+            ),
           ),
         ),
         NibTab(
@@ -34,10 +36,10 @@ class TabsIconsScrollableExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     NibTab tab(String label, IconData icon, String body) => NibTab(
-          label: label,
-          icon: icon,
-          builder: (_) => _Pad(child: Text(body)),
-        );
+      label: label,
+      icon: icon,
+      builder: (_) => _Pad(child: Text(body)),
+    );
 
     return NibTabs(
       scrollable: true,
@@ -68,23 +70,25 @@ class TabsAdvancedScrollExample extends StatelessWidget {
     final theme = NibTheme.of(context);
 
     Widget panel(String prefix, int count, Color color) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 12),
-            for (var i = 1; i <= count; i++)
-              Container(
-                margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(theme.radiusLg),
-                  border: Border.all(color: theme.border),
-                ),
-                child: Text('$prefix item $i',
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
-              ),
-          ],
-        );
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 12),
+        for (var i = 1; i <= count; i++)
+          Container(
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(theme.radiusLg),
+              border: Border.all(color: theme.border),
+            ),
+            child: Text(
+              '$prefix item $i',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+      ],
+    );
 
     return NibTabs(
       animated: true,
@@ -133,15 +137,18 @@ class TabsCustomStyleExample extends StatelessWidget {
         tabs: [
           NibTab(
             label: 'Overview',
-            builder: (_) => const _Pad(child: Text('A compact, transparent bar.')),
+            builder: (_) =>
+                const _Pad(child: Text('A compact, transparent bar.')),
           ),
           NibTab(
             label: 'Activity',
-            builder: (_) => const _Pad(child: Text('Custom brand indicator + labels.')),
+            builder: (_) =>
+                const _Pad(child: Text('Custom brand indicator + labels.')),
           ),
           NibTab(
             label: 'Details',
-            builder: (_) => const _Pad(child: Text('No divider under the bar.')),
+            builder: (_) =>
+                const _Pad(child: Text('No divider under the bar.')),
           ),
         ],
       ),
@@ -176,14 +183,20 @@ class _Header extends StatelessWidget {
             child: Icon(Icons.person, color: theme.primary, size: 32),
           ),
           const SizedBox(height: 12),
-          Text('Jane Developer',
-              style: TextStyle(
-                  color: theme.primaryForeground,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold)),
-          Text('Scroll down — this header scrolls away, the bar pins.',
-              style: TextStyle(
-                  color: theme.primaryForeground.withValues(alpha: 0.85))),
+          Text(
+            'Jane Developer',
+            style: TextStyle(
+              color: theme.primaryForeground,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            'Scroll down — this header scrolls away, the bar pins.',
+            style: TextStyle(
+              color: theme.primaryForeground.withValues(alpha: 0.85),
+            ),
+          ),
         ],
       ),
     );
@@ -202,9 +215,13 @@ class _Footer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Footer — below the tabs',
-              style: TextStyle(
-                  color: theme.foreground, fontWeight: FontWeight.bold)),
+          Text(
+            'Footer — below the tabs',
+            style: TextStyle(
+              color: theme.foreground,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 8),
           Text(
             'You reached here by scrolling straight through the panel — no '

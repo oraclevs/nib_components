@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibTransition;
 
 import '../theme/nib_theme.dart';
 
@@ -197,7 +198,11 @@ class _NibCarouselState extends State<NibCarousel> {
       final targetLogical = _logicalOf(current) + delta;
       if (targetLogical < 0 || targetLogical >= _count) return;
     }
-    pc.animateToPage(current + delta, duration: _pageDuration, curve: _pageCurve);
+    pc.animateToPage(
+      current + delta,
+      duration: _pageDuration,
+      curve: _pageCurve,
+    );
   }
 
   void _goToLogical(int logical, {required bool animate}) {
@@ -266,7 +271,8 @@ class _NibCarouselState extends State<NibCarousel> {
                   padEnds: widget.padEnds,
                   itemCount: widget.loop ? null : _count,
                   onPageChanged: _onPageChanged,
-                  itemBuilder: (context, index) => widget.items[_logicalOf(index)],
+                  itemBuilder: (context, index) =>
+                      widget.items[_logicalOf(index)],
                 ),
               );
             },
@@ -350,7 +356,9 @@ class NibCarouselDot extends StatelessWidget {
       key: ValueKey(active),
       initial: NibAnim(scale: active ? 0.5 : 1, opacity: active ? 0.4 : 1),
       animate: NibAnim.identity,
-      transition: transition ?? const NibTransition(duration: Duration(milliseconds: 220)),
+      transition:
+          transition ??
+          const NibTransition(duration: Duration(milliseconds: 220)),
       child: dot,
     );
   }

@@ -1,8 +1,10 @@
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show HardwareKeyboard, KeyDownEvent, KeyEvent, LogicalKeyboardKey;
+import 'package:flutter/services.dart'
+    show HardwareKeyboard, KeyDownEvent, KeyEvent, LogicalKeyboardKey;
 import 'package:nib_motion/nib_motion.dart' show NibTransition;
 
 import 'nib_command_action.dart';
@@ -90,8 +92,13 @@ class NibCommandPalette extends StatefulWidget {
   /// elsewhere.
   static ShortcutActivator defaultOpenShortcut() {
     final isApple =
-        defaultTargetPlatform == TargetPlatform.macOS || defaultTargetPlatform == TargetPlatform.iOS;
-    return SingleActivator(LogicalKeyboardKey.keyK, meta: isApple, control: !isApple);
+        defaultTargetPlatform == TargetPlatform.macOS ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+    return SingleActivator(
+      LogicalKeyboardKey.keyK,
+      meta: isApple,
+      control: !isApple,
+    );
   }
 
   @override
@@ -108,7 +115,8 @@ class _NibCommandPaletteState extends State<NibCommandPalette> {
   @override
   void initState() {
     super.initState();
-    _openShortcut = widget.openShortcut ?? NibCommandPalette.defaultOpenShortcut();
+    _openShortcut =
+        widget.openShortcut ?? NibCommandPalette.defaultOpenShortcut();
     _bindController(widget.controller);
     HardwareKeyboard.instance.addHandler(_handleGlobalKeyEvent);
   }
@@ -116,7 +124,8 @@ class _NibCommandPaletteState extends State<NibCommandPalette> {
   @override
   void didUpdateWidget(covariant NibCommandPalette oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _openShortcut = widget.openShortcut ?? NibCommandPalette.defaultOpenShortcut();
+    _openShortcut =
+        widget.openShortcut ?? NibCommandPalette.defaultOpenShortcut();
     if (widget.controller != oldWidget.controller) {
       _unbindController();
       _bindController(widget.controller);
@@ -221,31 +230,34 @@ class _NibCommandPaletteState extends State<NibCommandPalette> {
         SafeArea(
           minimum: const EdgeInsets.symmetric(vertical: 16),
           child: Align(
-          alignment: const Alignment(0, -0.6),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Semantics(
-                scopesRoute: true,
-                namesRoute: true,
-                explicitChildNodes: true,
-                label: 'Command palette',
-                child: NibCommandPaletteContent(
-                  actions: widget.actions,
-                  placeholder: widget.placeholder,
-                  filter: widget.filter ?? defaultCommandActionFilter,
-                  showRecent: widget.showRecent,
-                  recentActionIds: _controller.recentActionIds,
-                  animated: widget.animated,
-                  transition: widget.transition,
-                  onActivate: _handleActivate,
-                  onRequestClose: _controller.close,
+            alignment: const Alignment(0, -0.6),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: maxWidth,
+                maxHeight: maxHeight,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Semantics(
+                  scopesRoute: true,
+                  namesRoute: true,
+                  explicitChildNodes: true,
+                  label: 'Command palette',
+                  child: NibCommandPaletteContent(
+                    actions: widget.actions,
+                    placeholder: widget.placeholder,
+                    filter: widget.filter ?? defaultCommandActionFilter,
+                    showRecent: widget.showRecent,
+                    recentActionIds: _controller.recentActionIds,
+                    animated: widget.animated,
+                    transition: widget.transition,
+                    onActivate: _handleActivate,
+                    onRequestClose: _controller.close,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
         ),
       ],
     );

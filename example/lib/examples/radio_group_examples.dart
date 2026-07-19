@@ -105,8 +105,7 @@ class RadioGroupAdvancedExample extends StatefulWidget {
       _RadioGroupAdvancedExampleState();
 }
 
-class _RadioGroupAdvancedExampleState
-    extends State<RadioGroupAdvancedExample> {
+class _RadioGroupAdvancedExampleState extends State<RadioGroupAdvancedExample> {
   String _tier = 'pro';
 
   static const _tiers = [

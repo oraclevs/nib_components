@@ -14,8 +14,8 @@ import 'package:flutter/foundation.dart';
 /// ```
 class NibTabsController extends ChangeNotifier {
   NibTabsController({int initialIndex = 0})
-      : assert(initialIndex >= 0),
-        _index = initialIndex;
+    : assert(initialIndex >= 0),
+      _index = initialIndex;
 
   int _index;
 

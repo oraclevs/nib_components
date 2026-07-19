@@ -29,8 +29,11 @@ class _Slide extends StatelessWidget {
               errorBuilder: (context, error, stack) => ColoredBox(
                 color: Colors.primaries[index % Colors.primaries.length],
                 child: const Center(
-                  child: Icon(Icons.image_not_supported_outlined,
-                      color: Colors.white, size: 32),
+                  child: Icon(
+                    Icons.image_not_supported_outlined,
+                    color: Colors.white,
+                    size: 32,
+                  ),
                 ),
               ),
             ),
@@ -63,11 +66,11 @@ class _Slide extends StatelessWidget {
 }
 
 List<Widget> _slides() => const [
-      _Slide(0, 'Slide 1'),
-      _Slide(1, 'Slide 2'),
-      _Slide(2, 'Slide 3'),
-      _Slide(3, 'Slide 4'),
-    ];
+  _Slide(0, 'Slide 1'),
+  _Slide(1, 'Slide 2'),
+  _Slide(2, 'Slide 3'),
+  _Slide(3, 'Slide 4'),
+];
 
 /// 1. Minimal — just items + the default dots indicator.
 class CarouselMinimalExample extends StatelessWidget {
@@ -97,7 +100,9 @@ class CarouselAutoPlayExample extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Auto-play — loops, peeks neighbours, pauses while you drag'),
+        const Text(
+          'Auto-play — loops, peeks neighbours, pauses while you drag',
+        ),
         const SizedBox(height: 12),
         NibCarousel(
           items: _slides(),
@@ -119,7 +124,8 @@ class CarouselControllerExample extends StatefulWidget {
   const CarouselControllerExample({super.key});
 
   @override
-  State<CarouselControllerExample> createState() => _CarouselControllerExampleState();
+  State<CarouselControllerExample> createState() =>
+      _CarouselControllerExampleState();
 }
 
 class _CarouselControllerExampleState extends State<CarouselControllerExample> {

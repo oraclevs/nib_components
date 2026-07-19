@@ -23,8 +23,17 @@ class _TriggerBox extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (icon != null) ...[Icon(icon, size: 18), const SizedBox(width: 8)],
-            Text(label, style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w600)),
+            if (icon != null) ...[
+              Icon(icon, size: 18),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: scheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),
@@ -32,7 +41,8 @@ class _TriggerBox extends StatelessWidget {
   }
 }
 
-const _lorem = 'Nib components are built native — real focus traps, keyboard '
+const _lorem =
+    'Nib components are built native — real focus traps, keyboard '
     'handling, and screen-bounds-aware overlays, not a Container bolted to a '
     'GestureDetector. Everything reads its colours from NibTheme, works in '
     'light and dark, and animates only when you opt in.';
@@ -107,7 +117,9 @@ class DialogConfirmExample extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     FilledButton(
-                      style: FilledButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFFEF4444),
+                      ),
                       onPressed: () => NibDialogScope.of(dctx).close(true),
                       child: const Text('Delete'),
                     ),
@@ -117,7 +129,9 @@ class DialogConfirmExample extends StatelessWidget {
             );
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(confirmed == true ? 'Deleted' : 'Cancelled')),
+              SnackBar(
+                content: Text(confirmed == true ? 'Deleted' : 'Cancelled'),
+              ),
             );
           },
           child: const Text('Delete file…'),
@@ -143,7 +157,10 @@ class DialogDeclarativeAdvancedExample extends StatelessWidget {
         NibDialog(
           size: NibDialogSize.lg,
           animated: true,
-          trigger: const _TriggerBox('Review terms', icon: Icons.description_outlined),
+          trigger: const _TriggerBox(
+            'Review terms',
+            icon: Icons.description_outlined,
+          ),
           header: Builder(
             builder: (dctx) => Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 10, 8),
@@ -152,8 +169,13 @@ class DialogDeclarativeAdvancedExample extends StatelessWidget {
                   const Icon(Icons.gavel_outlined),
                   const SizedBox(width: 10),
                   const Expanded(
-                    child: Text('Terms of Service',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                    child: Text(
+                      'Terms of Service',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
@@ -168,7 +190,10 @@ class DialogDeclarativeAdvancedExample extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               for (var i = 1; i <= 6; i++) ...[
-                Text('$i. Section', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  '$i. Section',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
                 const SizedBox(height: 4),
                 const Text(_lorem),
                 const SizedBox(height: 16),
@@ -221,7 +246,9 @@ class DialogStackedExample extends StatelessWidget {
                       animated: true,
                       size: NibDialogSize.sm,
                       title: 'Second dialog',
-                      content: const Text('Press Esc — it closes just this one.'),
+                      content: const Text(
+                        'Press Esc — it closes just this one.',
+                      ),
                     ),
                     child: const Text('Open second'),
                   ),

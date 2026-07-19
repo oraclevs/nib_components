@@ -1,7 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibTransition;
 
 import '../theme/nib_theme.dart';
 import 'nib_accordion_controller.dart';
@@ -113,10 +114,13 @@ class _NibAccordionState extends State<NibAccordion> {
   }
 
   void _bindController(NibAccordionController? external) {
-    _controller = external ??
+    _controller =
+        external ??
         NibAccordionController(
           allowMultiple: widget.allowMultipleOpen,
-          initialOpen: widget.defaultOpenIndex != null ? {widget.defaultOpenIndex!} : null,
+          initialOpen: widget.defaultOpenIndex != null
+              ? {widget.defaultOpenIndex!}
+              : null,
         );
     _ownsController = external == null;
     _controller.allowMultiple = widget.allowMultipleOpen;
@@ -138,23 +142,28 @@ class _NibAccordionState extends State<NibAccordion> {
   }
 
   NibTransition get _transition =>
-      widget.transition ?? const NibTransition(duration: Duration(milliseconds: 220));
+      widget.transition ??
+      const NibTransition(duration: Duration(milliseconds: 220));
 
   @override
   Widget build(BuildContext context) {
     final theme = NibTheme.of(context);
     final children = <Widget>[];
     for (var i = 0; i < widget.items.length; i++) {
-      if (i > 0) children.add(Divider(height: 1, thickness: 1, color: theme.border));
+      if (i > 0) {
+        children.add(Divider(height: 1, thickness: 1, color: theme.border));
+      }
       final item = widget.items[i];
-      children.add(_NibAccordionSection(
-        item: item,
-        open: _controller.isOpen(i),
-        animated: widget.animated,
-        transition: _transition,
-        theme: theme,
-        onTap: item.enabled ? () => _handleToggle(i) : null,
-      ));
+      children.add(
+        _NibAccordionSection(
+          item: item,
+          open: _controller.isOpen(i),
+          animated: widget.animated,
+          transition: _transition,
+          theme: theme,
+          onTap: item.enabled ? () => _handleToggle(i) : null,
+        ),
+      );
     }
 
     return DecoratedBox(
@@ -203,7 +212,9 @@ class _NibAccordionSectionState extends State<_NibAccordionSection>
   @override
   void didUpdateWidget(covariant _NibAccordionSection old) {
     super.didUpdateWidget(old);
-    _anim.duration = widget.animated ? widget.transition.duration : Duration.zero;
+    _anim.duration = widget.animated
+        ? widget.transition.duration
+        : Duration.zero;
     if (widget.open != old.open) {
       widget.open ? _anim.forward() : _anim.reverse();
     }

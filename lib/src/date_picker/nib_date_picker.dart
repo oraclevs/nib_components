@@ -136,7 +136,8 @@ class _NibDatePickerState extends State<NibDatePicker> {
   }
 
   void _bindController(NibDatePickerController? external) {
-    _controller = external ??
+    _controller =
+        external ??
         NibDatePickerController(
           selectedDate: widget.selectedDate,
           selectedRange: widget.selectedRange,
@@ -189,7 +190,8 @@ class _NibDatePickerState extends State<NibDatePicker> {
   }
 
   void _maybeClose() {
-    if (widget.displayMode != NibDatePickerDisplayMode.inline && widget.closeOnSelect) {
+    if (widget.displayMode != NibDatePickerDisplayMode.inline &&
+        widget.closeOnSelect) {
       _controller.close();
     }
   }
@@ -284,11 +286,14 @@ class _NibDatePickerState extends State<NibDatePicker> {
     // Entrance animation only for the overlay display modes — inline mounts
     // once, so an entrance would be invisible; there, the visible animation is
     // the month-to-month slide handled inside _CalendarView.
-    if (widget.animated && widget.displayMode != NibDatePickerDisplayMode.inline) {
+    if (widget.animated &&
+        widget.displayMode != NibDatePickerDisplayMode.inline) {
       card = NibMotion(
         initial: const NibAnim(opacity: 0, scale: 0.97, y: -6),
         animate: const NibAnim(opacity: 1, scale: 1, y: 0),
-        transition: widget.transition ?? const NibTransition(duration: Duration(milliseconds: 150)),
+        transition:
+            widget.transition ??
+            const NibTransition(duration: Duration(milliseconds: 150)),
         child: card,
       );
     }
@@ -296,10 +301,18 @@ class _NibDatePickerState extends State<NibDatePicker> {
     // Hug the calendar's natural width instead of stretching to fill the
     // parent, and scale down (rather than overflow) when the parent is
     // narrower than the calendar.
-    card = FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.topCenter, child: card);
+    card = FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.topCenter,
+      child: card,
+    );
 
     if (widget.locale != null) {
-      card = Localizations.override(context: context, locale: widget.locale, child: card);
+      card = Localizations.override(
+        context: context,
+        locale: widget.locale,
+        child: card,
+      );
     }
     return card;
   }
@@ -321,10 +334,10 @@ class _NibDatePickerState extends State<NibDatePicker> {
   }
 
   bool get _hasSelection => switch (widget.mode) {
-        NibDatePickerMode.single => _controller.selectedDate != null,
-        NibDatePickerMode.range => _controller.selectedRange != null,
-        NibDatePickerMode.multi => _controller.selectedDates.isNotEmpty,
-      };
+    NibDatePickerMode.single => _controller.selectedDate != null,
+    NibDatePickerMode.range => _controller.selectedRange != null,
+    NibDatePickerMode.multi => _controller.selectedDates.isNotEmpty,
+  };
 
   Widget _buildTrigger(NibTheme theme, MaterialLocalizations ml) {
     final empty = !_hasSelection;
@@ -339,19 +352,27 @@ class _NibDatePickerState extends State<NibDatePicker> {
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: widget.disabled ? theme.muted : theme.background,
-              border: Border.all(color: _controller.isOpen ? theme.ring : theme.border),
+              border: Border.all(
+                color: _controller.isOpen ? theme.ring : theme.border,
+              ),
               borderRadius: BorderRadius.circular(theme.radiusDefault),
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               child: Row(
                 children: [
-                  Icon(Icons.calendar_today_outlined, size: 18, color: theme.mutedForeground),
+                  Icon(
+                    Icons.calendar_today_outlined,
+                    size: 18,
+                    color: theme.mutedForeground,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       _triggerText(ml),
-                      style: TextStyle(color: empty ? theme.mutedForeground : theme.foreground),
+                      style: TextStyle(
+                        color: empty ? theme.mutedForeground : theme.foreground,
+                      ),
                     ),
                   ),
                   if (!empty && !widget.disabled)
@@ -363,7 +384,11 @@ class _NibDatePickerState extends State<NibDatePicker> {
                       borderRadius: BorderRadius.circular(theme.radiusPill),
                       child: Padding(
                         padding: const EdgeInsets.all(2),
-                        child: Icon(Icons.close, size: 16, color: theme.mutedForeground),
+                        child: Icon(
+                          Icons.close,
+                          size: 16,
+                          color: theme.mutedForeground,
+                        ),
                       ),
                     ),
                 ],
@@ -432,7 +457,8 @@ class _CalendarViewState extends State<_CalendarView> {
   _PickerMode _pickerMode = _PickerMode.days;
   late int _navYear;
   late int _yearGridStart;
-  int _slideDir = 1; // +1 = next month enters from the right, -1 = from the left
+  int _slideDir =
+      1; // +1 = next month enters from the right, -1 = from the left
 
   // Moving selection "puck" state (single-select, animated). Tracks the puck's
   // previous and current grid cell so it can animate between them; `_puckSeq`
@@ -442,7 +468,9 @@ class _CalendarViewState extends State<_CalendarView> {
   int _puckSeq = 0;
 
   bool get _usePuck =>
-      widget.animated && widget.mode == NibDatePickerMode.single && widget.dayBuilder == null;
+      widget.animated &&
+      widget.mode == NibDatePickerMode.single &&
+      widget.dayBuilder == null;
 
   NibDatePickerController get _c => widget.controller;
 
@@ -465,11 +493,11 @@ class _CalendarViewState extends State<_CalendarView> {
   }
 
   bool _dayDisabled(DateTime day) => isDayDisabled(
-        day,
-        minDate: widget.minDate,
-        maxDate: widget.maxDate,
-        predicate: widget.disabledDayPredicate,
-      );
+    day,
+    minDate: widget.minDate,
+    maxDate: widget.maxDate,
+    predicate: widget.disabledDayPredicate,
+  );
 
   // --- Header ---------------------------------------------------------------
 
@@ -480,23 +508,26 @@ class _CalendarViewState extends State<_CalendarView> {
       case _PickerMode.days:
         text = ml.formatMonthYear(_c.displayedMonth);
         onTap = () => setState(() {
-              _navYear = _c.displayedMonth.year;
-              _yearGridStart = _navYear - 5;
-              _pickerMode = _PickerMode.years;
-            });
+          _navYear = _c.displayedMonth.year;
+          _yearGridStart = _navYear - 5;
+          _pickerMode = _PickerMode.years;
+        });
       case _PickerMode.months:
         text = '$_navYear';
         onTap = () => setState(() {
-              _yearGridStart = _navYear - 5;
-              _pickerMode = _PickerMode.years;
-            });
+          _yearGridStart = _navYear - 5;
+          _pickerMode = _PickerMode.years;
+        });
       case _PickerMode.years:
         text = '$_yearGridStart – ${_yearGridStart + 11}';
         onTap = null;
     }
     return TextButton(
       onPressed: onTap,
-      child: Text(text, style: TextStyle(color: theme.foreground, fontWeight: FontWeight.w600)),
+      child: Text(
+        text,
+        style: TextStyle(color: theme.foreground, fontWeight: FontWeight.w600),
+      ),
     );
   }
 
@@ -557,7 +588,11 @@ class _CalendarViewState extends State<_CalendarView> {
               child: Center(
                 child: Text(
                   ml.narrowWeekdays[(first + i) % 7],
-                  style: TextStyle(color: theme.mutedForeground, fontSize: 12, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: theme.mutedForeground,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -568,7 +603,8 @@ class _CalendarViewState extends State<_CalendarView> {
 
   NibCalendarDayState _dayStateFor(DateTime day) {
     final displayed = _c.displayedMonth;
-    final outOfMonth = day.month != displayed.month || day.year != displayed.year;
+    final outOfMonth =
+        day.month != displayed.month || day.year != displayed.year;
     final disabled = _dayDisabled(day);
     final today = isSameDay(day, DateTime.now());
 
@@ -588,7 +624,8 @@ class _CalendarViewState extends State<_CalendarView> {
           isStart = isSameDay(day, r.start);
           isEnd = r.end != null && isSameDay(day, r.end!);
           isSelected = isStart || isEnd;
-          inRange = r.end != null && !isSelected && isInRange(day, r.start, r.end!);
+          inRange =
+              r.end != null && !isSelected && isInRange(day, r.start, r.end!);
         }
     }
 
@@ -604,7 +641,9 @@ class _CalendarViewState extends State<_CalendarView> {
     );
   }
 
-  BoxShape _boxShape() => widget.cellShape == NibDateCellShape.circle ? BoxShape.circle : BoxShape.rectangle;
+  BoxShape _boxShape() => widget.cellShape == NibDateCellShape.circle
+      ? BoxShape.circle
+      : BoxShape.rectangle;
 
   BorderRadius? _borderRadius(NibTheme theme) {
     switch (widget.cellShape) {
@@ -639,14 +678,21 @@ class _CalendarViewState extends State<_CalendarView> {
           color: s.selected
               ? theme.primary
               : s.inRange
-                  ? theme.secondary
-                  : null,
+              ? theme.secondary
+              : null,
           shape: s.selected || s.inRange ? _boxShape() : BoxShape.rectangle,
-          borderRadius: s.selected || s.inRange ? radius : BorderRadius.circular(theme.radiusSm),
-          border: s.today && !s.selected ? Border.all(color: theme.primary) : null,
+          borderRadius: s.selected || s.inRange
+              ? radius
+              : BorderRadius.circular(theme.radiusSm),
+          border: s.today && !s.selected
+              ? Border.all(color: theme.primary)
+              : null,
         ),
         child: Center(
-          child: Text('${s.date.day}', style: TextStyle(color: fg, fontSize: 13)),
+          child: Text(
+            '${s.date.day}',
+            style: TextStyle(color: fg, fontSize: 13),
+          ),
         ),
       ),
     );
@@ -654,7 +700,9 @@ class _CalendarViewState extends State<_CalendarView> {
 
   Widget _buildDayCell(NibTheme theme, DateTime day) {
     final state = _dayStateFor(day);
-    var content = widget.dayBuilder?.call(context, state) ?? _defaultCellContent(theme, state);
+    var content =
+        widget.dayBuilder?.call(context, state) ??
+        _defaultCellContent(theme, state);
 
     // Multi/range don't use the moving puck (there can be many selected cells),
     // so give each newly-selected cell a quick pop to confirm the tap. Keyed by
@@ -664,7 +712,9 @@ class _CalendarViewState extends State<_CalendarView> {
         widget.dayBuilder == null &&
         state.selected) {
       content = NibMotion(
-        key: ValueKey('pop-${day.year}-${day.month}-${day.day}-${state.selected}'),
+        key: ValueKey(
+          'pop-${day.year}-${day.month}-${day.day}-${state.selected}',
+        ),
         keyframes: NibAnimPresets.pulse,
         transition: const NibTransition(duration: Duration(milliseconds: 220)),
         child: content,
@@ -673,7 +723,9 @@ class _CalendarViewState extends State<_CalendarView> {
 
     final tapShape = widget.cellShape == NibDateCellShape.circle
         ? const CircleBorder()
-        : RoundedRectangleBorder(borderRadius: _borderRadius(theme) ?? BorderRadius.zero);
+        : RoundedRectangleBorder(
+            borderRadius: _borderRadius(theme) ?? BorderRadius.zero,
+          );
 
     return Semantics(
       button: !state.disabled,
@@ -696,7 +748,8 @@ class _CalendarViewState extends State<_CalendarView> {
     );
   }
 
-  Offset _cellOffset(int index) => Offset((index % 7) * _kCellSize, (index ~/ 7) * _kCellSize);
+  Offset _cellOffset(int index) =>
+      Offset((index % 7) * _kCellSize, (index ~/ 7) * _kCellSize);
 
   int _singleSelIndex(List<DateTime> days) {
     final d = _c.selectedDate;
@@ -716,10 +769,23 @@ class _CalendarViewState extends State<_CalendarView> {
     final midX = (from.dx + to.dx) / 2;
 
     final keyframes = <NibKeyframe>[
-      NibKeyframe(at: 0, value: NibAnim(x: from.dx, y: from.dy, scale: 1)),
-      if (far) NibKeyframe(at: 0.45, value: NibAnim(x: midX, y: apexY, scale: 1.06)),
-      NibKeyframe(at: 0.82, value: NibAnim(x: to.dx, y: to.dy, scale: 1.14)),
-      NibKeyframe(at: 1, value: NibAnim(x: to.dx, y: to.dy, scale: 1)),
+      NibKeyframe(
+        at: 0,
+        value: NibAnim(x: from.dx, y: from.dy, scale: 1),
+      ),
+      if (far)
+        NibKeyframe(
+          at: 0.45,
+          value: NibAnim(x: midX, y: apexY, scale: 1.06),
+        ),
+      NibKeyframe(
+        at: 0.82,
+        value: NibAnim(x: to.dx, y: to.dy, scale: 1.14),
+      ),
+      NibKeyframe(
+        at: 1,
+        value: NibAnim(x: to.dx, y: to.dy, scale: 1),
+      ),
     ];
 
     return Positioned(
@@ -729,7 +795,9 @@ class _CalendarViewState extends State<_CalendarView> {
         child: NibMotion(
           key: ValueKey(_puckSeq),
           keyframes: keyframes,
-          transition: NibTransition(duration: Duration(milliseconds: far ? 300 : 190)),
+          transition: NibTransition(
+            duration: Duration(milliseconds: far ? 300 : 190),
+          ),
           child: SizedBox(
             width: _kCellSize,
             height: _kCellSize,
@@ -740,7 +808,9 @@ class _CalendarViewState extends State<_CalendarView> {
                 decoration: BoxDecoration(
                   color: theme.primary,
                   shape: _boxShape(),
-                  borderRadius: _boxShape() == BoxShape.circle ? null : _borderRadius(theme),
+                  borderRadius: _boxShape() == BoxShape.circle
+                      ? null
+                      : _borderRadius(theme),
                 ),
               ),
             ),
@@ -768,7 +838,8 @@ class _CalendarViewState extends State<_CalendarView> {
             width: _kGridWidth,
             child: Row(
               children: [
-                for (var d = 0; d < 7; d++) _buildDayCell(theme, days[week * 7 + d]),
+                for (var d = 0; d < 7; d++)
+                  _buildDayCell(theme, days[week * 7 + d]),
               ],
             ),
           ),
@@ -788,10 +859,7 @@ class _CalendarViewState extends State<_CalendarView> {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildWeekdayRow(theme, ml),
-        daysArea,
-      ],
+      children: [_buildWeekdayRow(theme, ml), daysArea],
     );
   }
 
@@ -814,7 +882,10 @@ class _CalendarViewState extends State<_CalendarView> {
                 setState(() => _pickerMode = _PickerMode.days);
               },
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 child: Text(
                   ml.formatMonthYear(DateTime(_navYear, m)),
                   style: TextStyle(color: theme.foreground),
@@ -836,30 +907,36 @@ class _CalendarViewState extends State<_CalendarView> {
         padding: const EdgeInsets.all(8),
         children: [
           for (var i = 0; i < 12; i++)
-            Builder(builder: (context) {
-              final year = _yearGridStart + i;
-              final selected = year == _navYear;
-              return Padding(
-                padding: const EdgeInsets.all(4),
-                child: Material(
-                  color: selected ? theme.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(theme.radiusSm),
-                  child: InkWell(
+            Builder(
+              builder: (context) {
+                final year = _yearGridStart + i;
+                final selected = year == _navYear;
+                return Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Material(
+                    color: selected ? theme.primary : Colors.transparent,
                     borderRadius: BorderRadius.circular(theme.radiusSm),
-                    onTap: () => setState(() {
-                      _navYear = year;
-                      _pickerMode = _PickerMode.months;
-                    }),
-                    child: Center(
-                      child: Text(
-                        '$year',
-                        style: TextStyle(color: selected ? theme.primaryForeground : theme.foreground),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(theme.radiusSm),
+                      onTap: () => setState(() {
+                        _navYear = year;
+                        _pickerMode = _PickerMode.months;
+                      }),
+                      child: Center(
+                        child: Text(
+                          '$year',
+                          style: TextStyle(
+                            color: selected
+                                ? theme.primaryForeground
+                                : theme.foreground,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            }),
+                );
+              },
+            ),
         ],
       ),
     );
@@ -882,7 +959,9 @@ class _CalendarViewState extends State<_CalendarView> {
             key: ValueKey(_c.displayedMonth),
             initial: NibAnim(opacity: 0, x: _slideDir * 28.0),
             animate: const NibAnim(opacity: 1, x: 0),
-            transition: widget.transition ?? const NibTransition(duration: Duration(milliseconds: 180)),
+            transition:
+                widget.transition ??
+                const NibTransition(duration: Duration(milliseconds: 180)),
             child: body,
           );
         }

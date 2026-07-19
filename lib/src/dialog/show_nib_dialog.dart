@@ -37,7 +37,10 @@ class NibDialogScope extends InheritedWidget {
   /// The nearest enclosing dialog scope. Asserts if called outside a dialog.
   static NibDialogScope of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<NibDialogScope>();
-    assert(scope != null, 'NibDialogScope.of() called outside a NibDialog/showNibDialog.');
+    assert(
+      scope != null,
+      'NibDialogScope.of() called outside a NibDialog/showNibDialog.',
+    );
     return scope!;
   }
 
@@ -262,17 +265,21 @@ class _NibDialogSurfaceState extends State<_NibDialogSurface> {
 
   /// Whether the surface builds `nib_motion` widgets at all. `false` keeps the
   /// `animated: false` / [NibDialogAnimation.none] paths overhead-free.
-  bool get _animated => widget.animated && widget.animation != NibDialogAnimation.none;
+  bool get _animated =>
+      widget.animated && widget.animation != NibDialogAnimation.none;
 
   NibTransition _effectiveTransition() =>
-      widget.transition ?? const NibTransition(duration: Duration(milliseconds: 160));
+      widget.transition ??
+      const NibTransition(duration: Duration(milliseconds: 160));
 
   /// How long to keep the surface mounted after a close so the exit motion can
   /// finish before removal. Springs have no fixed duration, so estimate — same
   /// approach (and same deferred-refinement caveat) as `NibSelect`.
   Duration _exitDuration() {
     final t = _effectiveTransition();
-    final base = t.spring != null ? const Duration(milliseconds: 450) : t.duration;
+    final base = t.spring != null
+        ? const Duration(milliseconds: 450)
+        : t.duration;
     return base + t.delay + const Duration(milliseconds: 40);
   }
 
@@ -345,7 +352,10 @@ class _NibDialogSurfaceState extends State<_NibDialogSurface> {
                     padding: EdgeInsets.only(top: widget.title != null ? 4 : 0),
                     child: Text(
                       widget.description!,
-                      style: TextStyle(color: theme.mutedForeground, fontSize: 14),
+                      style: TextStyle(
+                        color: theme.mutedForeground,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
               ],
@@ -383,14 +393,12 @@ class _NibDialogSurfaceState extends State<_NibDialogSurface> {
     final column = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ?header,
-        body,
-        ?footer,
-      ],
+      children: [?header, body, ?footer],
     );
 
-    final radius = fullscreen ? BorderRadius.zero : BorderRadius.circular(theme.radiusLg);
+    final radius = fullscreen
+        ? BorderRadius.zero
+        : BorderRadius.circular(theme.radiusLg);
     Widget card = Material(
       color: theme.card,
       elevation: fullscreen ? 0 : 8,
@@ -450,29 +458,35 @@ class _NibDialogSurfaceState extends State<_NibDialogSurface> {
   // --- Focus trap / shortcuts ------------------------------------------------
 
   Map<ShortcutActivator, Intent> get _shortcuts => const {
-        SingleActivator(LogicalKeyboardKey.tab): NextFocusIntent(),
-        SingleActivator(LogicalKeyboardKey.tab, shift: true): PreviousFocusIntent(),
-        SingleActivator(LogicalKeyboardKey.escape): _DismissDialogIntent(),
-      };
+    SingleActivator(LogicalKeyboardKey.tab): NextFocusIntent(),
+    SingleActivator(LogicalKeyboardKey.tab, shift: true): PreviousFocusIntent(),
+    SingleActivator(LogicalKeyboardKey.escape): _DismissDialogIntent(),
+  };
 
   Map<Type, Action<Intent>> get _actions => {
-        // Route Tab through the dialog's own scope so traversal wraps within it
-        // (reaching the last field and Tabbing again returns to the first) —
-        // the focus trap. `previousFocus`/`nextFocus` on a FocusScopeNode wrap
-        // at the scope boundary rather than escaping to the app behind.
-        NextFocusIntent: CallbackAction<NextFocusIntent>(onInvoke: (_) {
-          _focusScopeNode.nextFocus();
-          return null;
-        }),
-        PreviousFocusIntent: CallbackAction<PreviousFocusIntent>(onInvoke: (_) {
-          _focusScopeNode.previousFocus();
-          return null;
-        }),
-        _DismissDialogIntent: CallbackAction<_DismissDialogIntent>(onInvoke: (_) {
-          if (widget.barrierDismissible) requestClose();
-          return null;
-        }),
-      };
+    // Route Tab through the dialog's own scope so traversal wraps within it
+    // (reaching the last field and Tabbing again returns to the first) —
+    // the focus trap. `previousFocus`/`nextFocus` on a FocusScopeNode wrap
+    // at the scope boundary rather than escaping to the app behind.
+    NextFocusIntent: CallbackAction<NextFocusIntent>(
+      onInvoke: (_) {
+        _focusScopeNode.nextFocus();
+        return null;
+      },
+    ),
+    PreviousFocusIntent: CallbackAction<PreviousFocusIntent>(
+      onInvoke: (_) {
+        _focusScopeNode.previousFocus();
+        return null;
+      },
+    ),
+    _DismissDialogIntent: CallbackAction<_DismissDialogIntent>(
+      onInvoke: (_) {
+        if (widget.barrierDismissible) requestClose();
+        return null;
+      },
+    ),
+  };
 
   @override
   Widget build(BuildContext context) {

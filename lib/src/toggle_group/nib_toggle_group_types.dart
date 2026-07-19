@@ -11,15 +11,15 @@ class NibToggleOption<T> {
     this.icon,
     this.disabled = false,
     this.semanticLabel,
-  })  : assert(
-          label != null || icon != null,
-          'NibToggleOption requires a label and/or an icon.',
-        ),
-        assert(
-          label != null || semanticLabel != null,
-          'NibToggleOption requires semanticLabel when label is null '
-          '(icon-only).',
-        );
+  }) : assert(
+         label != null || icon != null,
+         'NibToggleOption requires a label and/or an icon.',
+       ),
+       assert(
+         label != null || semanticLabel != null,
+         'NibToggleOption requires semanticLabel when label is null '
+         '(icon-only).',
+       );
 
   /// The value this segment represents; compared with the group's
   /// selection by `==`.

@@ -31,8 +31,7 @@ List<int?> paginationRange({
 }) {
   if (totalPages <= 0) return const [];
 
-  List<int> range(int start, int end) =>
-      [for (var i = start; i <= end; i++) i];
+  List<int> range(int start, int end) => [for (var i = start; i <= end; i++) i];
 
   final startPages = range(1, math.min(boundaryCount, totalPages));
   final endPages = range(
@@ -48,10 +47,7 @@ List<int?> paginationRange({
     boundaryCount + 2,
   );
   final siblingsEnd = math.min(
-    math.max(
-      currentPage + siblingCount,
-      boundaryCount + siblingCount * 2 + 2,
-    ),
+    math.max(currentPage + siblingCount, boundaryCount + siblingCount * 2 + 2),
     endPages.isNotEmpty ? endPages.first - 2 : totalPages - 1,
   );
 

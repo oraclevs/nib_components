@@ -45,7 +45,9 @@ class _TextareaCounterExampleState extends State<TextareaCounterExample> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Counter — maxLength 140, grows from 2 to 6 lines then scrolls'),
+        const Text(
+          'Counter — maxLength 140, grows from 2 to 6 lines then scrolls',
+        ),
         const SizedBox(height: 16),
         NibTextarea(
           label: 'Tweet',
@@ -66,7 +68,8 @@ class TextareaAdvancedExample extends StatefulWidget {
   const TextareaAdvancedExample({super.key});
 
   @override
-  State<TextareaAdvancedExample> createState() => _TextareaAdvancedExampleState();
+  State<TextareaAdvancedExample> createState() =>
+      _TextareaAdvancedExampleState();
 }
 
 class _TextareaAdvancedExampleState extends State<TextareaAdvancedExample> {
@@ -76,7 +79,9 @@ class _TextareaAdvancedExampleState extends State<TextareaAdvancedExample> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Advanced — predefined validator, animated, custom radius/padding'),
+        const Text(
+          'Advanced — predefined validator, animated, custom radius/padding',
+        ),
         const SizedBox(height: 16),
         NibTextarea(
           label: 'Feedback',
@@ -91,4 +96,3 @@ class _TextareaAdvancedExampleState extends State<TextareaAdvancedExample> {
     );
   }
 }
-

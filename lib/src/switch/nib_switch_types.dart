@@ -31,7 +31,5 @@ class NibSwitchThumbState {
 /// Builds a fully custom thumb, replacing the built-in shape/colour/icon.
 /// The switch still owns the thumb's position, size and (when `animated`)
 /// its glide — the builder only paints the knob.
-typedef NibSwitchThumbBuilder = Widget Function(
-  BuildContext context,
-  NibSwitchThumbState state,
-);
+typedef NibSwitchThumbBuilder =
+    Widget Function(BuildContext context, NibSwitchThumbState state);

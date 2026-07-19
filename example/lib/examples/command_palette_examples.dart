@@ -17,12 +17,17 @@ class CommandPaletteMinimalExample extends StatelessWidget {
       ],
       onActionSelected: (action) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Selected: ${action.label}'), duration: const Duration(seconds: 1)),
+          SnackBar(
+            content: Text('Selected: ${action.label}'),
+            duration: const Duration(seconds: 1),
+          ),
         );
       },
       child: const SizedBox(
         height: 120,
-        child: Center(child: Text('Press Cmd+K / Ctrl+K to open the command palette')),
+        child: Center(
+          child: Text('Press Cmd+K / Ctrl+K to open the command palette'),
+        ),
       ),
     );
   }
@@ -35,10 +40,12 @@ class CommandPaletteGroupedExample extends StatefulWidget {
   const CommandPaletteGroupedExample({super.key});
 
   @override
-  State<CommandPaletteGroupedExample> createState() => _CommandPaletteGroupedExampleState();
+  State<CommandPaletteGroupedExample> createState() =>
+      _CommandPaletteGroupedExampleState();
 }
 
-class _CommandPaletteGroupedExampleState extends State<CommandPaletteGroupedExample> {
+class _CommandPaletteGroupedExampleState
+    extends State<CommandPaletteGroupedExample> {
   final _controller = NibCommandPaletteController();
 
   @override
@@ -81,7 +88,10 @@ class _CommandPaletteGroupedExampleState extends State<CommandPaletteGroupedExam
       ],
       onActionSelected: (action) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Selected: ${action.label}'), duration: const Duration(seconds: 1)),
+          SnackBar(
+            content: Text('Selected: ${action.label}'),
+            duration: const Duration(seconds: 1),
+          ),
         );
       },
       child: SizedBox(
@@ -115,8 +125,16 @@ class CommandPaletteAdvancedExample extends StatelessWidget {
       animated: true,
       filter: _startsWithFilter,
       actions: [
-        const NibCommandAction(id: 'new-file', label: 'New File', group: 'File'),
-        const NibCommandAction(id: 'open-file', label: 'Open File', group: 'File'),
+        const NibCommandAction(
+          id: 'new-file',
+          label: 'New File',
+          group: 'File',
+        ),
+        const NibCommandAction(
+          id: 'open-file',
+          label: 'Open File',
+          group: 'File',
+        ),
         NibCommandAction(
           id: 'change-theme',
           label: 'Change Theme',
@@ -140,11 +158,19 @@ class CommandPaletteAdvancedExample extends StatelessWidget {
             ),
           ],
         ),
-        const NibCommandAction(id: 'go-to-line', label: 'Go to Line', group: 'Navigation', disabled: true),
+        const NibCommandAction(
+          id: 'go-to-line',
+          label: 'Go to Line',
+          group: 'Navigation',
+          disabled: true,
+        ),
       ],
       onActionSelected: (action) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Selected: ${action.label}'), duration: const Duration(seconds: 1)),
+          SnackBar(
+            content: Text('Selected: ${action.label}'),
+            duration: const Duration(seconds: 1),
+          ),
         );
       },
       child: const SizedBox(

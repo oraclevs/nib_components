@@ -554,7 +554,8 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
     builder: (context) => const SkeletonCardExample(),
   ),
   CatalogEntry(
-    name: 'Skeleton — stock Material (Card/ElevatedButton PhysicalShape chrome)',
+    name:
+        'Skeleton — stock Material (Card/ElevatedButton PhysicalShape chrome)',
     builder: (context) => const SkeletonMaterialExample(),
   ),
 ];

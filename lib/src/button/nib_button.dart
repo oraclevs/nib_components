@@ -2,7 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibTransition;
 
 import '../loader/nib_circular_loader.dart';
 import '../theme/nib_theme.dart';
@@ -57,18 +58,18 @@ class NibButton extends StatefulWidget {
     this.transition,
     this.loadingWidget,
     this.loadingText,
-  })  : assert(
-          content != null ||
-              label != null ||
-              leadingIcon != null ||
-              trailingIcon != null,
-          'NibButton needs content, a label, and/or at least one icon to render.',
-        ),
-        assert(
-          label != null || content != null || semanticLabel != null,
-          'An icon-only NibButton (no label, no content) requires a '
-          'semanticLabel for accessibility.',
-        );
+  }) : assert(
+         content != null ||
+             label != null ||
+             leadingIcon != null ||
+             trailingIcon != null,
+         'NibButton needs content, a label, and/or at least one icon to render.',
+       ),
+       assert(
+         label != null || content != null || semanticLabel != null,
+         'An icon-only NibButton (no label, no content) requires a '
+         'semanticLabel for accessibility.',
+       );
 
   /// The button text. `null` renders an icon-only button (requires
   /// [semanticLabel]).
@@ -240,11 +241,13 @@ class _NibButtonState extends State<NibButton> {
     final colors = _colorsFor(theme);
 
     final height = widget.height ?? metrics.height;
-    final radius = widget.borderRadius ??
+    final radius =
+        widget.borderRadius ??
         BorderRadius.circular(
           widget.pill ? theme.radiusPill : theme.radiusDefault,
         );
-    final padding = widget.padding ??
+    final padding =
+        widget.padding ??
         EdgeInsets.symmetric(
           horizontal: _iconOnly ? 0 : metrics.horizontalPadding,
         );
@@ -269,7 +272,8 @@ class _NibButtonState extends State<NibButton> {
           )
         : normalContent;
 
-    final double? resolvedWidth = widget.width ??
+    final double? resolvedWidth =
+        widget.width ??
         (_iconOnly ? height : (widget.expand ? double.infinity : null));
 
     Widget box = SizedBox(
@@ -375,7 +379,8 @@ class _NibButtonState extends State<NibButton> {
   /// spinner) plus an optional [NibButton.loadingText] beside it. Any of
   /// text-only, widget-only, or both is supported.
   Widget _buildLoadingContent(NibButtonSizeMetrics metrics, Color foreground) {
-    final Widget indicator = widget.loadingWidget ??
+    final Widget indicator =
+        widget.loadingWidget ??
         NibCircularLoader(
           size: metrics.fontSize + 6,
           strokeWidth: 2,
@@ -542,9 +547,9 @@ class _RenderTapTargetPadding extends RenderShiftedBox {
 
   @override
   Size computeDryLayout(BoxConstraints constraints) => _computeSize(
-        constraints: constraints,
-        layoutChild: ChildLayoutHelper.dryLayoutChild,
-      );
+    constraints: constraints,
+    layoutChild: ChildLayoutHelper.dryLayoutChild,
+  );
 
   @override
   void performLayout() {
@@ -554,8 +559,9 @@ class _RenderTapTargetPadding extends RenderShiftedBox {
     );
     if (child != null) {
       final BoxParentData childParentData = child!.parentData! as BoxParentData;
-      childParentData.offset =
-          Alignment.center.alongOffset(size - child!.size as Offset);
+      childParentData.offset = Alignment.center.alongOffset(
+        size - child!.size as Offset,
+      );
     }
   }
 

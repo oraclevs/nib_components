@@ -10,11 +10,11 @@ import 'package:flutter/widgets.dart';
 /// Feed the result to [resolveOverlayGeometry]'s `safeInsets` so the overlay is
 /// clamped inside the usable region, not the raw window.
 EdgeInsets nibOverlaySafeInsets(MediaQueryData mq) => EdgeInsets.fromLTRB(
-      mq.padding.left,
-      mq.padding.top,
-      mq.padding.right,
-      math.max(mq.padding.bottom, mq.viewInsets.bottom),
-    );
+  mq.padding.left,
+  mq.padding.top,
+  mq.padding.right,
+  math.max(mq.padding.bottom, mq.viewInsets.bottom),
+);
 
 /// Which side of a trigger an anchored overlay's content prefers to open
 /// toward. Flips to the opposite side automatically if it doesn't fit in the
@@ -81,7 +81,16 @@ NibOverlayGeometry resolveOverlayGeometry({
   final maxX = screen.width - safeInsets.right - margin;
   final maxY = screen.height - safeInsets.bottom - margin;
 
-  final side = _chooseSide(placement, target, content, gap, minX, minY, maxX, maxY);
+  final side = _chooseSide(
+    placement,
+    target,
+    content,
+    gap,
+    minX,
+    minY,
+    maxX,
+    maxY,
+  );
 
   double dx;
   double dy;
@@ -132,11 +141,15 @@ NibOverlaySide _chooseSide(
     case NibOverlayPlacement.bottom:
       if (content.height <= spaceBelow) return NibOverlaySide.bottom;
       if (content.height <= spaceAbove) return NibOverlaySide.top;
-      return spaceBelow >= spaceAbove ? NibOverlaySide.bottom : NibOverlaySide.top;
+      return spaceBelow >= spaceAbove
+          ? NibOverlaySide.bottom
+          : NibOverlaySide.top;
     case NibOverlayPlacement.top:
       if (content.height <= spaceAbove) return NibOverlaySide.top;
       if (content.height <= spaceBelow) return NibOverlaySide.bottom;
-      return spaceAbove >= spaceBelow ? NibOverlaySide.top : NibOverlaySide.bottom;
+      return spaceAbove >= spaceBelow
+          ? NibOverlaySide.top
+          : NibOverlaySide.bottom;
     case NibOverlayPlacement.end:
       if (content.width <= spaceEnd) return NibOverlaySide.end;
       if (content.width <= spaceStart) return NibOverlaySide.start;

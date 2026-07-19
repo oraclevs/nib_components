@@ -21,10 +21,14 @@ typedef NibValidator = String? Function(String? value);
 /// )
 /// ```
 abstract final class NibValidators {
-  static final RegExp _emailPattern =
-      RegExp(r"^[\w.\-+%]+@[\w\-]+(\.[\w\-]+)+$");
+  static final RegExp _emailPattern = RegExp(
+    r"^[\w.\-+%]+@[\w\-]+(\.[\w\-]+)+$",
+  );
 
-  static final RegExp _namePattern = RegExp(r"^[\p{L}][\p{L}'\- ]*$", unicode: true);
+  static final RegExp _namePattern = RegExp(
+    r"^[\p{L}][\p{L}'\- ]*$",
+    unicode: true,
+  );
 
   static final RegExp _phonePattern = RegExp(r'^\+?[0-9\s\-().]{7,20}$');
 
@@ -42,8 +46,7 @@ abstract final class NibValidators {
 
   /// Fails when [value] is `null`, empty, or whitespace-only.
   static NibValidator required([String message = 'This field is required.']) {
-    return (value) =>
-        (value == null || value.trim().isEmpty) ? message : null;
+    return (value) => (value == null || value.trim().isEmpty) ? message : null;
   }
 
   /// Fails when non-empty [value] is shorter than [length] characters.
@@ -75,7 +78,10 @@ abstract final class NibValidators {
   }
 
   /// Fails when non-empty [value] doesn't match [pattern].
-  static NibValidator pattern(RegExp pattern, [String message = 'Invalid format.']) {
+  static NibValidator pattern(
+    RegExp pattern, [
+    String message = 'Invalid format.',
+  ]) {
     return (value) {
       if (value == null || value.isEmpty) return null;
       return pattern.hasMatch(value) ? null : message;

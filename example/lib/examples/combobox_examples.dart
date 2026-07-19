@@ -2,9 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:nib_components/nib_components.dart';
 
 const _fruits = [
-  NibComboboxOption(value: 'apple', label: 'Apple', subtitle: 'Crisp and sweet'),
+  NibComboboxOption(
+    value: 'apple',
+    label: 'Apple',
+    subtitle: 'Crisp and sweet',
+  ),
   NibComboboxOption(value: 'banana', label: 'Banana'),
-  NibComboboxOption(value: 'cherry', label: 'Cherry', subtitle: 'Small and red'),
+  NibComboboxOption(
+    value: 'cherry',
+    label: 'Cherry',
+    subtitle: 'Small and red',
+  ),
   NibComboboxOption(value: 'date', label: 'Date'),
   NibComboboxOption(value: 'elderberry', label: 'Elderberry'),
   NibComboboxOption(value: 'fig', label: 'Fig'),
@@ -13,12 +21,41 @@ const _fruits = [
 
 /// A big list the async demo pretends to fetch from a server.
 const _countries = [
-  'Argentina', 'Australia', 'Austria', 'Belgium', 'Brazil', 'Canada', 'Chile',
-  'China', 'Denmark', 'Egypt', 'Finland', 'France', 'Germany', 'Greece',
-  'India', 'Indonesia', 'Ireland', 'Italy', 'Japan', 'Kenya', 'Mexico',
-  'Netherlands', 'Norway', 'Peru', 'Poland', 'Portugal', 'Spain', 'Sweden',
-  'Switzerland', 'Thailand', 'Turkey', 'Ukraine', 'United Kingdom',
-  'United States', 'Vietnam',
+  'Argentina',
+  'Australia',
+  'Austria',
+  'Belgium',
+  'Brazil',
+  'Canada',
+  'Chile',
+  'China',
+  'Denmark',
+  'Egypt',
+  'Finland',
+  'France',
+  'Germany',
+  'Greece',
+  'India',
+  'Indonesia',
+  'Ireland',
+  'Italy',
+  'Japan',
+  'Kenya',
+  'Mexico',
+  'Netherlands',
+  'Norway',
+  'Peru',
+  'Poland',
+  'Portugal',
+  'Spain',
+  'Sweden',
+  'Switzerland',
+  'Thailand',
+  'Turkey',
+  'Ukraine',
+  'United Kingdom',
+  'United States',
+  'Vietnam',
 ];
 
 /// 1. Minimal/default — single-select over a static option list, showing a
@@ -41,7 +78,10 @@ class ComboboxMinimalExample extends StatelessWidget {
             placeholder: 'Search fruit…',
             onChanged: (value) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Selected: $value'), duration: const Duration(seconds: 1)),
+                SnackBar(
+                  content: Text('Selected: $value'),
+                  duration: const Duration(seconds: 1),
+                ),
               );
             },
           ),
@@ -95,7 +135,8 @@ class ComboboxAdvancedExample extends StatefulWidget {
   const ComboboxAdvancedExample({super.key});
 
   @override
-  State<ComboboxAdvancedExample> createState() => _ComboboxAdvancedExampleState();
+  State<ComboboxAdvancedExample> createState() =>
+      _ComboboxAdvancedExampleState();
 }
 
 class _ComboboxAdvancedExampleState extends State<ComboboxAdvancedExample> {
@@ -125,19 +166,29 @@ class _ComboboxAdvancedExampleState extends State<ComboboxAdvancedExample> {
             animated: true,
             placeholder: 'Choose or type a tag…',
             onChanged: (v) => setState(() => _committed = v),
-            onFreeTextSubmitted: (text) => setState(() => _committed = '"$text" (custom)'),
+            onFreeTextSubmitted: (text) =>
+                setState(() => _committed = '"$text" (custom)'),
             noResultsBuilder: (context) => const Padding(
               padding: EdgeInsets.all(16),
-              child: Text('No preset match — press Enter to use what you typed.'),
+              child: Text(
+                'No preset match — press Enter to use what you typed.',
+              ),
             ),
           ),
         ),
         const SizedBox(height: 8),
         Row(
           children: [
-            OutlinedButton(onPressed: _controller.clear, child: const Text('Clear')),
+            OutlinedButton(
+              onPressed: _controller.clear,
+              child: const Text('Clear'),
+            ),
             const SizedBox(width: 12),
-            Text(_committed == null ? 'Nothing committed yet' : 'Committed: $_committed'),
+            Text(
+              _committed == null
+                  ? 'Nothing committed yet'
+                  : 'Committed: $_committed',
+            ),
           ],
         ),
       ],

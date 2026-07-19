@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibTransition;
 
 import '../popover/nib_popover.dart';
 import '../theme/nib_theme.dart';
@@ -108,7 +109,10 @@ class _NibBreadcrumbState extends State<NibBreadcrumb> {
 
   double _measure(String text) {
     final tp = TextPainter(
-      text: TextSpan(text: text, style: TextStyle(fontSize: _fontSize)),
+      text: TextSpan(
+        text: text,
+        style: TextStyle(fontSize: _fontSize),
+      ),
       textDirection: TextDirection.ltr,
       maxLines: 1,
     )..layout();
@@ -149,8 +153,9 @@ class _NibBreadcrumbState extends State<NibBreadcrumb> {
 
     Widget trail = LayoutBuilder(
       builder: (context, constraints) {
-        final available =
-            constraints.hasBoundedWidth ? constraints.maxWidth : double.infinity;
+        final available = constraints.hasBoundedWidth
+            ? constraints.maxWidth
+            : double.infinity;
         final collapsed = _shouldCollapse(available);
         final indices = breadcrumbVisibleIndices(
           count: _count,
@@ -163,8 +168,9 @@ class _NibBreadcrumbState extends State<NibBreadcrumb> {
         for (var pos = 0; pos < indices.length; pos++) {
           if (pos > 0) children.add(_separator(theme));
           final idx = indices[pos];
-          Widget inner =
-              idx == null ? _ellipsis(theme) : _crumbInner(theme, idx);
+          Widget inner = idx == null
+              ? _ellipsis(theme)
+              : _crumbInner(theme, idx);
           if (widget.animated) {
             inner = NibMotion(
               key: ValueKey('crumb_$pos'),
@@ -197,7 +203,8 @@ class _NibBreadcrumbState extends State<NibBreadcrumb> {
   }
 
   NibTransition _transitionFor(int pos) {
-    final base = widget.transition ??
+    final base =
+        widget.transition ??
         const NibTransition(duration: Duration(milliseconds: 220));
     return NibTransition(
       duration: base.duration,
@@ -209,15 +216,19 @@ class _NibBreadcrumbState extends State<NibBreadcrumb> {
 
   Widget _separator(NibTheme theme) {
     final color = widget.separatorColor ?? theme.mutedForeground;
-    final sep = widget.separator ??
+    final sep =
+        widget.separator ??
         Icon(Icons.chevron_right, size: _fontSize + 2, color: color);
-    return Padding(padding: const EdgeInsets.symmetric(horizontal: 2), child: sep);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: sep,
+    );
   }
 
   Widget _icon(NibTheme theme, Widget icon, Color color) => IconTheme.merge(
-        data: IconThemeData(color: color, size: _fontSize + 2),
-        child: icon,
-      );
+    data: IconThemeData(color: color, size: _fontSize + 2),
+    child: icon,
+  );
 
   Widget _crumbInner(NibTheme theme, int idx) {
     final item = widget.items[idx];
@@ -436,41 +447,43 @@ class _OverflowMenu extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-          for (final item in items)
-            Builder(
-              builder: (context) => InkWell(
-                onTap: () {
-                  item.onTap?.call();
-                  NibPopoverScope.of(context).close();
-                },
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (item.icon != null) ...[
-                        IconTheme.merge(
-                          data: IconThemeData(
-                            color: theme.foreground,
-                            size: fontSize + 2,
+            for (final item in items)
+              Builder(
+                builder: (context) => InkWell(
+                  onTap: () {
+                    item.onTap?.call();
+                    NibPopoverScope.of(context).close();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (item.icon != null) ...[
+                          IconTheme.merge(
+                            data: IconThemeData(
+                              color: theme.foreground,
+                              size: fontSize + 2,
+                            ),
+                            child: item.icon!,
                           ),
-                          child: item.icon!,
+                          SizedBox(width: gap),
+                        ],
+                        Text(
+                          item.label,
+                          style: TextStyle(
+                            fontSize: fontSize,
+                            color: theme.foreground,
+                          ),
                         ),
-                        SizedBox(width: gap),
                       ],
-                      Text(
-                        item.label,
-                        style: TextStyle(
-                          fontSize: fontSize,
-                          color: theme.foreground,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),

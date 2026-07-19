@@ -8,12 +8,17 @@ import 'package:flutter/widgets.dart';
 /// built (an overlay flyout before its flip/clamp position is decided, or
 /// off-screen nav items before overflow packing decides what fits).
 class MeasureSize extends SingleChildRenderObjectWidget {
-  const MeasureSize({super.key, required this.onChange, required Widget super.child});
+  const MeasureSize({
+    super.key,
+    required this.onChange,
+    required Widget super.child,
+  });
 
   final ValueChanged<Size> onChange;
 
   @override
-  RenderObject createRenderObject(BuildContext context) => _RenderMeasureSize(onChange);
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderMeasureSize(onChange);
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {

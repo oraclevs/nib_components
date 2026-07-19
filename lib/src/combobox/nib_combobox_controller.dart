@@ -18,7 +18,8 @@ class NibComboboxController<T> extends ChangeNotifier {
 
   /// Convenience accessor for single-select use: the first selected value, or
   /// `null` if nothing is selected.
-  T? get selectedValue => _selectedValues.isEmpty ? null : _selectedValues.first;
+  T? get selectedValue =>
+      _selectedValues.isEmpty ? null : _selectedValues.first;
 
   /// The current query text mirrored from the field. Read-only here; set it
   /// through the field itself.

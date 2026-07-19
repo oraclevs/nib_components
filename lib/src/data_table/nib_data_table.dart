@@ -166,14 +166,20 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
   }
 
   double get _intrinsicColumnsWidth {
-    var total = widget.selectionMode == NibDataTableSelectionMode.multi ? 48.0 : 0.0;
+    var total = widget.selectionMode == NibDataTableSelectionMode.multi
+        ? 48.0
+        : 0.0;
     for (final column in widget.columns) {
       total += column.width ?? column.minWidth;
     }
     return total;
   }
 
-  Widget _sizedCell(NibDataColumn<T> column, Widget child, {required bool fixedWidth}) {
+  Widget _sizedCell(
+    NibDataColumn<T> column,
+    Widget child, {
+    required bool fixedWidth,
+  }) {
     if (column.width != null) {
       return SizedBox(width: column.width, child: child);
     }
@@ -203,7 +209,9 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
     }
     _controller.setSort(
       NibDataTableSort(
-        columnIndex: nextDirection == NibSortDirection.none ? null : columnIndex,
+        columnIndex: nextDirection == NibSortDirection.none
+            ? null
+            : columnIndex,
         direction: nextDirection,
       ),
     );
@@ -272,9 +280,15 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
     );
   }
 
-  Widget _buildHeaderCell(NibTheme theme, int columnIndex, NibDataTableSort sort) {
+  Widget _buildHeaderCell(
+    NibTheme theme,
+    int columnIndex,
+    NibDataTableSort sort,
+  ) {
     final column = widget.columns[columnIndex];
-    final isSorted = sort.columnIndex == columnIndex && sort.direction != NibSortDirection.none;
+    final isSorted =
+        sort.columnIndex == columnIndex &&
+        sort.direction != NibSortDirection.none;
     final label = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
@@ -311,7 +325,9 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
       );
     }
 
-    final sortStateLabel = switch (isSorted ? sort.direction : NibSortDirection.none) {
+    final sortStateLabel = switch (isSorted
+        ? sort.direction
+        : NibSortDirection.none) {
       NibSortDirection.ascending => 'sorted ascending',
       NibSortDirection.descending => 'sorted descending',
       NibSortDirection.none => 'not sorted',
@@ -380,7 +396,9 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
     );
 
     final tappable = Semantics(
-      selected: widget.selectionMode == NibDataTableSelectionMode.none ? null : selected,
+      selected: widget.selectionMode == NibDataTableSelectionMode.none
+          ? null
+          : selected,
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
@@ -402,14 +420,16 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
       initial: const NibAnim(opacity: 0, y: 6),
       animate: const NibAnim(opacity: 1, y: 0),
       transition:
-          widget.transition ?? const NibTransition(duration: Duration(milliseconds: 220)),
+          widget.transition ??
+          const NibTransition(duration: Duration(milliseconds: 220)),
       child: tappable,
     );
   }
 
   Widget _buildSkeletonRow(NibTheme theme, bool fixedWidth) {
     final blockCount =
-        widget.columns.length + (widget.selectionMode == NibDataTableSelectionMode.multi ? 1 : 0);
+        widget.columns.length +
+        (widget.selectionMode == NibDataTableSelectionMode.multi ? 1 : 0);
     final block = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       child: DecoratedBox(
@@ -443,7 +463,8 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final needsHorizontalScroll = constraints.maxWidth < _intrinsicColumnsWidth;
+        final needsHorizontalScroll =
+            constraints.maxWidth < _intrinsicColumnsWidth;
 
         final table = Semantics(
           label: widget.semanticLabel,
@@ -461,7 +482,12 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
                     pinned: widget.stickyHeader,
                     delegate: _NibDataTableHeaderDelegate(
                       height: widget.headerHeight,
-                      child: _buildHeaderRow(context, theme, rows, needsHorizontalScroll),
+                      child: _buildHeaderRow(
+                        context,
+                        theme,
+                        rows,
+                        needsHorizontalScroll,
+                      ),
                     ),
                   ),
                   if (widget.loading)
@@ -487,8 +513,13 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
                     SliverFixedExtentList.builder(
                       itemExtent: widget.rowHeight,
                       itemCount: rows.length,
-                      itemBuilder: (context, index) =>
-                          _buildRow(context, theme, rows[index], index, needsHorizontalScroll),
+                      itemBuilder: (context, index) => _buildRow(
+                        context,
+                        theme,
+                        rows[index],
+                        index,
+                        needsHorizontalScroll,
+                      ),
                     ),
                 ],
               ),
@@ -508,7 +539,10 @@ class _NibDataTableState<T> extends State<NibDataTable<T>> {
 }
 
 class _NibDataTableHeaderDelegate extends SliverPersistentHeaderDelegate {
-  const _NibDataTableHeaderDelegate({required this.height, required this.child});
+  const _NibDataTableHeaderDelegate({
+    required this.height,
+    required this.child,
+  });
 
   final double height;
   final Widget child;
@@ -520,7 +554,11 @@ class _NibDataTableHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => height;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return child;
   }
 

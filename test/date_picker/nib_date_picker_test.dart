@@ -11,7 +11,9 @@ final _july = DateTime(2026, 7, 1);
 Widget _wrap(Widget child) {
   return MaterialApp(
     theme: ThemeData(extensions: const [NibTheme.light]),
-    home: Scaffold(body: Center(child: SizedBox(width: 360, child: child))),
+    home: Scaffold(
+      body: Center(child: SizedBox(width: 360, child: child)),
+    ),
   );
 }
 
@@ -22,24 +24,32 @@ void main() {
     expect(find.text('15'), findsOneWidget);
   });
 
-  testWidgets('single select fires onDateChanged with the tapped day', (tester) async {
+  testWidgets('single select fires onDateChanged with the tapped day', (
+    tester,
+  ) async {
     DateTime? picked;
     await tester.pumpWidget(
-      _wrap(NibDatePicker(initialMonth: _july, onDateChanged: (d) => picked = d)),
+      _wrap(
+        NibDatePicker(initialMonth: _july, onDateChanged: (d) => picked = d),
+      ),
     );
     await tester.tap(find.text('15'));
     await tester.pump();
     expect(picked, DateTime(2026, 7, 15));
   });
 
-  testWidgets('range select completes with two taps (order-swapped safe)', (tester) async {
+  testWidgets('range select completes with two taps (order-swapped safe)', (
+    tester,
+  ) async {
     final ranges = <NibDateRange>[];
     await tester.pumpWidget(
       _wrap(
         NibDatePicker(
           mode: NibDatePickerMode.range,
           initialMonth: _july,
-          onRangeChanged: (r) { if (r != null) ranges.add(r); },
+          onRangeChanged: (r) {
+            if (r != null) ranges.add(r);
+          },
         ),
       ),
     );
@@ -101,7 +111,8 @@ void main() {
       _wrap(
         NibDatePicker(
           initialMonth: _july,
-          disabledDayPredicate: (d) => d.weekday == DateTime.saturday || d.weekday == DateTime.sunday,
+          disabledDayPredicate: (d) =>
+              d.weekday == DateTime.saturday || d.weekday == DateTime.sunday,
           onDateChanged: (d) => picked = d,
         ),
       ),
@@ -127,7 +138,9 @@ void main() {
     expect(find.text('June 2026'), findsOneWidget);
   });
 
-  testWidgets('quick nav: header -> year grid -> month list -> back to days', (tester) async {
+  testWidgets('quick nav: header -> year grid -> month list -> back to days', (
+    tester,
+  ) async {
     await tester.pumpWidget(_wrap(NibDatePicker(initialMonth: _july)));
     await tester.tap(find.text('July 2026'));
     await tester.pump();
@@ -146,7 +159,9 @@ void main() {
     expect(find.text('15'), findsOneWidget);
   });
 
-  testWidgets('popover: trigger opens the calendar, outside tap closes', (tester) async {
+  testWidgets('popover: trigger opens the calendar, outside tap closes', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       _wrap(
         NibDatePicker(
@@ -185,7 +200,9 @@ void main() {
     expect(find.text('July 2026'), findsNothing); // closed
   });
 
-  testWidgets('dialog display mode opens via controller and picks', (tester) async {
+  testWidgets('dialog display mode opens via controller and picks', (
+    tester,
+  ) async {
     final controller = NibDatePickerController(displayedMonth: _july);
     DateTime? picked;
     await tester.pumpWidget(
@@ -207,31 +224,43 @@ void main() {
     expect(controller.isOpen, isFalse);
   });
 
-  testWidgets('controller.setSelectableBounds disables out-of-range days at runtime', (tester) async {
-    final controller = NibDatePickerController(displayedMonth: _july);
-    DateTime? picked;
-    await tester.pumpWidget(
-      _wrap(NibDatePicker(controller: controller, onDateChanged: (d) => picked = d)),
-    );
-    controller.setSelectableBounds(DateTime(2026, 7, 12), DateTime(2026, 7, 20));
-    await tester.pump();
+  testWidgets(
+    'controller.setSelectableBounds disables out-of-range days at runtime',
+    (tester) async {
+      final controller = NibDatePickerController(displayedMonth: _july);
+      DateTime? picked;
+      await tester.pumpWidget(
+        _wrap(
+          NibDatePicker(
+            controller: controller,
+            onDateChanged: (d) => picked = d,
+          ),
+        ),
+      );
+      controller.setSelectableBounds(
+        DateTime(2026, 7, 12),
+        DateTime(2026, 7, 20),
+      );
+      await tester.pump();
 
-    await tester.tap(find.text('10')); // now below the runtime min -> inert
-    await tester.pump();
-    expect(picked, isNull);
+      await tester.tap(find.text('10')); // now below the runtime min -> inert
+      await tester.pump();
+      expect(picked, isNull);
 
-    await tester.tap(find.text('15'));
-    await tester.pump();
-    expect(picked, DateTime(2026, 7, 15));
-  });
+      await tester.tap(find.text('15'));
+      await tester.pump();
+      expect(picked, DateTime(2026, 7, 15));
+    },
+  );
 
   testWidgets('dayBuilder renders fully custom cell content', (tester) async {
     await tester.pumpWidget(
       _wrap(
         NibDatePicker(
           initialMonth: _july,
-          dayBuilder: (context, state) =>
-              Center(child: Text(state.date.day == 15 ? 'PICK' : '${state.date.day}')),
+          dayBuilder: (context, state) => Center(
+            child: Text(state.date.day == 15 ? 'PICK' : '${state.date.day}'),
+          ),
         ),
       ),
     );
@@ -255,27 +284,43 @@ void main() {
     expect(picked, DateTime(2026, 7, 15));
   });
 
-  testWidgets('animated month change slides via NibMotion and still navigates', (tester) async {
-    await tester.pumpWidget(_wrap(NibDatePicker(initialMonth: _july, animated: true)));
-    expect(find.byType(NibMotion), findsOneWidget); // keyed days-body slide
-    await tester.tap(find.byIcon(Icons.chevron_right));
-    await tester.pumpAndSettle();
-    expect(find.text('August 2026'), findsOneWidget);
-  });
+  testWidgets(
+    'animated month change slides via NibMotion and still navigates',
+    (tester) async {
+      await tester.pumpWidget(
+        _wrap(NibDatePicker(initialMonth: _july, animated: true)),
+      );
+      expect(find.byType(NibMotion), findsOneWidget); // keyed days-body slide
+      await tester.tap(find.byIcon(Icons.chevron_right));
+      await tester.pumpAndSettle();
+      expect(find.text('August 2026'), findsOneWidget);
+    },
+  );
 
-  testWidgets('animated single-select: a moving puck appears and selection still fires', (tester) async {
-    DateTime? picked;
-    await tester.pumpWidget(
-      _wrap(NibDatePicker(initialMonth: _july, animated: true, onDateChanged: (d) => picked = d)),
-    );
-    await tester.tap(find.text('15'));
-    await tester.pump();
-    expect(picked, DateTime(2026, 7, 15));
-    // month-slide NibMotion + the moving selection puck
-    expect(find.byType(NibMotion), findsAtLeastNWidgets(2));
-  });
+  testWidgets(
+    'animated single-select: a moving puck appears and selection still fires',
+    (tester) async {
+      DateTime? picked;
+      await tester.pumpWidget(
+        _wrap(
+          NibDatePicker(
+            initialMonth: _july,
+            animated: true,
+            onDateChanged: (d) => picked = d,
+          ),
+        ),
+      );
+      await tester.tap(find.text('15'));
+      await tester.pump();
+      expect(picked, DateTime(2026, 7, 15));
+      // month-slide NibMotion + the moving selection puck
+      expect(find.byType(NibMotion), findsAtLeastNWidgets(2));
+    },
+  );
 
-  testWidgets('animated multi-select pops cells and still toggles', (tester) async {
+  testWidgets('animated multi-select pops cells and still toggles', (
+    tester,
+  ) async {
     List<DateTime>? dates;
     await tester.pumpWidget(
       _wrap(
@@ -299,8 +344,12 @@ void main() {
     expect(find.byType(NibMotion), findsNothing);
   });
 
-  testWidgets('animated: true wraps the calendar in a NibMotion', (tester) async {
-    await tester.pumpWidget(_wrap(NibDatePicker(initialMonth: _july, animated: true)));
+  testWidgets('animated: true wraps the calendar in a NibMotion', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(NibDatePicker(initialMonth: _july, animated: true)),
+    );
     expect(find.byType(NibMotion), findsOneWidget);
   });
 

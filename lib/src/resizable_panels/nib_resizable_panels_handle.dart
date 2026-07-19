@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibTransition;
 
 import '../theme/nib_theme.dart';
 
@@ -66,11 +67,14 @@ class NibResizablePanelsHandle extends StatefulWidget {
   final VoidCallback onReset;
 
   @override
-  State<NibResizablePanelsHandle> createState() => _NibResizablePanelsHandleState();
+  State<NibResizablePanelsHandle> createState() =>
+      _NibResizablePanelsHandleState();
 }
 
 class _NibResizablePanelsHandleState extends State<NibResizablePanelsHandle> {
-  final FocusNode _focusNode = FocusNode(debugLabel: 'NibResizablePanelsHandle');
+  final FocusNode _focusNode = FocusNode(
+    debugLabel: 'NibResizablePanelsHandle',
+  );
   bool _hovered = false;
 
   @override
@@ -90,7 +94,9 @@ class _NibResizablePanelsHandleState extends State<NibResizablePanelsHandle> {
   }
 
   KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
-    if (event is! KeyDownEvent && event is! KeyRepeatEvent) return KeyEventResult.ignored;
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
     final horizontal = widget.direction == Axis.horizontal;
     final key = event.logicalKey;
 
@@ -129,7 +135,9 @@ class _NibResizablePanelsHandleState extends State<NibResizablePanelsHandle> {
     final line = widget.animated
         ? NibMotion(
             animate: NibAnim(color: color),
-            transition: widget.transition ?? const NibTransition(duration: Duration(milliseconds: 120)),
+            transition:
+                widget.transition ??
+                const NibTransition(duration: Duration(milliseconds: 120)),
             child: baseLine,
           )
         : ColoredBox(color: color, child: baseLine);
@@ -140,8 +148,10 @@ class _NibResizablePanelsHandleState extends State<NibResizablePanelsHandle> {
       child: Semantics(
         label: 'Resize handle',
         value: '$percent%',
-        increasedValue: '${((widget.sizeFraction + kNibResizablePanelsKeyboardStep) * 100).round()}%',
-        decreasedValue: '${((widget.sizeFraction - kNibResizablePanelsKeyboardStep) * 100).round()}%',
+        increasedValue:
+            '${((widget.sizeFraction + kNibResizablePanelsKeyboardStep) * 100).round()}%',
+        decreasedValue:
+            '${((widget.sizeFraction - kNibResizablePanelsKeyboardStep) * 100).round()}%',
         onIncrease: () => _nudge(kNibResizablePanelsKeyboardStep),
         onDecrease: () => _nudge(-kNibResizablePanelsKeyboardStep),
         child: MouseRegion(
@@ -158,9 +168,15 @@ class _NibResizablePanelsHandleState extends State<NibResizablePanelsHandle> {
             onPointerDown: (_) => _focusNode.requestFocus(),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onHorizontalDragUpdate: horizontal ? (DragUpdateDetails d) => _handleDragUpdate(d.delta.dx) : null,
-              onHorizontalDragEnd: horizontal ? (_) => widget.onDragEnd() : null,
-              onVerticalDragUpdate: horizontal ? null : (DragUpdateDetails d) => _handleDragUpdate(d.delta.dy),
+              onHorizontalDragUpdate: horizontal
+                  ? (DragUpdateDetails d) => _handleDragUpdate(d.delta.dx)
+                  : null,
+              onHorizontalDragEnd: horizontal
+                  ? (_) => widget.onDragEnd()
+                  : null,
+              onVerticalDragUpdate: horizontal
+                  ? null
+                  : (DragUpdateDetails d) => _handleDragUpdate(d.delta.dy),
               onVerticalDragEnd: horizontal ? null : (_) => widget.onDragEnd(),
               onDoubleTap: widget.onReset,
               child: Center(child: line),

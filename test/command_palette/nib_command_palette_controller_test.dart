@@ -8,33 +8,36 @@ void main() {
       expect(controller.isOpen, isFalse);
     });
 
-    test('open/close/toggle update isOpen and notify listeners exactly once each', () {
-      final controller = NibCommandPaletteController();
-      var notifications = 0;
-      controller.addListener(() => notifications++);
+    test(
+      'open/close/toggle update isOpen and notify listeners exactly once each',
+      () {
+        final controller = NibCommandPaletteController();
+        var notifications = 0;
+        controller.addListener(() => notifications++);
 
-      controller.open();
-      expect(controller.isOpen, isTrue);
-      expect(notifications, 1);
+        controller.open();
+        expect(controller.isOpen, isTrue);
+        expect(notifications, 1);
 
-      controller.open(); // already open: no-op, no extra notification
-      expect(notifications, 1);
+        controller.open(); // already open: no-op, no extra notification
+        expect(notifications, 1);
 
-      controller.close();
-      expect(controller.isOpen, isFalse);
-      expect(notifications, 2);
+        controller.close();
+        expect(controller.isOpen, isFalse);
+        expect(notifications, 2);
 
-      controller.close(); // already closed: no-op
-      expect(notifications, 2);
+        controller.close(); // already closed: no-op
+        expect(notifications, 2);
 
-      controller.toggle();
-      expect(controller.isOpen, isTrue);
-      expect(notifications, 3);
+        controller.toggle();
+        expect(controller.isOpen, isTrue);
+        expect(notifications, 3);
 
-      controller.toggle();
-      expect(controller.isOpen, isFalse);
-      expect(notifications, 4);
-    });
+        controller.toggle();
+        expect(controller.isOpen, isFalse);
+        expect(notifications, 4);
+      },
+    );
 
     test('recordUsed pushes to front, dedups, caps at maxRecent', () {
       final controller = NibCommandPaletteController();

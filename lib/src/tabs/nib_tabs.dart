@@ -2,7 +2,8 @@ import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:nib_motion/nib_motion.dart' show NibAnim, NibMotion, NibTransition;
+import 'package:nib_motion/nib_motion.dart'
+    show NibAnim, NibMotion, NibTransition;
 
 import '../theme/nib_theme.dart';
 import 'nib_tabs_controller.dart';
@@ -84,9 +85,9 @@ class NibTabs extends StatefulWidget {
     this.labelPadding = const EdgeInsets.symmetric(horizontal: 16),
     this.showDivider = true,
     this.dividerColor,
-  })  : assert(tabs.length > 0, 'NibTabs needs at least one tab'),
-        assert(initialIndex >= 0),
-        assert(barHeight > 0);
+  }) : assert(tabs.length > 0, 'NibTabs needs at least one tab'),
+       assert(initialIndex >= 0),
+       assert(barHeight > 0);
 
   /// The tabs, in bar order. Must be non-empty.
   final List<NibTab> tabs;
@@ -167,8 +168,9 @@ class NibTabs extends StatefulWidget {
 }
 
 class _NibTabsState extends State<NibTabs> with SingleTickerProviderStateMixin {
-  late final AnimationController _page =
-      AnimationController.unbounded(vsync: this);
+  late final AnimationController _page = AnimationController.unbounded(
+    vsync: this,
+  );
   final ScrollController _barScroll = ScrollController();
 
   late NibTabsController _controller;
@@ -223,7 +225,8 @@ class _NibTabsState extends State<NibTabs> with SingleTickerProviderStateMixin {
   // --- Controller wiring (mirrors NibAccordion's ownership pattern) ---
 
   void _bindController(NibTabsController? external) {
-    _controller = external ?? NibTabsController(initialIndex: widget.initialIndex);
+    _controller =
+        external ?? NibTabsController(initialIndex: widget.initialIndex);
     _ownsController = external == null;
     _controller.addListener(_onController);
   }
@@ -245,7 +248,8 @@ class _NibTabsState extends State<NibTabs> with SingleTickerProviderStateMixin {
   // --- Selection ---
 
   NibTransition get _transition =>
-      widget.transition ?? const NibTransition(duration: Duration(milliseconds: 250));
+      widget.transition ??
+      const NibTransition(duration: Duration(milliseconds: 250));
 
   Duration get _duration => _transition.duration;
 
@@ -284,7 +288,10 @@ class _NibTabsState extends State<NibTabs> with SingleTickerProviderStateMixin {
     _dragAccum += d.primaryDelta ?? d.delta.dx;
     final unit = _viewportWidth + widget.panelGap;
     if (unit <= 0) return;
-    _page.value = (_dragStartPage - _dragAccum / unit).clamp(0.0, (_n - 1).toDouble());
+    _page.value = (_dragStartPage - _dragAccum / unit).clamp(
+      0.0,
+      (_n - 1).toDouble(),
+    );
   }
 
   void _onDragEnd(DragEndDetails d) {
@@ -355,8 +362,11 @@ class _NibTabsState extends State<NibTabs> with SingleTickerProviderStateMixin {
         _barScroll.position.maxScrollExtent,
       );
       if ((target - cur).abs() > 1) {
-        _barScroll.animateTo(target,
-            duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+        _barScroll.animateTo(
+          target,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+        );
       }
     });
   }
@@ -371,7 +381,8 @@ class _NibTabsState extends State<NibTabs> with SingleTickerProviderStateMixin {
         _viewportWidth = constraints.maxWidth;
         return CustomScrollView(
           slivers: [
-            if (widget.header != null) SliverToBoxAdapter(child: widget.header!),
+            if (widget.header != null)
+              SliverToBoxAdapter(child: widget.header!),
             SliverPersistentHeader(
               pinned: true,
               delegate: _BarDelegate(
@@ -452,14 +463,14 @@ class _NibTabsState extends State<NibTabs> with SingleTickerProviderStateMixin {
   Widget _singlePage(int index) => _measured(index, _panelContent(index));
 
   Widget _panelContent(int index) => KeyedSubtree(
-        key: ValueKey('nib-tab-panel-$index'),
-        child: Builder(builder: widget.tabs[index].builder),
-      );
+    key: ValueKey('nib-tab-panel-$index'),
+    child: Builder(builder: widget.tabs[index].builder),
+  );
 
   Widget _measured(int index, Widget child) => _MeasureSize(
-        onChange: (size) => _reportHeight(index, size.height),
-        child: child,
-      );
+    onChange: (size) => _reportHeight(index, size.height),
+    child: child,
+  );
 
   // --- Bar ---
 
@@ -471,10 +482,13 @@ class _NibTabsState extends State<NibTabs> with SingleTickerProviderStateMixin {
         color: widget.backgroundColor ?? theme.background,
         border: widget.showDivider
             ? Border(
-                bottom: BorderSide(color: widget.dividerColor ?? theme.border))
+                bottom: BorderSide(color: widget.dividerColor ?? theme.border),
+              )
             : null,
       ),
-      child: widget.scrollable ? _scrollableBar(theme) : _fixedBar(theme, width),
+      child: widget.scrollable
+          ? _scrollableBar(theme)
+          : _fixedBar(theme, width),
     );
   }
 
@@ -484,8 +498,7 @@ class _NibTabsState extends State<NibTabs> with SingleTickerProviderStateMixin {
       children: [
         AnimatedBuilder(
           animation: _page,
-          builder: (_, _) =>
-              _indicator(theme, (i) => i * slot, (i) => slot),
+          builder: (_, _) => _indicator(theme, (i) => i * slot, (i) => slot),
         ),
         // Positioned.fill makes the tab Row fill the full bar height, so each
         // tab's content is vertically centered (not pinned to the top).
@@ -510,11 +523,8 @@ class _NibTabsState extends State<NibTabs> with SingleTickerProviderStateMixin {
         children: [
           AnimatedBuilder(
             animation: _page,
-            builder: (_, _) => _indicator(
-              theme,
-              _tabLeft,
-              (i) => _tabWidths[i] ?? 0,
-            ),
+            builder: (_, _) =>
+                _indicator(theme, _tabLeft, (i) => _tabWidths[i] ?? 0),
           ),
           Row(
             children: [
@@ -584,7 +594,8 @@ class _NibTabsState extends State<NibTabs> with SingleTickerProviderStateMixin {
 
   Widget _tabButton(NibTheme theme, int index, {required bool expand}) {
     final tab = widget.tabs[index];
-    final activeColor = widget.selectedColor ??
+    final activeColor =
+        widget.selectedColor ??
         (widget.indicatorStyle == NibTabsIndicatorStyle.pill
             ? theme.primaryForeground
             : theme.primary);
@@ -625,7 +636,10 @@ class _NibTabsState extends State<NibTabs> with SingleTickerProviderStateMixin {
           // Row); scrollable tabs size to content, so pin them to bar height.
           final content = expand
               ? padded
-              : SizedBox(height: widget.barHeight, child: Center(child: padded));
+              : SizedBox(
+                  height: widget.barHeight,
+                  child: Center(child: padded),
+                );
 
           if (!widget.animated) return content;
           // Decorative `nib_motion` (the flagged §1.4 opt-in, cf. Accordion's
@@ -663,8 +677,11 @@ class _BarDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => height;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) =>
-      builder(context);
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) => builder(context);
 
   @override
   bool shouldRebuild(covariant _BarDelegate old) => true;
@@ -684,7 +701,10 @@ class _MeasureSize extends SingleChildRenderObjectWidget {
       _RenderMeasureSize(onChange);
 
   @override
-  void updateRenderObject(BuildContext context, _RenderMeasureSize renderObject) {
+  void updateRenderObject(
+    BuildContext context,
+    _RenderMeasureSize renderObject,
+  ) {
     renderObject.onChange = onChange;
   }
 }
