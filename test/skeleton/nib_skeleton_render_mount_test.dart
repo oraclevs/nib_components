@@ -254,6 +254,109 @@ void main() {
     );
   });
 
+  testWidgets(
+      'a shaped Material (the stock ElevatedButton/Card chrome primitive) '
+      'preserves color+shape as a ShapeDecoration command before its content',
+      (tester) async {
+    final element = await _pumpAndFindElement(
+      tester,
+      Material(
+        color: Colors.deepOrange,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: const SizedBox(
+            width: 80, height: 40, child: Center(child: Text('Go'))),
+      ),
+    );
+    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+    expect(commands.first.kind, BonePaintKind.decoration,
+        reason: 'chrome paints before content bones');
+    final decoration = commands.first.decoration;
+    expect(decoration, isA<ShapeDecoration>());
+    final shapeDecoration = decoration! as ShapeDecoration;
+    expect(shapeDecoration.color, Colors.deepOrange);
+    expect((shapeDecoration.shape as RoundedRectangleBorder).borderRadius,
+        BorderRadius.circular(12));
+    expect(commands.where((c) => c.kind == BonePaintKind.bone), isNotEmpty,
+        reason: 'the label still bones');
+  });
+
+  testWidgets('Material(type: transparency) produces no decoration command',
+      (tester) async {
+    final element = await _pumpAndFindElement(
+      tester,
+      const Material(
+        type: MaterialType.transparency,
+        child:
+            SizedBox(width: 80, height: 40, child: Center(child: Text('Go'))),
+      ),
+    );
+    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+    expect(commands.where((c) => c.kind == BonePaintKind.decoration), isEmpty);
+  });
+
+  testWidgets('a stock ElevatedButton gets chrome under its boned label',
+      (tester) async {
+    final element = await _pumpAndFindElement(
+      tester,
+      ElevatedButton(onPressed: () {}, child: const Text('Go')),
+    );
+    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+    final chromes =
+        commands.where((c) => c.kind == BonePaintKind.decoration).toList();
+    expect(chromes, isNotEmpty);
+    expect(chromes.first.decoration, isA<ShapeDecoration>());
+  });
+
+  testWidgets('PhysicalModel rounded-rect preserves color and borderRadius',
+      (tester) async {
+    final element = await _pumpAndFindElement(
+      tester,
+      PhysicalModel(
+        color: Colors.teal,
+        borderRadius: BorderRadius.circular(6),
+        child: const SizedBox(width: 60, height: 30),
+      ),
+    );
+    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+    expect(commands.first.kind, BonePaintKind.decoration);
+    final deco = commands.first.decoration! as BoxDecoration;
+    expect(deco.color, Colors.teal);
+    expect(deco.borderRadius, BorderRadius.circular(6));
+  });
+
+  testWidgets(
+      'PhysicalModel circle drops borderRadius (BoxDecoration asserts '
+      'borderRadius == null for circles)', (tester) async {
+    final element = await _pumpAndFindElement(
+      tester,
+      PhysicalModel(
+        color: Colors.teal,
+        shape: BoxShape.circle,
+        child: const SizedBox(width: 40, height: 40),
+      ),
+    );
+    final commands = computeBonePaintCommands(element, Offset.zero, _palette);
+    final deco = commands.first.decoration! as BoxDecoration;
+    expect(deco.shape, BoxShape.circle);
+    expect(deco.borderRadius, isNull);
+  });
+
+  testWidgets(
+      'the mount captures the ambient Directionality for decoration painting',
+      (tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Directionality(
+        textDirection: TextDirection.rtl,
+        child:
+            NibSkeleton(loading: true, child: _StatefulLeaf(child: Text('x'))),
+      ),
+    ));
+    final mount = tester.renderObject<RenderNibSkeletonMount>(
+        find.byType(NibSkeletonRenderMount));
+    expect(mount.textDirection, TextDirection.rtl);
+  });
+
   testWidgets('NibSkeletonRenderMount survives a rebuild with a different child (update, not just mount)',
       (tester) async {
     Widget host(String label) => MaterialApp(

@@ -172,6 +172,35 @@ List<BonePaintCommand> _walk(
     }
   }
 
+  if (widget is PhysicalModel) {
+    if (box != null) {
+      final chrome = BonePaintCommand.decoration(
+        rect: _rectOf(box, rootBox, base),
+        decoration: BoxDecoration(
+          color: widget.color,
+          shape: widget.shape,
+          borderRadius:
+              widget.shape == BoxShape.rectangle ? widget.borderRadius : null,
+        ),
+      );
+      return [chrome, ..._recurseChildren(element, rootBox, base, palette)];
+    }
+  }
+
+  if (widget is PhysicalShape) {
+    if (box != null) {
+      final clipper = widget.clipper;
+      // Elevation shadows are deliberately not synthesized — bones are flat.
+      final chrome = BonePaintCommand.decoration(
+        rect: _rectOf(box, rootBox, base),
+        decoration: clipper is ShapeBorderClipper
+            ? ShapeDecoration(color: widget.color, shape: clipper.shape)
+            : BoxDecoration(color: widget.color),
+      );
+      return [chrome, ..._recurseChildren(element, rootBox, base, palette)];
+    }
+  }
+
   final recursed = _recurseChildren(element, rootBox, base, palette);
   if (recursed.isNotEmpty) return recursed;
 
@@ -255,7 +284,8 @@ class _NibSkeletonMountElement extends RenderObjectElement {
   void _pushRoot() {
     (renderObject as RenderNibSkeletonMount)
       ..rootElement = _child
-      ..palette = (widget as NibSkeletonRenderMount).palette;
+      ..palette = (widget as NibSkeletonRenderMount).palette
+      ..textDirection = Directionality.maybeOf(this);
   }
 
   @override
@@ -289,6 +319,17 @@ class RenderNibSkeletonMount extends RenderProxyBox {
     markNeedsPaint();
   }
 
+  TextDirection? _textDirection;
+
+  /// The ambient [Directionality] captured by the mount's Element — used to
+  /// resolve directional [Decoration]s when painting preserved chrome.
+  TextDirection? get textDirection => _textDirection;
+  set textDirection(TextDirection? value) {
+    if (_textDirection == value) return;
+    _textDirection = value;
+    markNeedsPaint();
+  }
+
   Element? rootElement;
 
   @override
@@ -306,8 +347,10 @@ class RenderNibSkeletonMount extends RenderProxyBox {
           painter.paint(
             context.canvas,
             command.rect.topLeft,
-            ImageConfiguration(size: command.rect.size),
+            ImageConfiguration(
+                size: command.rect.size, textDirection: _textDirection),
           );
+          painter.dispose();
         case BonePaintKind.bone:
           final paint = Paint()..color = _palette.baseColor;
           if (command.shape == NibSkeletonShape.circle) {
