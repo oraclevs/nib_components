@@ -1,0 +1,32 @@
+# .pubignore — controls what `dart pub publish` bundles into the archive.
+#
+# IMPORTANT: when a .pubignore exists, pub uses it INSTEAD of the root
+# .gitignore for this directory. So this file must re-declare the build/tooling
+# exclusions from .gitignore AND add the dev-only + heavy-media exclusions that
+# are tracked in git but should not ship. Keep it a strict superset of the
+# artifacts .gitignore hides.
+
+# --- Build & tooling artifacts (mirrors .gitignore) ---
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+coverage/
+/pubspec.lock
+*.iml
+.idea/
+*.log
+
+# --- Dev-only docs, specs, and generated graphs (stay in git, not in the archive) ---
+docs/
+graphify-out/
+context/
+.claude/
+.superpowers/
+
+# --- Example app: ship the code, drop its build output and heavy/large media ---
+example/build/
+example/.dart_tool/
+example/assets/audio/
+example/assets/images/24570.png

@@ -9,7 +9,7 @@ import 'package:nib_motion/nib_motion.dart'
 
 /// The audio file the player loads. Drop your own at
 /// `example/assets/audio/track.mp3` (already wired in pubspec.yaml).
-const String _trackAsset = 'audio/Phyno_-_The_Bag.mp3';
+const String _trackAsset = 'audio/track.mp3';
 
 class _Track {
   const _Track(this.title, this.artist, this.colors);

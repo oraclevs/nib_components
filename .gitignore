@@ -58,3 +58,13 @@ example/linux/flutter/generated_plugins.cmake
 
 # graphify knowledge graph (regenerable from source via /graphify)
 graphify-out/
+context/
+
+# Local agent / tooling scaffolding (not part of the package)
+.claude/
+.superpowers/
+
+# User-supplied example media: never commit copyrighted/large binaries dropped
+# in for local demos. Keep the folder's README so the "drop your file" hint stays.
+example/assets/audio/*
+!example/assets/audio/README.txt

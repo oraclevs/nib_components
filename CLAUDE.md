@@ -6,10 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `nib_components` is a native, installable Flutter UI component library (a normal pub package — `NibDataTable`, etc. get imported directly, not copy-pasted by a CLI). It's built on top of `nib_motion` (a sibling animation package at `../../MotionNib/motion`, wired in as a path dependency). This is a fresh restart (started 2026-07-10) of an earlier, now-abandoned CLI/registry-based model described in `/home/occ/Projects/Nib/CLAUDE.md` — ignore that file and the old `ComponetsNib/preview`/`ComponetsNib/devtools` folders; they're stale and unrelated to this package.
 
-**Read these two files at the start of every session, before doing anything else:**
-
-1. **`NIB_COMPONENTS_MASTER_PROMPT.md`** — the full spec: non-negotiable architecture rules (§1), design tokens (§2), the 37-component build order hardest-to-simplest (§3), the stateful-component code pattern (§4), detailed per-component specs (§5–7), and the workflow instructions (§8). This is the standing instruction set for building any component in this repo.
-2. **`NIB_COMPONENTS_PROGRESS.md`** — which components are done/in-progress/not-started, plus a "Known gaps" table tracking anything deliberately deferred (not silently dropped). Check this to know what's already built and what's next in the build order.
+> **Note (v0.1.0 release prep):** The build-phase docs this file used to point to —
+> `NIB_COMPONENTS_MASTER_PROMPT.md` (the full component spec, build order, and
+> per-component instructions) and `NIB_COMPONENTS_PROGRESS.md` (the build/status
+> tracker with its "Known gaps" table) — were removed once the library reached its
+> feature-complete v0.1.0 state. Any mention of them, or of their "§" section
+> numbers, in the sections below is **historical**. The architecture rules that
+> still apply are self-contained in the **Architecture** section further down; the
+> session-workflow bullets that follow describe how components were built and remain
+> useful as convention, minus the now-absent progress tracker.
 
 ## Session workflow rules (do not deviate without asking)
 
