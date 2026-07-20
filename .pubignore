@@ -24,6 +24,7 @@ graphify-out/
 context/
 .claude/
 .superpowers/
+CLAUDE.md
 
 # --- Example app: ship the code, drop its build output and heavy/large media ---
 example/build/

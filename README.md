@@ -1,5 +1,14 @@
 # nib_components
 
+[![pub package](https://img.shields.io/pub/v/nib_components.svg?label=pub.dev&color=02569B)](https://pub.dev/packages/nib_components)
+[![pub points](https://img.shields.io/pub/points/nib_components?color=02569B)](https://pub.dev/packages/nib_components/score)
+[![license](https://img.shields.io/github/license/oraclevs/nib_components?color=02569B)](LICENSE)
+[![platform](https://img.shields.io/badge/platform-flutter-54C5F8.svg)](https://flutter.dev)
+
+[Component catalog](https://www.nibmotion.xyz/components) ·
+[Documentation](https://www.nibmotion.xyz/docs) ·
+[pub.dev](https://pub.dev/packages/nib_components)
+
 A native, installable Flutter UI component library — 30+ themed, animated,
 controller-driven widgets built on [`nib_motion`](https://pub.dev/packages/nib_motion).
 

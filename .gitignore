@@ -68,3 +68,4 @@ context/
 # in for local demos. Keep the folder's README so the "drop your file" hint stays.
 example/assets/audio/*
 !example/assets/audio/README.txt
+CLAUDE.md

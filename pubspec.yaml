@@ -19,13 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # NOTE — publish gate: this is a path dependency for local development while
-  # nib_motion's liquid-glass (NibGlass) feature is still in flight. pub.dev
-  # rejects path dependencies. Before running `dart pub publish`, replace the
-  # two lines below with a hosted constraint once that nib_motion version ships:
-  #   nib_motion: ^0.3.0   # must include NibGlass (used by NibLiquidGlass)
-  nib_motion:
-    path: ../../MotionNib/motion
+  nib_motion: ^0.3.0
 
 dev_dependencies:
   flutter_test:

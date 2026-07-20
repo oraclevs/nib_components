@@ -294,14 +294,15 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.1"
+    version: "0.1.0"
   nib_motion:
     dependency: "direct main"
     description:
-      path: "../../../MotionNib/motion"
-      relative: true
-    source: path
-    version: "0.2.1"
+      name: nib_motion
+      sha256: d5f8190107ec07773f12d879e2f59d7e4657a89351374571f2342b61da2fdd6c
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   objective_c:
     dependency: transitive
     description:
