@@ -81,6 +81,9 @@ class NibInput extends FormField<String> {
     bool disabled = false,
     this.padding,
     this.borderRadius,
+    this.backgroundColor,
+    this.borderColor,
+    this.borderWidth,
     this.style,
     this.labelStyle,
     this.hintStyle,
@@ -158,6 +161,17 @@ class NibInput extends FormField<String> {
 
   /// Corner radius of the box. `null` ⇒ [NibTheme.radiusDefault].
   final BorderRadius? borderRadius;
+
+  /// Fill color of the box. `null` ⇒ [NibTheme.background] (or
+  /// [NibTheme.muted] while [disabled]).
+  final Color? backgroundColor;
+
+  /// Border color of the box. `null` ⇒ [NibTheme.border] (or
+  /// [NibTheme.destructive] while showing an error).
+  final Color? borderColor;
+
+  /// Border thickness of the box. `null` ⇒ `1`.
+  final double? borderWidth;
 
   /// Style of the typed text. Merged onto the default (any property you
   /// don't set — e.g. leaving `color` unset — keeps the theme default).
@@ -283,7 +297,8 @@ class _NibInputState extends FormFieldState<String> {
     // Border color/width stay constant across focus states — the focus
     // indicator is a layout-neutral ring overlay (below), so it never
     // shifts the field's inner content box.
-    final Color borderColor = hasError ? theme.destructive : theme.border;
+    final Color borderColor =
+        widget.borderColor ?? (hasError ? theme.destructive : theme.border);
     final radius =
         widget.borderRadius ?? BorderRadius.circular(theme.radiusDefault);
     final padding =
@@ -306,6 +321,11 @@ class _NibInputState extends FormFieldState<String> {
       ).copyWith(color: theme.foreground).merge(widget.style),
       cursorColor: theme.primary,
       decoration: InputDecoration(
+        // Explicit `filled: false` so an ambient Material `InputDecorationTheme`
+        // (e.g. the host app's ThemeData sets `filled: true, fillColor: ...`)
+        // can't paint its own fill behind just the text — the DecoratedBox
+        // below is the field's only background.
+        filled: false,
         border: InputBorder.none,
         isDense: true,
         isCollapsed: true,
@@ -323,9 +343,14 @@ class _NibInputState extends FormFieldState<String> {
       children: [
         DecoratedBox(
           decoration: BoxDecoration(
-            color: widget.disabled ? theme.muted : theme.background,
+            color:
+                widget.backgroundColor ??
+                (widget.disabled ? theme.muted : theme.background),
             borderRadius: radius,
-            border: Border.all(color: borderColor),
+            border: Border.all(
+              color: borderColor,
+              width: widget.borderWidth ?? 1,
+            ),
           ),
           child: Padding(
             padding: padding,

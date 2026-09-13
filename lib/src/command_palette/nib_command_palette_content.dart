@@ -23,10 +23,14 @@ class NibCommandPaletteContent extends StatefulWidget {
     required this.transition,
     required this.onActivate,
     required this.onRequestClose,
+    this.backgroundColor,
+    this.hintStyle,
   });
 
   final List<NibCommandAction> actions;
   final String placeholder;
+  final Color? backgroundColor;
+  final TextStyle? hintStyle;
   final NibCommandActionFilter filter;
   final bool showRecent;
   final List<String> recentActionIds;
@@ -230,9 +234,12 @@ class _NibCommandPaletteContentState extends State<NibCommandPaletteContent> {
         onChanged: _handleQueryChanged,
         style: TextStyle(color: theme.foreground),
         decoration: InputDecoration(
+          filled: false,
           border: InputBorder.none,
           hintText: widget.placeholder,
-          hintStyle: TextStyle(color: theme.mutedForeground),
+          hintStyle: TextStyle(
+            color: theme.mutedForeground,
+          ).merge(widget.hintStyle),
           prefixIcon: Icon(Icons.search, color: theme.mutedForeground),
         ),
       ),
@@ -416,7 +423,7 @@ class _NibCommandPaletteContentState extends State<NibCommandPaletteContent> {
               ),
         },
         child: Material(
-          color: theme.card,
+          color: widget.backgroundColor ?? theme.card,
           elevation: 8,
           borderRadius: BorderRadius.circular(theme.radiusLg),
           clipBehavior: Clip.antiAlias,

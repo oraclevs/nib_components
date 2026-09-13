@@ -59,6 +59,12 @@ class NibSelect<T> extends StatefulWidget {
     this.maxDropdownHeight = 280,
     this.semanticLabel,
     this.controller,
+    this.backgroundColor,
+    this.borderColor,
+    this.borderWidth,
+    this.borderRadius,
+    this.padding,
+    this.placeholderStyle,
   }) : assert(
          (options == null) != (groups == null),
          'Provide exactly one of `options` (flat) or `groups` (grouped).',
@@ -150,6 +156,28 @@ class NibSelect<T> extends StatefulWidget {
   /// `NibSelect` creates and owns one internally when this is `null`, and
   /// disposes it on unmount/controller-swap.
   final NibSelectController<T>? controller;
+
+  /// Fill color of the trigger (and the dropdown card, so both read as one
+  /// surface). `null` ⇒ [NibTheme.background] for the trigger (or
+  /// [NibTheme.muted] while [disabled]) and [NibTheme.card] for the dropdown.
+  final Color? backgroundColor;
+
+  /// Border color of the trigger. `null` ⇒ [NibTheme.ring] while open,
+  /// otherwise [NibTheme.border].
+  final Color? borderColor;
+
+  /// Border thickness of the trigger. `null` ⇒ `1`.
+  final double? borderWidth;
+
+  /// Corner radius of the trigger. `null` ⇒ [NibTheme.radiusDefault].
+  final BorderRadius? borderRadius;
+
+  /// Inner content padding of the trigger. `null` ⇒ a sensible default.
+  final EdgeInsetsGeometry? padding;
+
+  /// Style of the [placeholder] text shown on the trigger while nothing is
+  /// selected. Merged onto the default (which uses [NibTheme.mutedForeground]).
+  final TextStyle? placeholderStyle;
 
   @override
   State<NibSelect<T>> createState() => _NibSelectState<T>();
@@ -450,7 +478,16 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
   }
 
   Widget _buildDropdownOverlay(BuildContext overlayContext) {
-    final theme = NibTheme.of(context);
+    // The trigger can be deactivated (e.g. its subtree swapped out by a
+    // parent rebuild) while this overlay is still mounted playing its exit
+    // motion — `_beginClose` keeps calling `markNeedsBuild` on it until
+    // `_exitTimer` fires. Reading an ancestor off a deactivated `context`
+    // throws, so bail out and let the pending removal clean it up.
+    if (!context.mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _removeOverlay());
+      return const SizedBox.shrink();
+    }
+    final theme = NibTheme.of(overlayContext);
     final box = context.findRenderObject() as RenderBox?;
     final mq = MediaQuery.of(overlayContext);
     final screen = mq.size;
@@ -480,7 +517,7 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
     final maxHeight = available.clamp(80.0, widget.maxDropdownHeight);
 
     final card = Material(
-      color: theme.card,
+      color: widget.backgroundColor ?? theme.card,
       elevation: 8,
       borderRadius: BorderRadius.circular(theme.radiusLg),
       clipBehavior: Clip.antiAlias,
@@ -630,6 +667,10 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
                 onChanged: _handleSearchChanged,
                 style: TextStyle(color: theme.foreground),
                 decoration: InputDecoration(
+                  // Explicit `filled: false` so an ambient Material
+                  // `InputDecorationTheme` can't paint its own fill behind
+                  // just the text.
+                  filled: false,
                   isDense: true,
                   border: InputBorder.none,
                   hintText: widget.searchPlaceholder,
@@ -796,7 +837,9 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
         widget.placeholder,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(color: theme.mutedForeground),
+        style: TextStyle(
+          color: theme.mutedForeground,
+        ).merge(widget.placeholderStyle),
       );
     } else if (widget.multiSelect) {
       label = Text(
@@ -832,22 +875,33 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
                 focusNode: _triggerFocus,
                 canRequestFocus: !widget.disabled,
                 onTap: widget.disabled ? null : _toggleOpen,
-                borderRadius: BorderRadius.circular(theme.radiusDefault),
+                borderRadius:
+                    widget.borderRadius ??
+                    BorderRadius.circular(theme.radiusDefault),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: widget.disabled ? theme.muted : theme.background,
+                    color:
+                        widget.backgroundColor ??
+                        (widget.disabled ? theme.muted : theme.background),
                     border: Border.all(
-                      color: _controller.isOpen ? theme.ring : theme.border,
+                      color:
+                          widget.borderColor ??
+                          (_controller.isOpen ? theme.ring : theme.border),
+                      width: widget.borderWidth ?? 1,
                     ),
-                    borderRadius: BorderRadius.circular(theme.radiusDefault),
+                    borderRadius:
+                        widget.borderRadius ??
+                        BorderRadius.circular(theme.radiusDefault),
                   ),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(minHeight: 46),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
+                      padding:
+                          widget.padding ??
+                          const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                       child: Row(
                         children: [
                           if (leadingIcon != null) ...[

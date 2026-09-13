@@ -109,6 +109,62 @@ void main() {
         expect(find.text(v.name), findsOneWidget);
       }
     });
+
+    testWidgets('backgroundColor overrides the variant fill', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          NibButton(
+            label: 'x',
+            onPressed: () {},
+            variant: NibButtonVariant.primary,
+            backgroundColor: Colors.orange,
+          ),
+        ),
+      );
+      expect(_deco(tester).color, Colors.orange);
+    });
+
+    testWidgets('borderColor overrides the variant border', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          NibButton(
+            label: 'x',
+            onPressed: () {},
+            variant: NibButtonVariant.outline,
+            borderColor: Colors.orange,
+          ),
+        ),
+      );
+      expect(_deco(tester).border!.top.color, Colors.orange);
+    });
+
+    testWidgets('borderWidth overrides the default 1px border', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          NibButton(
+            label: 'x',
+            onPressed: () {},
+            variant: NibButtonVariant.outline,
+            borderWidth: 3,
+          ),
+        ),
+      );
+      expect(_deco(tester).border!.top.width, 3);
+    });
+
+    testWidgets('foregroundColor overrides the label color', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          NibButton(
+            label: 'x',
+            onPressed: () {},
+            foregroundColor: Colors.orange,
+          ),
+        ),
+      );
+      final style = DefaultTextStyle.of(tester.element(find.text('x'))).style;
+      expect(style.color, Colors.orange);
+    });
   });
 
   group('NibButton — sizing & geometry', () {

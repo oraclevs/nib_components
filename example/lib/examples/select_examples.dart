@@ -286,3 +286,34 @@ class SelectOpensUpwardExample extends StatelessWidget {
     );
   }
 }
+
+/// 6. Colors — backgroundColor/borderColor/placeholderStyle escape hatches.
+class SelectColorsExample extends StatelessWidget {
+  const SelectColorsExample({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text('Colors — backgroundColor/borderColor/placeholderStyle'),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: 300,
+          child: NibSelect<String>(
+            options: _fruits,
+            placeholder: 'Choose a fruit…',
+            backgroundColor: const Color(0xFFF3E8FF),
+            borderColor: const Color(0xFF7C3AED),
+            placeholderStyle: const TextStyle(
+              color: Color(0xFF7C3AED),
+              fontWeight: FontWeight.w600,
+            ),
+            onChanged: (value) => debugPrint('colored select: $value'),
+          ),
+        ),
+      ],
+    );
+  }
+}

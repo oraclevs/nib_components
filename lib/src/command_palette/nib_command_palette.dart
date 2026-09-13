@@ -41,6 +41,8 @@ class NibCommandPalette extends StatefulWidget {
     this.animated = false,
     this.transition,
     this.controller,
+    this.backgroundColor,
+    this.hintStyle,
   });
 
   /// The wrapped subtree. Rebuilt only when an ancestor rebuilds this
@@ -87,6 +89,13 @@ class NibCommandPalette extends StatefulWidget {
   /// controller when this is `null`. Pass an explicit instance to open the
   /// palette from a trigger button elsewhere in the tree.
   final NibCommandPaletteController? controller;
+
+  /// Fill color of the palette card. `null` ⇒ the theme's card color.
+  final Color? backgroundColor;
+
+  /// Style of the [placeholder] hint in the search field. Merged onto the
+  /// default (which uses the theme's muted-foreground color).
+  final TextStyle? hintStyle;
 
   /// The default open shortcut: `Cmd+K` on macOS/web-on-mac, `Ctrl+K`
   /// elsewhere.
@@ -253,6 +262,8 @@ class _NibCommandPaletteState extends State<NibCommandPalette> {
                     transition: widget.transition,
                     onActivate: _handleActivate,
                     onRequestClose: _controller.close,
+                    backgroundColor: widget.backgroundColor,
+                    hintStyle: widget.hintStyle,
                   ),
                 ),
               ),

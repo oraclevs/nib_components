@@ -97,3 +97,30 @@ class _InputAdvancedExampleState extends State<InputAdvancedExample> {
     );
   }
 }
+
+/// 4. Colors — backgroundColor/borderColor/hintStyle escape hatches.
+class InputColorsExample extends StatelessWidget {
+  const InputColorsExample({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text('Colors — backgroundColor/borderColor/hintStyle'),
+        const SizedBox(height: 16),
+        NibInput(
+          label: 'Email',
+          placeholder: 'you@example.com',
+          backgroundColor: const Color(0xFFF3E8FF),
+          borderColor: const Color(0xFF7C3AED),
+          hintStyle: const TextStyle(
+            color: Color(0xFF7C3AED),
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -373,4 +373,44 @@ void main() {
 
     expect(tester.takeException(), isNull);
   });
+
+  group('style escape hatches', () {
+    testWidgets('backgroundColor overrides the card fill', (tester) async {
+      final controller = NibCommandPaletteController();
+      await tester.pumpWidget(
+        _wrap(
+          NibCommandPalette(
+            actions: _actions,
+            controller: controller,
+            backgroundColor: Colors.orange,
+            child: const SizedBox(),
+          ),
+        ),
+      );
+      controller.open();
+      await tester.pump();
+      final material = tester
+          .widgetList<Material>(find.byType(Material))
+          .firstWhere((m) => m.color == Colors.orange);
+      expect(material.color, Colors.orange);
+    });
+
+    testWidgets('hintStyle merges onto the default hint style', (tester) async {
+      final controller = NibCommandPaletteController();
+      await tester.pumpWidget(
+        _wrap(
+          NibCommandPalette(
+            actions: _actions,
+            controller: controller,
+            hintStyle: const TextStyle(color: Colors.red),
+            child: const SizedBox(),
+          ),
+        ),
+      );
+      controller.open();
+      await tester.pump();
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.decoration?.hintStyle?.color, Colors.red);
+    });
+  });
 }

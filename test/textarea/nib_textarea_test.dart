@@ -315,6 +315,55 @@ void main() {
 
       expect(widenedGap, greaterThan(defaultGap));
     });
+
+    testWidgets('backgroundColor overrides the box fill', (tester) async {
+      await tester.pumpWidget(
+        _wrap(NibTextarea(backgroundColor: Colors.orange)),
+      );
+      final box = tester.widget<DecoratedBox>(find.byType(DecoratedBox).first);
+      expect((box.decoration as BoxDecoration).color, Colors.orange);
+    });
+
+    testWidgets('borderColor overrides the box border', (tester) async {
+      await tester.pumpWidget(_wrap(NibTextarea(borderColor: Colors.orange)));
+      final box = tester.widget<DecoratedBox>(find.byType(DecoratedBox).first);
+      expect(
+        (box.decoration as BoxDecoration).border!.top.color,
+        Colors.orange,
+      );
+    });
+
+    testWidgets('borderWidth overrides the default 1px border', (tester) async {
+      await tester.pumpWidget(_wrap(NibTextarea(borderWidth: 3)));
+      final box = tester.widget<DecoratedBox>(find.byType(DecoratedBox).first);
+      expect((box.decoration as BoxDecoration).border!.top.width, 3);
+    });
+
+    testWidgets(
+      'backgroundColor is not overridden by an ambient InputDecorationTheme fill',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData(
+              inputDecorationTheme: const InputDecorationTheme(
+                filled: true,
+                fillColor: Colors.red,
+              ),
+            ),
+            home: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 320,
+                  child: NibTextarea(backgroundColor: Colors.orange),
+                ),
+              ),
+            ),
+          ),
+        );
+        final field = tester.widget<TextField>(find.byType(TextField));
+        expect(field.decoration?.filled, isFalse);
+      },
+    );
   });
 
   group('NibTextarea — validator', () {

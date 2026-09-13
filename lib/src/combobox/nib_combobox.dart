@@ -48,6 +48,12 @@ class NibCombobox<T> extends StatefulWidget {
     this.transition,
     this.maxDropdownHeight = 280,
     this.controller,
+    this.backgroundColor,
+    this.borderColor,
+    this.borderWidth,
+    this.borderRadius,
+    this.padding,
+    this.hintStyle,
   });
 
   /// The synchronous option list. Ignored while [asyncOptionsLoader] is set
@@ -118,6 +124,28 @@ class NibCombobox<T> extends StatefulWidget {
   /// required — `NibCombobox` creates and owns one internally when this is
   /// `null`, and disposes it on unmount/controller-swap.
   final NibComboboxController<T>? controller;
+
+  /// Fill color of the field (and the dropdown card, so both read as one
+  /// surface). `null` ⇒ [NibTheme.background] for the field (or
+  /// [NibTheme.muted] while [disabled]) and [NibTheme.card] for the dropdown.
+  final Color? backgroundColor;
+
+  /// Border color of the field. `null` ⇒ [NibTheme.ring] while open,
+  /// otherwise [NibTheme.border].
+  final Color? borderColor;
+
+  /// Border thickness of the field. `null` ⇒ `1`.
+  final double? borderWidth;
+
+  /// Corner radius of the field. `null` ⇒ [NibTheme.radiusDefault].
+  final BorderRadius? borderRadius;
+
+  /// Inner content padding of the field. `null` ⇒ a sensible default.
+  final EdgeInsetsGeometry? padding;
+
+  /// Style of the [placeholder] hint. Merged onto the default (which uses
+  /// [NibTheme.mutedForeground]).
+  final TextStyle? hintStyle;
 
   @override
   State<NibCombobox<T>> createState() => _NibComboboxState<T>();
@@ -448,7 +476,7 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
     final maxHeight = available.clamp(80.0, widget.maxDropdownHeight);
 
     final card = Material(
-      color: theme.card,
+      color: widget.backgroundColor ?? theme.card,
       elevation: 8,
       borderRadius: BorderRadius.circular(theme.radiusLg),
       clipBehavior: Clip.antiAlias,
@@ -705,12 +733,18 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
       onTapAlwaysCalled: true,
       style: TextStyle(color: theme.foreground),
       decoration: InputDecoration(
+        // Explicit `filled: false` so an ambient Material
+        // `InputDecorationTheme` can't paint its own fill behind just the
+        // text — the DecoratedBox below is the field's only background.
+        filled: false,
         isDense: true,
         border: InputBorder.none,
         hintText: (widget.multiSelect && _controller.selectedValues.isNotEmpty)
             ? null
             : widget.placeholder,
-        hintStyle: TextStyle(color: theme.mutedForeground),
+        hintStyle: TextStyle(
+          color: theme.mutedForeground,
+        ).merge(widget.hintStyle),
         contentPadding: EdgeInsets.zero,
       ),
     );
@@ -782,17 +816,23 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
             label: widget.placeholder,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: widget.disabled ? theme.muted : theme.background,
+                color:
+                    widget.backgroundColor ??
+                    (widget.disabled ? theme.muted : theme.background),
                 border: Border.all(
-                  color: _controller.isOpen ? theme.ring : theme.border,
+                  color:
+                      widget.borderColor ??
+                      (_controller.isOpen ? theme.ring : theme.border),
+                  width: widget.borderWidth ?? 1,
                 ),
-                borderRadius: BorderRadius.circular(theme.radiusDefault),
+                borderRadius:
+                    widget.borderRadius ??
+                    BorderRadius.circular(theme.radiusDefault),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
-                ),
+                padding:
+                    widget.padding ??
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 child: Row(
                   children: [
                     Icon(Icons.search, size: 18, color: theme.mutedForeground),

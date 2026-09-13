@@ -162,6 +162,10 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
     builder: (context) => const SelectOpensUpwardExample(),
   ),
   CatalogEntry(
+    name: 'Select — colors (background/border/placeholder)',
+    builder: (context) => const SelectColorsExample(),
+  ),
+  CatalogEntry(
     name: 'Dialog — minimal (imperative)',
     builder: (context) => const DialogMinimalExample(),
   ),
@@ -362,6 +366,10 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
     builder: (context) => const ButtonShapeExample(),
   ),
   CatalogEntry(
+    name: 'Button — colors (background/foreground/border)',
+    builder: (context) => const ButtonColorsExample(),
+  ),
+  CatalogEntry(
     name: 'Button — animated (tap scale-pop)',
     builder: (context) => const ButtonAnimatedExample(),
   ),
@@ -426,6 +434,10 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
     builder: (context) => const TextareaAdvancedExample(),
   ),
   CatalogEntry(
+    name: 'Textarea — colors (background/border/hint)',
+    builder: (context) => const TextareaColorsExample(),
+  ),
+  CatalogEntry(
     name: 'Input — minimal',
     builder: (context) => const InputMinimalExample(),
   ),
@@ -436,6 +448,10 @@ final List<CatalogEntry> nibCatalog = <CatalogEntry>[
   CatalogEntry(
     name: 'Input — advanced (password, animated validation, custom shape)',
     builder: (context) => const InputAdvancedExample(),
+  ),
+  CatalogEntry(
+    name: 'Input — colors (background/border/hint)',
+    builder: (context) => const InputColorsExample(),
   ),
   CatalogEntry(
     name: 'Form — sign up (Input + Textarea, real Flutter Form)',

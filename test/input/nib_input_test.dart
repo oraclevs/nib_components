@@ -289,6 +289,58 @@ void main() {
 
       expect(widenedGap, greaterThan(defaultGap));
     });
+
+    testWidgets('backgroundColor overrides the box fill', (tester) async {
+      await tester.pumpWidget(_wrap(NibInput(backgroundColor: Colors.orange)));
+      final box = tester.widget<DecoratedBox>(find.byType(DecoratedBox).first);
+      expect((box.decoration as BoxDecoration).color, Colors.orange);
+    });
+
+    testWidgets('borderColor overrides the box border', (tester) async {
+      await tester.pumpWidget(_wrap(NibInput(borderColor: Colors.orange)));
+      final box = tester.widget<DecoratedBox>(find.byType(DecoratedBox).first);
+      expect(
+        (box.decoration as BoxDecoration).border!.top.color,
+        Colors.orange,
+      );
+    });
+
+    testWidgets('borderWidth overrides the default 1px border', (tester) async {
+      await tester.pumpWidget(_wrap(NibInput(borderWidth: 3)));
+      final box = tester.widget<DecoratedBox>(find.byType(DecoratedBox).first);
+      expect((box.decoration as BoxDecoration).border!.top.width, 3);
+    });
+
+    testWidgets(
+      'backgroundColor is not overridden by an ambient InputDecorationTheme fill',
+      (tester) async {
+        // Regression: a host app's global ThemeData(inputDecorationTheme:
+        // InputDecorationTheme(filled: true, fillColor: ...)) used to bleed
+        // through and paint a second, different-colored fill behind just the
+        // typed text, because the inner TextField's own InputDecoration
+        // didn't explicitly opt out of it.
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData(
+              inputDecorationTheme: const InputDecorationTheme(
+                filled: true,
+                fillColor: Colors.red,
+              ),
+            ),
+            home: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 320,
+                  child: NibInput(backgroundColor: Colors.orange),
+                ),
+              ),
+            ),
+          ),
+        );
+        final field = tester.widget<TextField>(find.byType(TextField));
+        expect(field.decoration?.filled, isFalse);
+      },
+    );
   });
 
   group('NibInput — validator', () {

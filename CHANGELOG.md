@@ -1,3 +1,28 @@
+## 0.2.0
+
+**Fixes**
+
+- `NibInput`, `NibTextarea`, `NibSelect`, `NibCombobox`, `NibCommandPalette`:
+  the internal `TextField` no longer inherits an ambient
+  `ThemeData.inputDecorationTheme` fill color — a host app setting
+  `filled: true, fillColor: ...` globally used to paint a second,
+  different-colored background behind just the typed text, independent of
+  `backgroundColor`. Fixed by making every internal field explicitly
+  `filled: false`.
+- Website docs: the `NibInput` example used a `hintText` parameter that
+  doesn't exist on the real widget (the real name is `placeholder`).
+
+**New — style escape hatches (no breaking changes)**
+
+- `NibButton`: `backgroundColor`, `foregroundColor`, `borderColor`,
+  `borderWidth`.
+- `NibInput`, `NibTextarea`: `backgroundColor`, `borderColor`, `borderWidth`.
+- `NibSelect`: `backgroundColor`, `borderColor`, `borderWidth`,
+  `borderRadius`, `padding`, `placeholderStyle`.
+- `NibCombobox`: `backgroundColor`, `borderColor`, `borderWidth`,
+  `borderRadius`, `padding`, `hintStyle`.
+- `NibCommandPalette`: `backgroundColor`, `hintStyle`.
+
 ## 0.1.0
 
 Initial release.

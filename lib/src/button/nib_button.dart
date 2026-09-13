@@ -42,6 +42,10 @@ class NibButton extends StatefulWidget {
     this.width,
     this.padding,
     this.borderRadius,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.borderColor,
+    this.borderWidth,
     this.loading = false,
     this.disabled = false,
     this.leadingIcon,
@@ -99,6 +103,22 @@ class NibButton extends StatefulWidget {
   /// Corner radius of the box (and its ripple/focus ring). `null` ⇒ the pill
   /// radius when [pill], otherwise the default radius. Overrides [pill] when set.
   final BorderRadius? borderRadius;
+
+  /// Overrides the [variant]'s fill color. `null` ⇒ the variant default.
+  /// Works with every variant, including transparent ones (`outline`/`ghost`).
+  final Color? backgroundColor;
+
+  /// Overrides the [variant]'s text/icon color. `null` ⇒ the variant default.
+  final Color? foregroundColor;
+
+  /// Overrides the [variant]'s border color (only painted on `outline`, but
+  /// reserved as a 1px inset on every variant — see the class doc). `null` ⇒
+  /// the variant default.
+  final Color? borderColor;
+
+  /// Border thickness (reserved as an inset on every variant, so it never
+  /// changes the box's outer size — see the class doc). `null` ⇒ `1`.
+  final double? borderWidth;
 
   /// Shows a built-in [NibCircularLoader] in place of the content and blocks
   /// taps. Override the spinner with [loadingWidget].
@@ -238,7 +258,11 @@ class _NibButtonState extends State<NibButton> {
   Widget build(BuildContext context) {
     final theme = NibTheme.of(context);
     final metrics = NibButtonSizeMetrics.of(widget.size);
-    final colors = _colorsFor(theme);
+    final colors = _colorsFor(theme).applyOverrides(
+      fill: widget.backgroundColor,
+      foreground: widget.foregroundColor,
+      border: widget.borderColor,
+    );
 
     final height = widget.height ?? metrics.height;
     final radius =
@@ -285,7 +309,10 @@ class _NibButtonState extends State<NibButton> {
         decoration: BoxDecoration(
           color: colors.fill,
           borderRadius: radius,
-          border: Border.all(color: colors.border),
+          border: Border.all(
+            color: colors.border,
+            width: widget.borderWidth ?? 1,
+          ),
         ),
         child: Material(
           type: MaterialType.transparency,
@@ -481,6 +508,20 @@ class _VariantColors {
   final Color foreground;
   final Color border;
   final Color hover;
+
+  _VariantColors applyOverrides({
+    Color? fill,
+    Color? foreground,
+    Color? border,
+  }) {
+    if (fill == null && foreground == null && border == null) return this;
+    return _VariantColors(
+      fill: fill ?? this.fill,
+      foreground: foreground ?? this.foreground,
+      border: border ?? this.border,
+      hover: hover,
+    );
+  }
 }
 
 /// Enlarges the *hit-test* region up to [minSize] without changing what the

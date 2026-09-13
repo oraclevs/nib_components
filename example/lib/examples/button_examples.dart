@@ -256,6 +256,48 @@ class ButtonShapeExample extends StatelessWidget {
   }
 }
 
+/// 6b. Colors — backgroundColor/foregroundColor/borderColor escape hatches.
+class ButtonColorsExample extends StatelessWidget {
+  const ButtonColorsExample({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text('Colors — backgroundColor/foregroundColor/borderColor'),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            NibButton(
+              label: 'Custom fill',
+              backgroundColor: const Color(0xFF7C3AED),
+              onPressed: () {},
+            ),
+            NibButton(
+              label: 'Custom outline',
+              variant: NibButtonVariant.outline,
+              foregroundColor: const Color(0xFF7C3AED),
+              borderColor: const Color(0xFF7C3AED),
+              onPressed: () {},
+            ),
+            NibButton(
+              label: 'Brand fill, dark text',
+              backgroundColor: const Color(0xFFFACC15),
+              foregroundColor: const Color(0xFF1A1A1A),
+              onPressed: () {},
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
 /// 7. Animated — opt-in nib_motion tap scale-pop.
 class ButtonAnimatedExample extends StatelessWidget {
   const ButtonAnimatedExample({super.key});

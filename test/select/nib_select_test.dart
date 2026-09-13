@@ -421,4 +421,88 @@ void main() {
       expect(find.text('Apple'), findsNothing);
     });
   });
+
+  group('style escape hatches', () {
+    testWidgets('backgroundColor overrides the trigger fill', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const NibSelect<String>(
+            options: _options,
+            backgroundColor: Colors.orange,
+          ),
+        ),
+      );
+      final box = tester.widget<DecoratedBox>(find.byType(DecoratedBox).first);
+      expect((box.decoration as BoxDecoration).color, Colors.orange);
+    });
+
+    testWidgets('borderColor overrides the trigger border', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const NibSelect<String>(
+            options: _options,
+            borderColor: Colors.orange,
+          ),
+        ),
+      );
+      final box = tester.widget<DecoratedBox>(find.byType(DecoratedBox).first);
+      expect(
+        (box.decoration as BoxDecoration).border!.top.color,
+        Colors.orange,
+      );
+    });
+
+    testWidgets('borderWidth overrides the default 1px trigger border', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(const NibSelect<String>(options: _options, borderWidth: 3)),
+      );
+      final box = tester.widget<DecoratedBox>(find.byType(DecoratedBox).first);
+      expect((box.decoration as BoxDecoration).border!.top.width, 3);
+    });
+
+    testWidgets("the search field's fill is not overridden by an ambient "
+        'InputDecorationTheme', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData(
+            extensions: const [NibTheme.light],
+            inputDecorationTheme: const InputDecorationTheme(
+              filled: true,
+              fillColor: Colors.red,
+            ),
+          ),
+          home: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 320,
+                child: NibSelect<String>(options: _options, searchable: true),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(_trigger());
+      await tester.pump();
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.decoration?.filled, isFalse);
+    });
+
+    testWidgets('placeholderStyle merges onto the default placeholder style', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          NibSelect<String>(
+            options: _options,
+            placeholder: 'Pick one',
+            placeholderStyle: const TextStyle(color: Colors.red),
+          ),
+        ),
+      );
+      final style = tester.widget<Text>(find.text('Pick one')).style!;
+      expect(style.color, Colors.red);
+    });
+  });
 }

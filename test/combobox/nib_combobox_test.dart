@@ -341,4 +341,87 @@ void main() {
     await tester.pump();
     expect(tester.takeException(), isNull);
   });
+
+  group('style escape hatches', () {
+    testWidgets('backgroundColor overrides the field fill', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const NibCombobox<String>(
+            options: _options,
+            backgroundColor: Colors.orange,
+          ),
+        ),
+      );
+      final box = tester.widget<DecoratedBox>(find.byType(DecoratedBox).first);
+      expect((box.decoration as BoxDecoration).color, Colors.orange);
+    });
+
+    testWidgets('borderColor overrides the field border', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const NibCombobox<String>(
+            options: _options,
+            borderColor: Colors.orange,
+          ),
+        ),
+      );
+      final box = tester.widget<DecoratedBox>(find.byType(DecoratedBox).first);
+      expect(
+        (box.decoration as BoxDecoration).border!.top.color,
+        Colors.orange,
+      );
+    });
+
+    testWidgets('borderWidth overrides the default 1px border', (tester) async {
+      await tester.pumpWidget(
+        _wrap(const NibCombobox<String>(options: _options, borderWidth: 3)),
+      );
+      final box = tester.widget<DecoratedBox>(find.byType(DecoratedBox).first);
+      expect((box.decoration as BoxDecoration).border!.top.width, 3);
+    });
+
+    testWidgets(
+      'backgroundColor is not overridden by an ambient InputDecorationTheme fill',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData(
+              extensions: const [NibTheme.light],
+              inputDecorationTheme: const InputDecorationTheme(
+                filled: true,
+                fillColor: Colors.red,
+              ),
+            ),
+            home: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 320,
+                  child: NibCombobox<String>(
+                    options: _options,
+                    backgroundColor: Colors.orange,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        final field = tester.widget<TextField>(find.byType(TextField));
+        expect(field.decoration?.filled, isFalse);
+      },
+    );
+
+    testWidgets('hintStyle merges onto the default hint style', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          NibCombobox<String>(
+            options: _options,
+            placeholder: 'Pick one',
+            hintStyle: const TextStyle(color: Colors.red),
+          ),
+        ),
+      );
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.decoration?.hintStyle?.color, Colors.red);
+    });
+  });
 }
