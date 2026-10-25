@@ -36,6 +36,7 @@ class _ToastData {
     required this.padding,
     required this.borderRadius,
     required this.backgroundColor,
+    required this.themes,
   });
 
   final String id;
@@ -57,6 +58,7 @@ class _ToastData {
   EdgeInsetsGeometry? padding;
   BorderRadiusGeometry? borderRadius;
   Color? backgroundColor;
+  CapturedThemes? themes;
 
   Timer? timer;
   int shakeBump = 0;
@@ -128,6 +130,9 @@ class _NibToastManager extends ChangeNotifier {
     );
     if (overlay == null) return id ?? '';
     _overlay = overlay;
+    final themes = context == null
+        ? null
+        : InheritedTheme.capture(from: context, to: overlay.context);
     final resolvedId = id ?? '__nib_toast_${_autoId++}';
 
     final existing = _liveById(resolvedId);
@@ -156,6 +161,7 @@ class _NibToastManager extends ChangeNotifier {
             ..padding = padding
             ..borderRadius = borderRadius
             ..backgroundColor = backgroundColor;
+          existing.themes = themes;
           _restartTimer(existing);
           notifyListeners();
           return resolvedId;
@@ -181,6 +187,7 @@ class _NibToastManager extends ChangeNotifier {
       padding: padding,
       borderRadius: borderRadius,
       backgroundColor: backgroundColor,
+      themes: themes,
     );
     _toasts.add(data);
     _ensureHost();
@@ -448,22 +455,24 @@ class _NibToastHost extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final d in ordered)
-                    _NibToastItem(
-                      key: ValueKey(d.id),
-                      data: d,
-                      dismissing: d.dismissing,
-                      shakeBump: d.shakeBump,
-                      onDismiss: () => _manager.dismiss(d.id),
-                    ),
-                ],
+                children: [for (final d in ordered) _buildItem(d)],
               ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildItem(_ToastData data) {
+    final item = _NibToastItem(
+      key: ValueKey(data.id),
+      data: data,
+      dismissing: data.dismissing,
+      shakeBump: data.shakeBump,
+      onDismiss: () => _manager.dismiss(data.id),
+    );
+    return data.themes?.wrap(item) ?? item;
   }
 }
 

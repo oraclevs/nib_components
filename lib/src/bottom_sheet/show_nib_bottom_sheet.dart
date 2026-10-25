@@ -140,6 +140,7 @@ NibBottomSheetHandle<T> openNibBottomSheet<T>(
   VoidCallback? onClose,
 }) {
   final overlay = Overlay.of(context, rootOverlay: true);
+  final themes = InheritedTheme.capture(from: context, to: overlay.context);
   final completer = Completer<T?>();
   final previousFocus = FocusManager.instance.primaryFocus;
   final surfaceKey = GlobalKey<_NibBottomSheetSurfaceState>();
@@ -160,20 +161,22 @@ NibBottomSheetHandle<T> openNibBottomSheet<T>(
   }
 
   entry = OverlayEntry(
-    builder: (_) => _NibBottomSheetSurface(
-      key: surfaceKey,
-      title: title,
-      content: content,
-      snapPoints: snapPoints,
-      initialSnap: initialSnap,
-      onSnapChanged: onSnapChanged,
-      dismissible: dismissible,
-      showDragHandle: showDragHandle,
-      barrierColor: barrierColor,
-      animated: animated,
-      transition: transition,
-      onResult: handleResult,
-      onRemoved: handleRemoved,
+    builder: (_) => themes.wrap(
+      _NibBottomSheetSurface(
+        key: surfaceKey,
+        title: title,
+        content: content,
+        snapPoints: snapPoints,
+        initialSnap: initialSnap,
+        onSnapChanged: onSnapChanged,
+        dismissible: dismissible,
+        showDragHandle: showDragHandle,
+        barrierColor: barrierColor,
+        animated: animated,
+        transition: transition,
+        onResult: handleResult,
+        onRemoved: handleRemoved,
+      ),
     ),
   );
 

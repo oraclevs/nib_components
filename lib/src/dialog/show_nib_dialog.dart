@@ -132,6 +132,7 @@ NibDialogHandle<T> openNibDialog<T>(
   VoidCallback? onClose,
 }) {
   final overlay = Overlay.of(context, rootOverlay: true);
+  final themes = InheritedTheme.capture(from: context, to: overlay.context);
   final completer = Completer<T?>();
   // Captured so focus returns to whatever opened the dialog (its trigger, or a
   // button in a parent dialog when stacking) once this one closes.
@@ -154,23 +155,25 @@ NibDialogHandle<T> openNibDialog<T>(
   }
 
   entry = OverlayEntry(
-    builder: (_) => _NibDialogSurface(
-      key: surfaceKey,
-      title: title,
-      description: description,
-      header: header,
-      content: content,
-      footer: footer,
-      size: size,
-      width: width,
-      barrierDismissible: barrierDismissible,
-      showCloseButton: showCloseButton,
-      barrierColor: barrierColor,
-      animated: animated,
-      animation: animation,
-      transition: transition,
-      onResult: handleResult,
-      onRemoved: handleRemoved,
+    builder: (_) => themes.wrap(
+      _NibDialogSurface(
+        key: surfaceKey,
+        title: title,
+        description: description,
+        header: header,
+        content: content,
+        footer: footer,
+        size: size,
+        width: width,
+        barrierDismissible: barrierDismissible,
+        showCloseButton: showCloseButton,
+        barrierColor: barrierColor,
+        animated: animated,
+        animation: animation,
+        transition: transition,
+        onResult: handleResult,
+        onRemoved: handleRemoved,
+      ),
     ),
   );
 
