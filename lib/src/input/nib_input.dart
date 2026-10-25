@@ -327,6 +327,13 @@ class _NibInputState extends FormFieldState<String> {
         // below is the field's only background.
         filled: false,
         border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        focusedErrorBorder: InputBorder.none,
+        constraints: const BoxConstraints(),
+        contentPadding: EdgeInsets.zero,
         isDense: true,
         isCollapsed: true,
         hintText: widget.placeholder,

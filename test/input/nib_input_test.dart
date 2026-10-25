@@ -14,6 +14,45 @@ Widget _wrap(Widget child, {double width = 320}) => MaterialApp(
 void main() {
   group('NibInput — basic render', () {
     testWidgets(
+      'ignores the host InputDecorationTheme inner border and height',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData(
+              inputDecorationTheme: const InputDecorationThemeData(
+                constraints: BoxConstraints(minHeight: 52),
+                enabledBorder: OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(),
+              ),
+            ),
+            home: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 320,
+                  child: NibInput(
+                    placeholder: 'Search',
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 10,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        final input = tester.widget<TextField>(find.byType(TextField));
+        expect(input.decoration!.constraints, const BoxConstraints());
+        expect(input.decoration!.enabledBorder, InputBorder.none);
+        expect(input.decoration!.focusedBorder, InputBorder.none);
+        expect(tester.getSize(find.byType(NibInput)).height, lessThan(52));
+        await tester.tap(find.byType(TextField));
+        await tester.pump();
+        expect(tester.getSize(find.byType(NibInput)).height, lessThan(52));
+      },
+    );
+
+    testWidgets(
       'renders a single-line field with an internal controller, no NibMotion',
       (tester) async {
         await tester.pumpWidget(_wrap(NibInput()));
