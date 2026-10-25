@@ -79,6 +79,122 @@ void _expectLiveNestedTheme(WidgetTester tester, String text, NibTheme theme) {
 }
 
 void main() {
+  testWidgets('dialog follows a MaterialApp root theme with no nested Theme', (
+    tester,
+  ) async {
+    const current = Color(0xFF1874AA);
+    const signal = Color(0xFFE75C42);
+    Widget host(bool signalMode) => MaterialApp(
+      theme: ThemeData(
+        extensions: [
+          NibTheme.light.copyWith(primary: signalMode ? signal : current),
+        ],
+      ),
+      home: Scaffold(
+        body: Column(
+          children: [
+            const Text('root content'),
+            Builder(
+              builder: (context) => TextButton(
+                onPressed: () => showNibDialog<void>(
+                  context,
+                  content: const Text('root dialog'),
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.pumpWidget(host(false));
+    await tester.tap(find.text('open'));
+    await tester.pump();
+    expect(
+      NibTheme.of(tester.element(find.text('root dialog'))).primary,
+      current,
+    );
+
+    await tester.pumpWidget(host(true));
+    await tester.pump();
+    // MaterialApp animates ThemeData by default, so the immediate frame may
+    // still contain the old or an intermediate palette.
+    expect(
+      NibTheme.of(tester.element(find.text('root content'))).primary,
+      isNot(signal),
+    );
+    expect(
+      NibTheme.of(tester.element(find.text('root dialog'))).primary,
+      NibTheme.of(tester.element(find.text('root content'))).primary,
+    );
+    await tester.pumpAndSettle();
+    expect(
+      NibTheme.of(tester.element(find.text('root dialog'))).primary,
+      signal,
+    );
+  });
+
+  for (final kind in ['dialog', 'sheet', 'toast']) {
+    testWidgets('$kind follows an immediate MaterialApp root theme switch', (
+      tester,
+    ) async {
+      const current = Color(0xFF1874AA);
+      const signal = Color(0xFFE75C42);
+      Widget host(bool signalMode) => MaterialApp(
+        themeAnimationStyle: AnimationStyle.noAnimation,
+        theme: ThemeData(
+          extensions: [
+            NibTheme.light.copyWith(primary: signalMode ? signal : current),
+          ],
+        ),
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => TextButton(
+              onPressed: () {
+                switch (kind) {
+                  case 'dialog':
+                    showNibDialog<void>(
+                      context,
+                      content: const Text('root overlay'),
+                    );
+                  case 'sheet':
+                    showNibBottomSheet<void>(
+                      context,
+                      content: const Text('root overlay'),
+                    );
+                  case 'toast':
+                    showNibToast(
+                      context: context,
+                      title: 'root overlay',
+                      duration: Duration.zero,
+                    );
+                }
+              },
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpWidget(host(false));
+      await tester.tap(find.text('open'));
+      await tester.pump();
+      expect(
+        NibTheme.of(tester.element(find.text('root overlay'))).primary,
+        current,
+      );
+      await tester.pumpWidget(host(true));
+      await tester.pump();
+      expect(
+        NibTheme.of(tester.element(find.text('root overlay'))).primary,
+        signal,
+      );
+      if (kind == 'toast') {
+        dismissAllNibToasts();
+        await tester.pump();
+      }
+    });
+  }
+
   testWidgets('dialog follows root theme changes while open', (tester) async {
     final palette = ValueNotifier<NibTheme>(NibTheme.light);
     await tester.pumpWidget(
