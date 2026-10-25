@@ -132,7 +132,6 @@ NibDialogHandle<T> openNibDialog<T>(
   VoidCallback? onClose,
 }) {
   final overlay = Overlay.of(context, rootOverlay: true);
-  final themes = InheritedTheme.capture(from: context, to: overlay.context);
   final completer = Completer<T?>();
   // Captured so focus returns to whatever opened the dialog (its trigger, or a
   // button in a parent dialog when stacking) once this one closes.
@@ -155,8 +154,14 @@ NibDialogHandle<T> openNibDialog<T>(
   }
 
   entry = OverlayEntry(
-    builder: (_) => themes.wrap(
-      _NibDialogSurface(
+    builder: (overlayContext) {
+      // Depend on the live root Theme so an open dialog rebuilds when the app
+      // switches appearance. Recapture route-local themes on each rebuild.
+      Theme.of(overlayContext);
+      final themes = context.mounted
+          ? InheritedTheme.capture(from: context, to: overlay.context)
+          : null;
+      final surface = _NibDialogSurface(
         key: surfaceKey,
         title: title,
         description: description,
@@ -173,8 +178,9 @@ NibDialogHandle<T> openNibDialog<T>(
         transition: transition,
         onResult: handleResult,
         onRemoved: handleRemoved,
-      ),
-    ),
+      );
+      return themes?.wrap(surface) ?? surface;
+    },
   );
 
   final handle = NibDialogHandle<T>._(

@@ -140,7 +140,6 @@ NibBottomSheetHandle<T> openNibBottomSheet<T>(
   VoidCallback? onClose,
 }) {
   final overlay = Overlay.of(context, rootOverlay: true);
-  final themes = InheritedTheme.capture(from: context, to: overlay.context);
   final completer = Completer<T?>();
   final previousFocus = FocusManager.instance.primaryFocus;
   final surfaceKey = GlobalKey<_NibBottomSheetSurfaceState>();
@@ -161,8 +160,14 @@ NibBottomSheetHandle<T> openNibBottomSheet<T>(
   }
 
   entry = OverlayEntry(
-    builder: (_) => themes.wrap(
-      _NibBottomSheetSurface(
+    builder: (overlayContext) {
+      // Keep the root appearance live while preserving the caller route's
+      // current inherited themes, including any nested NibTheme override.
+      Theme.of(overlayContext);
+      final themes = context.mounted
+          ? InheritedTheme.capture(from: context, to: overlay.context)
+          : null;
+      final surface = _NibBottomSheetSurface(
         key: surfaceKey,
         title: title,
         content: content,
@@ -176,8 +181,9 @@ NibBottomSheetHandle<T> openNibBottomSheet<T>(
         transition: transition,
         onResult: handleResult,
         onRemoved: handleRemoved,
-      ),
-    ),
+      );
+      return themes?.wrap(surface) ?? surface;
+    },
   );
 
   final handle = NibBottomSheetHandle<T>._(
