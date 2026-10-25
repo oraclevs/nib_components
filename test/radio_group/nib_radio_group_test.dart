@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
+import 'dart:ui' show CheckedState;
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
@@ -67,7 +67,7 @@ void main() {
         ),
       );
       final semantics = tester.getSemantics(find.text('Alpha').first);
-      expect(semantics.hasFlag(SemanticsFlag.isChecked), isFalse);
+      expect(semantics.flagsCollection.isChecked, isNot(CheckedState.isTrue));
     });
   });
 

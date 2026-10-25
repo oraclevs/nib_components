@@ -36,6 +36,7 @@ class _ToastData {
     required this.padding,
     required this.borderRadius,
     required this.backgroundColor,
+    required this.callerContext,
   });
 
   final String id;
@@ -57,6 +58,7 @@ class _ToastData {
   EdgeInsetsGeometry? padding;
   BorderRadiusGeometry? borderRadius;
   Color? backgroundColor;
+  BuildContext? callerContext;
 
   Timer? timer;
   int shakeBump = 0;
@@ -156,6 +158,7 @@ class _NibToastManager extends ChangeNotifier {
             ..padding = padding
             ..borderRadius = borderRadius
             ..backgroundColor = backgroundColor;
+          existing.callerContext = context;
           _restartTimer(existing);
           notifyListeners();
           return resolvedId;
@@ -181,6 +184,7 @@ class _NibToastManager extends ChangeNotifier {
       padding: padding,
       borderRadius: borderRadius,
       backgroundColor: backgroundColor,
+      callerContext: context,
     );
     _toasts.add(data);
     _ensureHost();
@@ -413,6 +417,9 @@ class _NibToastHost extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Register a dependency on the app's live Theme. A root appearance change
+    // rebuilds this host so each visible toast can recapture its caller theme.
+    Theme.of(context);
     return ListenableBuilder(
       listenable: _manager,
       builder: (context, _) {
@@ -422,7 +429,7 @@ class _NibToastHost extends StatelessWidget {
         for (final position in NibToastPosition.values) {
           final items = _manager.at(position);
           if (items.isEmpty) continue;
-          stacks.add(_buildStack(position, items, itemWidth));
+          stacks.add(_buildStack(context, position, items, itemWidth));
         }
         return Stack(children: stacks);
       },
@@ -430,6 +437,7 @@ class _NibToastHost extends StatelessWidget {
   }
 
   Widget _buildStack(
+    BuildContext context,
     NibToastPosition position,
     List<_ToastData> items,
     double itemWidth,
@@ -448,22 +456,28 @@ class _NibToastHost extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final d in ordered)
-                    _NibToastItem(
-                      key: ValueKey(d.id),
-                      data: d,
-                      dismissing: d.dismissing,
-                      shakeBump: d.shakeBump,
-                      onDismiss: () => _manager.dismiss(d.id),
-                    ),
-                ],
+                children: [for (final d in ordered) _buildItem(context, d)],
               ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildItem(BuildContext context, _ToastData data) {
+    final item = _NibToastItem(
+      key: ValueKey(data.id),
+      data: data,
+      dismissing: data.dismissing,
+      shakeBump: data.shakeBump,
+      onDismiss: () => _manager.dismiss(data.id),
+    );
+    final caller = data.callerContext;
+    if (caller == null || !caller.mounted) return item;
+    final overlay = _manager._overlay;
+    if (overlay == null || !overlay.mounted) return item;
+    return InheritedTheme.capture(from: caller, to: overlay.context).wrap(item);
   }
 }
 

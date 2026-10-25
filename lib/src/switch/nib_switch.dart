@@ -141,7 +141,7 @@ class NibSwitch extends StatelessWidget {
     final Widget core = label == null
         ? ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-            child: Center(child: track),
+            child: Align(widthFactor: 1, heightFactor: 1, child: track),
           )
         : Container(
             constraints: const BoxConstraints(minHeight: 48),

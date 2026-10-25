@@ -160,8 +160,9 @@ class ContextMenuImperativeExample extends StatelessWidget {
                 NibMenuItem(label: 'Refresh', icon: Icon(Icons.refresh)),
               ],
             );
-            if (context.mounted && choice != null)
+            if (context.mounted && choice != null) {
               _toast(context, 'Chose: ${choice.label}');
+            }
           },
           child: const _Target('Tap me to open a menu here'),
         ),

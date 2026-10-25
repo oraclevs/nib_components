@@ -154,24 +154,33 @@ NibDialogHandle<T> openNibDialog<T>(
   }
 
   entry = OverlayEntry(
-    builder: (_) => _NibDialogSurface(
-      key: surfaceKey,
-      title: title,
-      description: description,
-      header: header,
-      content: content,
-      footer: footer,
-      size: size,
-      width: width,
-      barrierDismissible: barrierDismissible,
-      showCloseButton: showCloseButton,
-      barrierColor: barrierColor,
-      animated: animated,
-      animation: animation,
-      transition: transition,
-      onResult: handleResult,
-      onRemoved: handleRemoved,
-    ),
+    builder: (overlayContext) {
+      // Depend on the live root Theme so an open dialog rebuilds when the app
+      // switches appearance. Recapture route-local themes on each rebuild.
+      Theme.of(overlayContext);
+      final themes = context.mounted
+          ? InheritedTheme.capture(from: context, to: overlay.context)
+          : null;
+      final surface = _NibDialogSurface(
+        key: surfaceKey,
+        title: title,
+        description: description,
+        header: header,
+        content: content,
+        footer: footer,
+        size: size,
+        width: width,
+        barrierDismissible: barrierDismissible,
+        showCloseButton: showCloseButton,
+        barrierColor: barrierColor,
+        animated: animated,
+        animation: animation,
+        transition: transition,
+        onResult: handleResult,
+        onRemoved: handleRemoved,
+      );
+      return themes?.wrap(surface) ?? surface;
+    },
   );
 
   final handle = NibDialogHandle<T>._(

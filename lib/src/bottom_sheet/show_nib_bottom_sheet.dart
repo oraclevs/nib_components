@@ -160,21 +160,30 @@ NibBottomSheetHandle<T> openNibBottomSheet<T>(
   }
 
   entry = OverlayEntry(
-    builder: (_) => _NibBottomSheetSurface(
-      key: surfaceKey,
-      title: title,
-      content: content,
-      snapPoints: snapPoints,
-      initialSnap: initialSnap,
-      onSnapChanged: onSnapChanged,
-      dismissible: dismissible,
-      showDragHandle: showDragHandle,
-      barrierColor: barrierColor,
-      animated: animated,
-      transition: transition,
-      onResult: handleResult,
-      onRemoved: handleRemoved,
-    ),
+    builder: (overlayContext) {
+      // Keep the root appearance live while preserving the caller route's
+      // current inherited themes, including any nested NibTheme override.
+      Theme.of(overlayContext);
+      final themes = context.mounted
+          ? InheritedTheme.capture(from: context, to: overlay.context)
+          : null;
+      final surface = _NibBottomSheetSurface(
+        key: surfaceKey,
+        title: title,
+        content: content,
+        snapPoints: snapPoints,
+        initialSnap: initialSnap,
+        onSnapChanged: onSnapChanged,
+        dismissible: dismissible,
+        showDragHandle: showDragHandle,
+        barrierColor: barrierColor,
+        animated: animated,
+        transition: transition,
+        onResult: handleResult,
+        onRemoved: handleRemoved,
+      );
+      return themes?.wrap(surface) ?? surface;
+    },
   );
 
   final handle = NibBottomSheetHandle<T>._(

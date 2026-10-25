@@ -9,29 +9,27 @@
 [Documentation](https://www.nibmotion.xyz/docs) ·
 [pub.dev](https://pub.dev/packages/nib_components)
 
-A native, installable Flutter UI component library — 30+ themed, animated,
-controller-driven widgets built on [`nib_motion`](https://pub.dev/packages/nib_motion).
+A Flutter UI component library with 30+ themed widgets built on
+[`nib_motion`](https://pub.dev/packages/nib_motion).
 
-`nib_components` is a batteries-included widget set inspired by the ergonomics of
-modern web component libraries: every component works with zero configuration,
-adapts to light and dark mode automatically, stays responsive on narrow
-viewports, and exposes an optional controller for programmatic control when you
-need it.
+Start with a widget and a callback. Register `NibTheme` when your app has its
+own colors and radii. Some components also accept a controller for external
+state, and several accept `animated: true` for state transitions.
 
 ## Highlights
 
 - **30+ components** — inputs, overlays, navigation, data display, and effects.
-- **Stateful by default** — pass plain parameters; each widget manages its own
-  loading/selection/sort state internally. No wiring required for basic use.
-- **Optional controllers** — reach for a `Nib<Component>Controller` (a
-  `ChangeNotifier`) only when you want to drive a component from the outside.
+- **Ordinary Flutter state** — form fields work inside `Form`; controlled
+  widgets report changes through callbacks.
+- **Controllers where useful** — data tables, selects, and other components
+  expose controllers when their state needs outside control.
 - **Theme-aware** — every color and radius comes from `NibTheme`, a
   `ThemeExtension`. Works out of the box and follows light/dark by ambient
   brightness; register the extension to customize the tokens.
-- **Motion built in** — animations route through `nib_motion`. Every component
-  is static by default and animates only when you opt in with `animated: true`.
-- **Responsive** — components fall back to a scrollable axis instead of clipping
-  or squishing content when space is tight.
+- **Motion built in** — many state transitions opt into `nib_motion` with
+  `animated: true`. Loading indicators animate while active.
+- **Responsive controls** — size fields and equal-width toggle segments to
+  fit a layout without changing the host app's design system.
 
 ## Installation
 
@@ -84,6 +82,17 @@ NibDataTable(controller: controller, columns: columns, rows: rows);
 controller.sortBy('name');
 ```
 
+For a form with a fixed field height and a short input limit:
+
+```dart
+NibInput(
+  label: 'Event name',
+  minHeight: 51,
+  maxLength: 90,
+  onChanged: (value) {},
+)
+```
+
 ## Components
 
 **Forms & inputs**
@@ -122,6 +131,10 @@ border radii). Components read them via `NibTheme.of(context)`:
     ],
   );
   ```
+
+Dialogs, bottom sheets, and toasts also follow the caller's theme when it
+changes while they are open. Your theme can change its mind; the dialog keeps
+up.
 
 ## Example app
 

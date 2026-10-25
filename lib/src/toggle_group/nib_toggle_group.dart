@@ -53,6 +53,7 @@ class NibToggleGroup<T> extends StatefulWidget {
     this.disabled = false,
     this.size = NibButtonSize.md,
     this.itemWidth,
+    this.fillWidth = false,
     this.spacing,
     this.animated = false,
     this.transition,
@@ -77,6 +78,7 @@ class NibToggleGroup<T> extends StatefulWidget {
     this.disabled = false,
     this.size = NibButtonSize.md,
     this.itemWidth,
+    this.fillWidth = false,
     this.spacing,
     this.animated = false,
     this.transition,
@@ -112,6 +114,10 @@ class NibToggleGroup<T> extends StatefulWidget {
 
   /// Fixed width applied to every segment. `null` sizes each to its content.
   final double? itemWidth;
+
+  /// Gives horizontal segments equal shares of the available width. The
+  /// parent must provide a finite width. Ignored for vertical groups.
+  final bool fillWidth;
 
   /// Gap between segments. Defaults to 8.
   final double? spacing;
@@ -251,7 +257,16 @@ class _NibToggleGroupState<T> extends State<NibToggleGroup<T>> {
     ];
 
     final Widget row = widget.direction == Axis.horizontal
-        ? Wrap(spacing: _spacing, runSpacing: _spacing, children: cells)
+        ? widget.fillWidth
+              ? Row(
+                  children: [
+                    for (var i = 0; i < cells.length; i++) ...[
+                      if (i > 0) SizedBox(width: _spacing),
+                      Expanded(child: cells[i]),
+                    ],
+                  ],
+                )
+              : Wrap(spacing: _spacing, runSpacing: _spacing, children: cells)
         : Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
