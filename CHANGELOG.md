@@ -1,3 +1,16 @@
+## 0.2.1
+
+- Fixed `NibInput` inheriting border and height constraints from an app's
+  `InputDecorationTheme`, which could draw a second border around the text.
+- Fixed a bare `NibSwitch` expanding to fill a loose parent. Its touch target
+  now stays at least 48 logical pixels across.
+- Kept dialogs, sheets, and toasts in sync with the caller's theme, including
+  when the app changes theme while an overlay is open.
+- Added `maxLength` and `inputFormatters` to `NibInput`. Formatters run before
+  the length limit, and the limit does not add a counter to the field.
+- Added `minHeight` for `NibInput`, `NibTextarea`, and `NibSelect` field shells,
+  plus `fillWidth` for equal-width horizontal `NibToggleGroup` segments.
+
 ## 0.2.0
 
 **Fixes**

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nib_motion/nib_motion.dart'
     show NibAnim, NibMotion, NibTransition;
 
@@ -78,8 +79,11 @@ class NibInput extends FormField<String> {
     this.obscureText = false,
     this.keyboardType,
     this.textInputAction,
+    this.maxLength,
+    this.inputFormatters,
     bool disabled = false,
     this.padding,
+    this.minHeight,
     this.borderRadius,
     this.backgroundColor,
     this.borderColor,
@@ -153,11 +157,22 @@ class NibInput extends FormField<String> {
   /// The keyboard's action button. `null` ⇒ Flutter's default.
   final TextInputAction? textInputAction;
 
+  /// Maximum number of user-entered characters. No counter is added to the
+  /// field; use [helperText] if the limit should be visible.
+  final int? maxLength;
+
+  /// Applied before [maxLength], so the length limit counts the formatted text.
+  final List<TextInputFormatter>? inputFormatters;
+
   /// Disables interaction and dims the field.
   final bool disabled;
 
   /// Inner content padding. `null` ⇒ a sensible default.
   final EdgeInsetsGeometry? padding;
+
+  /// Minimum height of the decorated field, excluding label and helper text.
+  /// The field can still grow when text scaling needs more room.
+  final double? minHeight;
 
   /// Corner radius of the box. `null` ⇒ [NibTheme.radiusDefault].
   final BorderRadius? borderRadius;
@@ -315,6 +330,11 @@ class _NibInputState extends FormFieldState<String> {
       obscureText: widget.obscureText,
       keyboardType: widget.keyboardType,
       textInputAction: widget.textInputAction,
+      inputFormatters: [
+        ...?widget.inputFormatters,
+        if (widget.maxLength != null)
+          LengthLimitingTextInputFormatter(widget.maxLength),
+      ],
       maxLines: 1,
       style: const TextStyle(
         fontSize: 14,
@@ -348,46 +368,49 @@ class _NibInputState extends FormFieldState<String> {
     final Widget box = Stack(
       clipBehavior: Clip.none,
       children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color:
-                widget.backgroundColor ??
-                (widget.disabled ? theme.muted : theme.background),
-            borderRadius: radius,
-            border: Border.all(
-              color: borderColor,
-              width: widget.borderWidth ?? 1,
+        ConstrainedBox(
+          constraints: BoxConstraints(minHeight: widget.minHeight ?? 0),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color:
+                  widget.backgroundColor ??
+                  (widget.disabled ? theme.muted : theme.background),
+              borderRadius: radius,
+              border: Border.all(
+                color: borderColor,
+                width: widget.borderWidth ?? 1,
+              ),
             ),
-          ),
-          child: Padding(
-            padding: padding,
-            child: Row(
-              children: [
-                if (widget.prefixIcon != null) ...[
-                  IconTheme.merge(data: iconTheme, child: widget.prefixIcon!),
-                  const SizedBox(width: 8),
-                ],
-                Expanded(child: field),
-                if (widget.suffixIcon != null) ...[
-                  const SizedBox(width: 8),
-                  IconTheme.merge(data: iconTheme, child: widget.suffixIcon!),
-                ],
-                if (showClear) ...[
-                  const SizedBox(width: 4),
-                  InkWell(
-                    onTap: _clear,
-                    borderRadius: BorderRadius.circular(theme.radiusPill),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.close,
-                        size: 16,
-                        color: theme.mutedForeground,
+            child: Padding(
+              padding: padding,
+              child: Row(
+                children: [
+                  if (widget.prefixIcon != null) ...[
+                    IconTheme.merge(data: iconTheme, child: widget.prefixIcon!),
+                    const SizedBox(width: 8),
+                  ],
+                  Expanded(child: field),
+                  if (widget.suffixIcon != null) ...[
+                    const SizedBox(width: 8),
+                    IconTheme.merge(data: iconTheme, child: widget.suffixIcon!),
+                  ],
+                  if (showClear) ...[
+                    const SizedBox(width: 4),
+                    InkWell(
+                      onTap: _clear,
+                      borderRadius: BorderRadius.circular(theme.radiusPill),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.close,
+                          size: 16,
+                          color: theme.mutedForeground,
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),

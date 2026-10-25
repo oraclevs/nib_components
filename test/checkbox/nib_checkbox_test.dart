@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
+import 'dart:ui' show CheckedState;
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
@@ -41,7 +41,7 @@ void main() {
         _wrap(NibCheckbox(value: true, onChanged: (_) {})),
       );
       final node = tester.getSemantics(find.byType(NibCheckbox));
-      expect(node.hasFlag(SemanticsFlag.isChecked), isTrue);
+      expect(node.flagsCollection.isChecked, CheckedState.isTrue);
     });
 
     testWidgets('mixed reflects a tristate null value', (tester) async {
@@ -49,7 +49,7 @@ void main() {
         _wrap(NibCheckbox(value: null, tristate: true, onChanged: (_) {})),
       );
       final node = tester.getSemantics(find.byType(NibCheckbox));
-      expect(node.hasFlag(SemanticsFlag.isCheckStateMixed), isTrue);
+      expect(node.flagsCollection.isChecked, CheckedState.mixed);
     });
   });
 
