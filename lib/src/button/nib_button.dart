@@ -391,6 +391,9 @@ class _NibButtonState extends State<NibButton> {
         enabled: _interactive,
         // `null` for text buttons → the label Text supplies the accessible name.
         label: widget.semanticLabel,
+        // A custom name replaces descendant text and icon semantics.
+        excludeSemantics: widget.semanticLabel != null,
+        onTap: widget.semanticLabel != null && _interactive ? _handleTap : null,
         toggled: widget.toggled,
         child: result,
       ),

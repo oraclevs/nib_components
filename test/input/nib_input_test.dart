@@ -406,6 +406,30 @@ void main() {
         expect(field.decoration?.filled, isFalse);
       },
     );
+
+    testWidgets('ambient Material field border does not draw inside NibInput', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData(
+            inputDecorationTheme: const InputDecorationTheme(
+              enabledBorder: OutlineInputBorder(),
+              focusedBorder: OutlineInputBorder(),
+              constraints: BoxConstraints(minHeight: 52),
+            ),
+          ),
+          home: Scaffold(
+            body: Center(child: SizedBox(width: 320, child: NibInput())),
+          ),
+        ),
+      );
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.decoration?.enabledBorder, InputBorder.none);
+      expect(field.decoration?.focusedBorder, InputBorder.none);
+      expect(field.decoration?.constraints, const BoxConstraints());
+      expect(tester.takeException(), isNull);
+    });
   });
 
   group('NibInput — validator', () {

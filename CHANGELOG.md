@@ -1,3 +1,9 @@
+## 0.2.2
+
+- A custom `NibButton.semanticLabel` now replaces the child text and icon
+  semantics instead of being announced alongside them. Accessibility tap
+  remains available.
+
 ## 0.2.1
 
 - Fixed `NibInput` inheriting border and height constraints from an app's

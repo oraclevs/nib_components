@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
@@ -419,6 +420,27 @@ void main() {
         tester.getSemantics(find.byType(NibButton)),
         isSemantics(isButton: true, label: 'Save'),
       );
+    });
+
+    testWidgets('semanticLabel replaces visible text and stays actionable', (
+      tester,
+    ) async {
+      var taps = 0;
+      await tester.pumpWidget(
+        _wrap(
+          NibButton(
+            label: 'Save',
+            semanticLabel: 'Save document',
+            onPressed: () => taps++,
+          ),
+        ),
+      );
+      final node = tester.getSemantics(find.byType(NibButton));
+      expect(node.label, 'Save document');
+      expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+      tester.semantics.tap(find.semantics.byLabel('Save document'));
+      await tester.pump();
+      expect(taps, 1);
     });
 
     testWidgets('Enter activates a focused button', (tester) async {

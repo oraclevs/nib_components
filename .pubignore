@@ -29,5 +29,6 @@ CLAUDE.md
 # --- Example app: ship the code, drop its build output and heavy/large media ---
 example/build/
 example/.dart_tool/
-example/assets/audio/
+example/assets/audio/*
+!example/assets/audio/README.txt
 example/assets/images/24570.png
