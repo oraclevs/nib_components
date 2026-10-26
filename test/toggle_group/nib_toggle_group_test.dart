@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
+import 'dart:ui' show Tristate;
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
@@ -22,6 +22,30 @@ const _options = [
 
 void main() {
   group('NibToggleGroup — render', () {
+    testWidgets('fills bounded width with equal horizontal segments', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          NibToggleGroup<String>(
+            options: _options,
+            value: 'left',
+            onChanged: (_) {},
+            fillWidth: true,
+          ),
+          width: 400,
+        ),
+      );
+      final buttons = find.byType(NibButton);
+      expect(buttons, findsNWidgets(3));
+      for (final button in buttons.evaluate()) {
+        expect(
+          tester.getSize(find.byElementPredicate((e) => e == button)).width,
+          closeTo(128, 0.1),
+        );
+      }
+    });
+
     testWidgets('renders every segment label', (tester) async {
       await tester.pumpWidget(
         _wrap(
@@ -48,7 +72,7 @@ void main() {
         ),
       );
       final node = tester.getSemantics(find.text('Left'));
-      expect(node.hasFlag(SemanticsFlag.isToggled), isFalse);
+      expect(node.flagsCollection.isToggled, isNot(Tristate.isTrue));
     });
   });
 
@@ -186,9 +210,9 @@ void main() {
       final leftNode = tester.getSemantics(find.text('Left'));
       final centerNode = tester.getSemantics(find.text('Center'));
       final rightNode = tester.getSemantics(find.text('Right'));
-      expect(leftNode.hasFlag(SemanticsFlag.isToggled), isTrue);
-      expect(centerNode.hasFlag(SemanticsFlag.isToggled), isFalse);
-      expect(rightNode.hasFlag(SemanticsFlag.isToggled), isTrue);
+      expect(leftNode.flagsCollection.isToggled, Tristate.isTrue);
+      expect(centerNode.flagsCollection.isToggled, isNot(Tristate.isTrue));
+      expect(rightNode.flagsCollection.isToggled, Tristate.isTrue);
     });
   });
 

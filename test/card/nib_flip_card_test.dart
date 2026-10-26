@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
+import 'dart:ui' show Tristate;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
 import 'package:nib_motion/nib_motion.dart' show NibFlip;
@@ -146,8 +146,8 @@ void main() {
         ),
       );
       final node = tester.getSemantics(find.text('Question'));
-      expect(node.hasFlag(SemanticsFlag.isButton), isTrue);
-      expect(node.hasFlag(SemanticsFlag.isToggled), isFalse);
+      expect(node.flagsCollection.isButton, isTrue);
+      expect(node.flagsCollection.isToggled, Tristate.isFalse);
       expect(node.label, contains('Flashcard question'));
     });
   });

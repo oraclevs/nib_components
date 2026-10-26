@@ -42,6 +42,19 @@ Future<void> _key(WidgetTester tester, LogicalKeyboardKey k) async {
 Finder _trigger() => find.byType(InkWell).first;
 
 void main() {
+  testWidgets('minHeight sets a floor for the closed trigger', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        const NibSelect<String>(
+          options: _options,
+          minHeight: 51,
+          padding: EdgeInsets.zero,
+        ),
+      ),
+    );
+    expect(tester.getSize(find.byType(NibSelect<String>)).height, 51);
+  });
+
   testWidgets('closed by default: placeholder shown, options hidden', (
     tester,
   ) async {

@@ -64,6 +64,7 @@ class NibSelect<T> extends StatefulWidget {
     this.borderWidth,
     this.borderRadius,
     this.padding,
+    this.minHeight,
     this.placeholderStyle,
   }) : assert(
          (options == null) != (groups == null),
@@ -174,6 +175,10 @@ class NibSelect<T> extends StatefulWidget {
 
   /// Inner content padding of the trigger. `null` ⇒ a sensible default.
   final EdgeInsetsGeometry? padding;
+
+  /// Minimum height of the closed trigger. Defaults to 46 logical pixels.
+  /// The trigger can grow when its contents need more room.
+  final double? minHeight;
 
   /// Style of the [placeholder] text shown on the trigger while nothing is
   /// selected. Merged onto the default (which uses [NibTheme.mutedForeground]).
@@ -894,7 +899,9 @@ class _NibSelectState<T> extends State<NibSelect<T>> {
                         BorderRadius.circular(theme.radiusDefault),
                   ),
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 46),
+                    constraints: BoxConstraints(
+                      minHeight: widget.minHeight ?? 46,
+                    ),
                     child: Padding(
                       padding:
                           widget.padding ??

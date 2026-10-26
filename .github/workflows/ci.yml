@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  package:
+    name: Analyze, test, and validate archive
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.3'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed lib test example/lib
+      - run: flutter analyze --fatal-infos
+      - run: flutter test
+      - run: dart pub publish --dry-run

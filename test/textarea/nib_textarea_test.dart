@@ -13,6 +13,15 @@ Widget _wrap(Widget child, {double width = 320}) => MaterialApp(
 
 void main() {
   group('NibTextarea — basic render', () {
+    testWidgets('minHeight sets a floor for the field shell', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          NibTextarea(minHeight: 105, minLines: 1, padding: EdgeInsets.zero),
+        ),
+      );
+      expect(tester.getSize(find.byType(NibTextarea)).height, 105);
+    });
+
     testWidgets(
       'renders with an internal controller and no NibMotion by default',
       (tester) async {

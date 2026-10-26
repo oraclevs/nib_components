@@ -76,6 +76,7 @@ class NibTextarea extends FormField<String> {
     this.showCounter = false,
     bool disabled = false,
     this.padding,
+    this.minHeight,
     this.borderRadius,
     this.backgroundColor,
     this.borderColor,
@@ -151,6 +152,10 @@ class NibTextarea extends FormField<String> {
 
   /// Inner content padding. `null` ⇒ a sensible default.
   final EdgeInsetsGeometry? padding;
+
+  /// Minimum height of the decorated field, excluding label and footer.
+  /// Text scaling and additional lines may make it taller.
+  final double? minHeight;
 
   /// Corner radius of the box. `null` ⇒ [NibTheme.radiusDefault].
   final BorderRadius? borderRadius;
@@ -331,18 +336,21 @@ class _NibTextareaState extends FormFieldState<String> {
     final Widget box = Stack(
       clipBehavior: Clip.none,
       children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color:
-                widget.backgroundColor ??
-                (widget.disabled ? theme.muted : theme.background),
-            borderRadius: radius,
-            border: Border.all(
-              color: borderColor,
-              width: widget.borderWidth ?? 1,
+        ConstrainedBox(
+          constraints: BoxConstraints(minHeight: widget.minHeight ?? 0),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color:
+                  widget.backgroundColor ??
+                  (widget.disabled ? theme.muted : theme.background),
+              borderRadius: radius,
+              border: Border.all(
+                color: borderColor,
+                width: widget.borderWidth ?? 1,
+              ),
             ),
+            child: Padding(padding: padding, child: field),
           ),
-          child: Padding(padding: padding, child: field),
         ),
         if (_focused && !widget.disabled)
           Positioned(

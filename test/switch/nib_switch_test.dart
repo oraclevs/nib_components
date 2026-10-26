@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
+import 'dart:ui' show Tristate;
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
@@ -11,6 +11,20 @@ Widget _wrap(Widget child) => MaterialApp(
 
 void main() {
   group('NibSwitch — render', () {
+    testWidgets('keeps a 48 px touch target in a loose parent', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.topLeft,
+              child: NibSwitch(value: false, onChanged: (_) {}),
+            ),
+          ),
+        ),
+      );
+      expect(tester.getSize(find.byType(NibSwitch)), const Size(48, 48));
+    });
+
     testWidgets('renders with no label (bare track)', (tester) async {
       await tester.pumpWidget(
         _wrap(NibSwitch(value: false, onChanged: (_) {})),
@@ -39,7 +53,7 @@ void main() {
     testWidgets('toggled reflects value: true', (tester) async {
       await tester.pumpWidget(_wrap(NibSwitch(value: true, onChanged: (_) {})));
       final node = tester.getSemantics(find.byType(NibSwitch));
-      expect(node.hasFlag(SemanticsFlag.isToggled), isTrue);
+      expect(node.flagsCollection.isToggled, Tristate.isTrue);
     });
 
     testWidgets('toggled reflects value: false', (tester) async {
@@ -47,7 +61,7 @@ void main() {
         _wrap(NibSwitch(value: false, onChanged: (_) {})),
       );
       final node = tester.getSemantics(find.byType(NibSwitch));
-      expect(node.hasFlag(SemanticsFlag.isToggled), isFalse);
+      expect(node.flagsCollection.isToggled, isNot(Tristate.isTrue));
     });
   });
 

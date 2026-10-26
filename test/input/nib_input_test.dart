@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nib_components/nib_components.dart';
 import 'package:nib_motion/nib_motion.dart' show NibMotion;
@@ -13,6 +14,52 @@ Widget _wrap(Widget child, {double width = 320}) => MaterialApp(
 
 void main() {
   group('NibInput — basic render', () {
+    testWidgets('minHeight sets a floor for the field shell', (tester) async {
+      await tester.pumpWidget(
+        _wrap(NibInput(minHeight: 51, padding: EdgeInsets.zero)),
+      );
+      expect(tester.getSize(find.byType(NibInput)).height, 51);
+    });
+
+    testWidgets(
+      'ignores the host InputDecorationTheme inner border and height',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData(
+              inputDecorationTheme: const InputDecorationThemeData(
+                constraints: BoxConstraints(minHeight: 52),
+                enabledBorder: OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(),
+              ),
+            ),
+            home: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 320,
+                  child: NibInput(
+                    placeholder: 'Search',
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 10,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        final input = tester.widget<TextField>(find.byType(TextField));
+        expect(input.decoration!.constraints, const BoxConstraints());
+        expect(input.decoration!.enabledBorder, InputBorder.none);
+        expect(input.decoration!.focusedBorder, InputBorder.none);
+        expect(tester.getSize(find.byType(NibInput)).height, lessThan(52));
+        await tester.tap(find.byType(TextField));
+        await tester.pump();
+        expect(tester.getSize(find.byType(NibInput)).height, lessThan(52));
+      },
+    );
+
     testWidgets(
       'renders a single-line field with an internal controller, no NibMotion',
       (tester) async {
@@ -55,6 +102,24 @@ void main() {
   });
 
   group('NibInput — value & controller', () {
+    testWidgets('limits input length and applies caller formatters', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          NibInput(
+            maxLength: 4,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          ),
+        ),
+      );
+      await tester.enterText(find.byType(TextField), '12ab345');
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        '1234',
+      );
+    });
+
     testWidgets('onChanged fires as the user types', (tester) async {
       String? got;
       await tester.pumpWidget(_wrap(NibInput(onChanged: (v) => got = v)));
