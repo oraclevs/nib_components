@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:nib_motion/nib_motion.dart'
@@ -283,11 +284,16 @@ class _NibHoverCardState extends State<NibHoverCard> {
   Widget _buildOverlay(BuildContext overlayContext) {
     final box = context.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return const SizedBox.shrink();
-    final target = box.localToGlobal(Offset.zero) & box.size;
+    final viewport = NibOverlayViewport(
+      Overlay.of(context),
+      MediaQuery.of(overlayContext),
+    );
+    final target = viewport.targetBounds(box);
 
     return _NibHoverCardOverlay(
       link: _link,
       target: target,
+      viewport: viewport,
       placement: _toOverlayPlacement(widget.placement),
       gap: widget.gap,
       maxWidth: widget.maxWidth,
@@ -335,6 +341,7 @@ class _NibHoverCardOverlay extends StatefulWidget {
   const _NibHoverCardOverlay({
     required this.link,
     required this.target,
+    required this.viewport,
     required this.placement,
     required this.gap,
     required this.maxWidth,
@@ -353,6 +360,7 @@ class _NibHoverCardOverlay extends StatefulWidget {
 
   final LayerLink link;
   final Rect target;
+  final NibOverlayViewport viewport;
   final NibOverlayPlacement placement;
   final double gap;
   final double maxWidth;
@@ -409,7 +417,10 @@ class _NibHoverCardOverlayState extends State<_NibHoverCardOverlay> {
   Widget _buildCard() {
     final theme = widget.theme;
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: widget.maxWidth),
+      constraints: BoxConstraints(
+        maxWidth: math.min(widget.maxWidth, widget.viewport.usableSize.width),
+        maxHeight: widget.viewport.usableSize.height,
+      ),
       child: Material(
         color: theme.card,
         elevation: 8,
@@ -420,7 +431,7 @@ class _NibHoverCardOverlayState extends State<_NibHoverCardOverlay> {
             border: Border.all(color: theme.border),
             borderRadius: BorderRadius.circular(theme.radiusLg),
           ),
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(14),
             child: widget.child,
           ),
@@ -466,13 +477,12 @@ class _NibHoverCardOverlayState extends State<_NibHoverCardOverlay> {
       );
     }
 
-    final mq = MediaQuery.of(context);
     final geo = resolveOverlayGeometry(
       placement: widget.placement,
       target: widget.target,
       content: _contentSize!,
-      screen: mq.size,
-      safeInsets: nibOverlaySafeInsets(mq),
+      screen: widget.viewport.size,
+      safeInsets: widget.viewport.safeInsets,
       gap: widget.gap,
     );
 

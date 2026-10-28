@@ -1,8 +1,25 @@
 ## 0.2.2
 
-- A custom `NibButton.semanticLabel` now replaces the child text and icon
-  semantics instead of being announced alongside them. Accessibility tap
-  remains available.
+- Add experimental `NibWaterGlass`, with optional animation, reduced motion,
+  pause control, and independently accessible foreground content. It requires
+  `nib_motion: ^0.3.4` for the water controller and rendering APIs.
+- Correct the Flutter lower bound to 3.29 to match Motion. The existing
+  Dart 3.12.1 requirement still applies.
+- Keep input and textarea form values, counters, and callbacks in sync with
+  external text controllers. Controller replacement preserves editing state
+  when switching to an internal controller and detaches old listeners.
+- Adopt prefilled and replacement OTP controllers without firing edit or
+  completion callbacks during widget binding.
+- Keep dropdowns, menus, popovers, and hover cards inside their actual overlay
+  bounds, including nested overlays, keyboard insets, and narrow viewports.
+- Fix navigation menu overflow measurement and restore focus to the opener
+  when Escape closes a flyout.
+- Preserve the typed query when typing reopens a combobox.
+- Fix button taps when the painted button sits inside a wider focus ring.
+- Clear the pressed light state when a liquid glass panel becomes noninteractive.
+- Make a custom `NibButton.semanticLabel` replace child text and icon semantics
+  while retaining the accessibility tap action.
+- Use the website logo and link to the official docs, examples, and playground.
 
 ## 0.2.1
 
@@ -60,6 +77,6 @@ theme-aware, responsive, controller-driven components:
 - **Supporting APIs** — `NibTheme` design tokens and `NibValidators` form
   helpers.
 
-Every component is stateful-by-default with an optional `ChangeNotifier`
-controller, follows light/dark mode via `NibTheme`, and opts into `nib_motion`
-animations only when `animated: true`.
+Components follow light and dark mode through `NibTheme`. Several expose
+controllers or opt-in `nib_motion` transitions through `animated: true`; loading
+indicators animate while active.

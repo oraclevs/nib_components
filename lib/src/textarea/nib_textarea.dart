@@ -216,6 +216,8 @@ class _NibTextareaState extends FormFieldState<String> {
   FocusNode? _internalFocusNode;
   bool _focused = false;
   int _length = 0;
+  String _lastText = '';
+  bool _resettingController = false;
 
   @override
   NibTextarea get widget => super.widget as NibTextarea;
@@ -236,13 +238,30 @@ class _NibTextareaState extends FormFieldState<String> {
   @override
   void initState() {
     super.initState();
-    _length = _effectiveController.text.length;
+    _lastText = _effectiveController.text;
+    _length = _lastText.length;
+    _effectiveController.addListener(_handleControllerChanged);
     _effectiveFocusNode.addListener(_handleFocusChange);
   }
 
   @override
   void didUpdateWidget(NibTextarea old) {
     super.didUpdateWidget(old);
+    if (widget.controller != old.controller) {
+      final previous = old.controller ?? _internalController!;
+      final editingValue = previous.value;
+      previous.removeListener(_handleControllerChanged);
+      if (widget.controller == null) {
+        _internalController = TextEditingController.fromValue(editingValue);
+      } else {
+        _internalController?.dispose();
+        _internalController = null;
+      }
+      _lastText = _effectiveController.text;
+      _length = _lastText.length;
+      setValue(_lastText);
+      _effectiveController.addListener(_handleControllerChanged);
+    }
     if (widget.focusNode != old.focusNode) {
       final previousNode = old.focusNode ?? _internalFocusNode;
       previousNode?.removeListener(_handleFocusChange);
@@ -258,7 +277,8 @@ class _NibTextareaState extends FormFieldState<String> {
 
   @override
   void dispose() {
-    _internalFocusNode?.removeListener(_handleFocusChange);
+    _effectiveFocusNode.removeListener(_handleFocusChange);
+    _effectiveController.removeListener(_handleControllerChanged);
     _internalFocusNode?.dispose();
     _internalController?.dispose();
     super.dispose();
@@ -266,18 +286,28 @@ class _NibTextareaState extends FormFieldState<String> {
 
   @override
   void reset() {
+    _resettingController = true;
+    _effectiveController.text = widget.initialValue ?? '';
+    _resettingController = false;
+    _lastText = _effectiveController.text;
+    _length = _lastText.length;
     super.reset();
-    setState(() {
-      _effectiveController.text = widget.initialValue ?? '';
-      _length = _effectiveController.text.length;
-    });
   }
 
   void _handleFocusChange() {
     setState(() => _focused = _effectiveFocusNode.hasFocus);
   }
 
+  void _handleControllerChanged() {
+    if (_resettingController) return;
+    _handleChanged(_effectiveController.text);
+  }
+
   void _handleChanged(String value) {
+    // TextField also forwards user edits after notifying the controller.
+    // A selection-only notification or that second callback is not a new edit.
+    if (value == _lastText) return;
+    _lastText = value;
     setState(() => _length = value.length);
     didChange(value);
     widget.onChanged?.call(value);

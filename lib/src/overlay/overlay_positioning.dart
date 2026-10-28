@@ -16,6 +16,47 @@ EdgeInsets nibOverlaySafeInsets(MediaQueryData mq) => EdgeInsets.fromLTRB(
   math.max(mq.padding.bottom, mq.viewInsets.bottom),
 );
 
+/// The geometry of an actual Overlay, which may be smaller than the window.
+///
+/// Coordinates passed to the positioning resolver must share this local space.
+/// Window intrusions only apply where they intersect the overlay's rectangle;
+/// a preview well above the keyboard must not lose the keyboard height twice.
+class NibOverlayViewport {
+  NibOverlayViewport(OverlayState overlay, MediaQueryData mediaQuery)
+    : box = overlay.context.findRenderObject()! as RenderBox {
+    final insets = nibOverlaySafeInsets(mediaQuery);
+    final safeRect = Rect.fromLTRB(
+      insets.left,
+      insets.top,
+      mediaQuery.size.width - insets.right,
+      mediaQuery.size.height - insets.bottom,
+    );
+    final localSafeRect = Rect.fromPoints(
+      box.globalToLocal(safeRect.topLeft),
+      box.globalToLocal(safeRect.bottomRight),
+    );
+    safeInsets = EdgeInsets.fromLTRB(
+      localSafeRect.left.clamp(0, size.width).toDouble(),
+      localSafeRect.top.clamp(0, size.height).toDouble(),
+      (size.width - localSafeRect.right).clamp(0, size.width).toDouble(),
+      (size.height - localSafeRect.bottom).clamp(0, size.height).toDouble(),
+    );
+  }
+
+  final RenderBox box;
+  late final EdgeInsets safeInsets;
+  Size get size => box.size;
+  Size get usableSize => Size(
+    math.max(0, size.width - safeInsets.horizontal - 16),
+    math.max(0, size.height - safeInsets.vertical - 16),
+  );
+
+  Rect targetBounds(RenderBox target) => MatrixUtils.transformRect(
+    target.getTransformTo(box),
+    Offset.zero & target.size,
+  );
+}
+
 /// Which side of a trigger an anchored overlay's content prefers to open
 /// toward. Flips to the opposite side automatically if it doesn't fit in the
 /// viewport. Shared positioning vocabulary for `NibAnchoredOverlay` (flyouts,
@@ -51,7 +92,7 @@ bool _isVertical(NibOverlaySide side) =>
 /// Resolves where an anchored overlay should render so it stays fully on screen
 /// on any viewport — phone, tablet, or desktop.
 ///
-/// Given the trigger's global [target] rect, the [content]'s measured size, the
+/// Given the trigger's [target] rect in the same coordinate space as [screen], the [content]'s measured size, the
 /// [screen] size, and the device [safeInsets] (status bar, system nav bar,
 /// keyboard — pass `MediaQuery` padding/viewInsets), it:
 ///

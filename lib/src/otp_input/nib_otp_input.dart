@@ -145,10 +145,12 @@ class NibOtpInput extends StatefulWidget {
   /// and the message is shown below.
   final String? errorText;
 
-  /// Called with the full string on every change.
+  /// Called with the full string on user edits and later controller changes.
+  /// Adopting a prefilled or replacement controller does not emit an edit.
   final ValueChanged<String>? onChanged;
 
-  /// Called once with the code when the last cell is filled. Use this for
+  /// Called once with the code when the last cell is filled after binding.
+  /// A prefilled or replacement controller is adopted without completion. Use this for
   /// automatic verification (kick off the check, then set [loading] `true`).
   final ValueChanged<String>? onCompleted;
 
@@ -226,8 +228,11 @@ class _NibOtpInputState extends State<NibOtpInput> {
     _controller = external;
     if (external == null) return;
     external.addListener(_onExternalChanged);
-    // Adopt any prefilled value.
-    _onExternalChanged();
+    // Binding adopts existing state during initState/didUpdateWidget. It is
+    // not a new edit and must not call an ancestor while its layout is building.
+    final next = _sanitize(external.value);
+    _setTextSilently(next);
+    _lastCompleted = next.length == widget.length ? next : null;
   }
 
   void _unbindController() {
@@ -241,12 +246,19 @@ class _NibOtpInputState extends State<NibOtpInput> {
         : digits;
   }
 
+  void _setTextSilently(String value) {
+    _syncing = true;
+    _text.value = TextEditingValue(
+      text: value,
+      selection: TextSelection.collapsed(offset: value.length),
+    );
+    _syncing = false;
+  }
+
   void _onExternalChanged() {
     final next = _sanitize(_controller!.value);
     if (next == _text.text) return;
-    _syncing = true;
-    _text.text = next;
-    _syncing = false;
+    _setTextSilently(next);
     // _text's listener is suppressed while syncing, so drive the visuals/
     // callbacks directly for the programmatic change.
     _handleValue(next);

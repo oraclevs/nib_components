@@ -178,7 +178,7 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
       _closeFlyoutsFrom(depth);
       return;
     }
-    _closeFlyoutsFrom(depth);
+    _closeFlyoutsFrom(depth, restoreFocus: false);
     final renderBox =
         _keyFor(item.id).currentContext!.findRenderObject() as RenderBox;
     final handle = NibAnchoredOverlay.show(
@@ -189,7 +189,9 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
           ? NibOverlayPlacement.bottom
           : NibOverlayPlacement.end,
       contentBuilder: (overlayContext) {
-        final built = _buildFlyoutContent(item.children, path);
+        final built = _withKeyboardActions(
+          _buildFlyoutContent(item.children, path),
+        );
         if (!widget.animated) return built;
         return NibMotion(
           initial: const NibAnim(opacity: 0, scale: 0.95),
@@ -210,12 +212,18 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
     _controller.openChainTo(path);
   }
 
-  void _closeFlyoutsFrom(int depth) {
+  void _closeFlyoutsFrom(int depth, {bool restoreFocus = true}) {
     final chain = _controller.openChain;
+    // The opener for this depth remains in the parent menu when its flyout
+    // closes. Capture it before removing the overlay and its focused children.
+    final opener = depth >= 0 && depth < chain.length
+        ? _focusNodes[chain[depth]]
+        : null;
     for (var i = chain.length - 1; i >= depth && i >= 0; i--) {
       _flyoutHandles.remove(chain[i])?.remove();
     }
     _controller.closeFromDepth(depth);
+    if (restoreFocus) opener?.requestFocus();
   }
 
   Widget _buildFlyoutContent(List<NibNavItem> items, List<String> parentPath) {
@@ -256,13 +264,15 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (item.icon != null) ...[item.icon!, const SizedBox(width: 8)],
-          Text(
-            item.label,
-            style: TextStyle(
-              color: item.disabled
-                  ? theme.mutedForeground
-                  : (isActive ? theme.primary : theme.foreground),
-              fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+          Flexible(
+            child: Text(
+              item.label,
+              style: TextStyle(
+                color: item.disabled
+                    ? theme.mutedForeground
+                    : (isActive ? theme.primary : theme.foreground),
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+              ),
             ),
           ),
           if (item.badge != null) ...[const SizedBox(width: 6), item.badge!],
@@ -378,7 +388,15 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (item.icon != null) ...[item.icon!, const SizedBox(width: 8)],
-            Text(item.label, style: TextStyle(color: theme.foreground)),
+            Text(
+              item.label,
+              style: TextStyle(
+                color: theme.foreground,
+                fontWeight: item.id == widget.activeItemId
+                    ? FontWeight.w600
+                    : FontWeight.normal,
+              ),
+            ),
             if (item.badge != null) ...[const SizedBox(width: 6), item.badge!],
           ],
         ),
@@ -403,7 +421,7 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
       }
       final hasMoreAfter = i < widget.items.length - 1;
       final reserve = hasMoreAfter ? moreWidth : 0.0;
-      if (visible.isEmpty || used + width + reserve <= maxWidth) {
+      if (used + width + reserve <= maxWidth) {
         used += width;
         visible.add(item);
       } else {
@@ -417,20 +435,25 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
   Widget _buildHorizontalRow(BuildContext context, NibTheme theme) {
     final measuringPass = Offstage(
       offstage: true,
-      child: Row(
-        children: [
-          for (final item in widget.items)
+      // Offstage still lays out its child. Measure intrinsic widths in an
+      // unbounded horizontal viewport so the hidden pass cannot overflow.
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (final item in widget.items)
+              MeasureSize(
+                onChange: (size) => _recordWidth(item.id, size.width),
+                child: _measureVisual(item),
+              ),
             MeasureSize(
-              onChange: (size) => _recordWidth(item.id, size.width),
-              child: _measureVisual(item),
+              onChange: (size) => _recordWidth('__more__', size.width),
+              child: _measureVisual(
+                const NibNavItem(id: '__more__', label: 'More'),
+              ),
             ),
-          MeasureSize(
-            onChange: (size) => _recordWidth('__more__', size.width),
-            child: _measureVisual(
-              const NibNavItem(id: '__more__', label: 'More'),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
 
@@ -487,12 +510,17 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
           mainAxisSize: MainAxisSize.min,
           children: [
             measuringPass,
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final item in displayItems)
-                  _buildItem(context, theme, item, [item.id], topSiblingIds),
-              ],
+            // Measurements can lag a text-scale or label change by one
+            // frame. Keep that frame usable until the packing pass catches up.
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final item in displayItems)
+                    _buildItem(context, theme, item, [item.id], topSiblingIds),
+                ],
+              ),
             ),
           ],
         );
@@ -525,26 +553,30 @@ class _NibNavigationMenuState extends State<NibNavigationMenu> {
             ),
     );
 
-    return Shortcuts(
-      shortcuts: {
-        LogicalKeySet(LogicalKeyboardKey.escape): const _CloseFlyoutIntent(),
-      },
-      child: Actions(
-        actions: {
-          _CloseFlyoutIntent: CallbackAction<_CloseFlyoutIntent>(
-            onInvoke: (intent) {
-              if (widget.orientation == NibNavMenuOrientation.horizontal) {
-                final chain = _controller.openChain;
-                if (chain.isNotEmpty) _closeFlyoutsFrom(chain.length - 1);
-              }
-              return null;
-            },
-          ),
-        },
-        child: content,
-      ),
-    );
+    return _withKeyboardActions(content);
   }
+
+  // Overlay entries are outside the original menu's widget ancestry. Give
+  // their focused items the same Escape action as the inline trigger row.
+  Widget _withKeyboardActions(Widget child) => Shortcuts(
+    shortcuts: {
+      LogicalKeySet(LogicalKeyboardKey.escape): const _CloseFlyoutIntent(),
+    },
+    child: Actions(
+      actions: {
+        _CloseFlyoutIntent: CallbackAction<_CloseFlyoutIntent>(
+          onInvoke: (intent) {
+            if (widget.orientation == NibNavMenuOrientation.horizontal) {
+              final chain = _controller.openChain;
+              if (chain.isNotEmpty) _closeFlyoutsFrom(chain.length - 1);
+            }
+            return null;
+          },
+        ),
+      },
+      child: child,
+    ),
+  );
 }
 
 class _CloseFlyoutIntent extends Intent {

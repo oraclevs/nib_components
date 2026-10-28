@@ -32,3 +32,11 @@ example/.dart_tool/
 example/assets/audio/*
 !example/assets/audio/README.txt
 example/assets/images/24570.png
+
+# Local dependency candidates are never publication metadata.
+pubspec_overrides.yaml
+
+# Generated Linux plugin files are recreated by flutter pub get.
+example/linux/flutter/ephemeral/
+example/linux/flutter/generated_plugin_registrant.*
+example/linux/flutter/generated_plugins.cmake

@@ -1,17 +1,17 @@
-# nib_components_example
+# nib_components example
 
-A new Flutter project.
+A Flutter gallery for the widgets in `nib_components`.
 
-## Getting Started
+```bash
+flutter pub get
+flutter run
+```
 
-This project is a starting point for a Flutter application.
+The example uses the package in the parent directory. The music player demo
+expects your own audio at `assets/audio/track.mp3`; audio files are not included
+in the published package.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Browse the [component catalog](https://www.nibmotion.xyz/components),
+[examples](https://www.nibmotion.xyz/examples), and
+[playground](https://www.nibmotion.xyz/playground/components/button).
+For usage help, read the [documentation](https://www.nibmotion.xyz/docs/components/button).

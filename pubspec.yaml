@@ -2,6 +2,7 @@ name: nib_components
 description: "A native Flutter UI component library — 30+ theme-aware, responsive, controller-driven widgets (inputs, overlays, data, effects) built on nib_motion."
 version: 0.2.2
 homepage: https://www.nibmotion.xyz
+documentation: https://www.nibmotion.xyz/docs/components/button
 repository: https://github.com/oraclevs/nib_components
 issue_tracker: https://github.com/oraclevs/nib_components/issues
 
@@ -14,12 +15,12 @@ topics:
 
 environment:
   sdk: ^3.12.1
-  flutter: ">=3.10.0"
+  flutter: ">=3.29.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  nib_motion: ^0.3.1
+  nib_motion: ^0.3.4
 
 dev_dependencies:
   flutter_test:

@@ -43,8 +43,6 @@ class NibAnchoredOverlay {
     bool withBarrier = true,
   }) {
     final overlayState = Overlay.of(context);
-    final targetGlobalTopLeft = targetRenderBox.localToGlobal(Offset.zero);
-    final targetSize = targetRenderBox.size;
 
     late OverlayEntry entry;
     late NibAnchoredOverlayHandle handle;
@@ -62,8 +60,8 @@ class NibAnchoredOverlay {
     entry = OverlayEntry(
       builder: (overlayContext) => _NibAnchoredOverlayContent(
         link: link,
-        targetSize: targetSize,
-        targetGlobalTopLeft: targetGlobalTopLeft,
+        targetRenderBox: targetRenderBox,
+        overlay: overlayState,
         placement: placement,
         onDismissed: dismiss,
         withBarrier: withBarrier,
@@ -79,8 +77,8 @@ class NibAnchoredOverlay {
 class _NibAnchoredOverlayContent extends StatefulWidget {
   const _NibAnchoredOverlayContent({
     required this.link,
-    required this.targetSize,
-    required this.targetGlobalTopLeft,
+    required this.targetRenderBox,
+    required this.overlay,
     required this.placement,
     required this.onDismissed,
     required this.withBarrier,
@@ -88,8 +86,8 @@ class _NibAnchoredOverlayContent extends StatefulWidget {
   });
 
   final LayerLink link;
-  final Size targetSize;
-  final Offset targetGlobalTopLeft;
+  final RenderBox targetRenderBox;
+  final OverlayState overlay;
   final NibOverlayPlacement placement;
   final VoidCallback onDismissed;
 
@@ -113,17 +111,23 @@ class _NibAnchoredOverlayContentState
     extends State<_NibAnchoredOverlayContent> {
   Size? _contentSize;
 
-  Rect get _targetRect => widget.targetGlobalTopLeft & widget.targetSize;
-
   @override
   Widget build(BuildContext context) {
+    if (!widget.targetRenderBox.attached) return const SizedBox.shrink();
+    final viewport = NibOverlayViewport(widget.overlay, MediaQuery.of(context));
     final content = MeasureSize(
       onChange: (size) {
         if (mounted && _contentSize != size) {
           setState(() => _contentSize = size);
         }
       },
-      child: widget.contentBuilder(context),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: viewport.usableSize.width,
+          maxHeight: viewport.usableSize.height,
+        ),
+        child: widget.contentBuilder(context),
+      ),
     );
 
     // Opaque, not translucent: a tap on the barrier must not also reach
@@ -148,13 +152,12 @@ class _NibAnchoredOverlayContentState
       );
     }
 
-    final mq = MediaQuery.of(context);
     final geo = resolveOverlayGeometry(
       placement: widget.placement,
-      target: _targetRect,
+      target: viewport.targetBounds(widget.targetRenderBox),
       content: _contentSize!,
-      screen: mq.size,
-      safeInsets: nibOverlaySafeInsets(mq),
+      screen: viewport.size,
+      safeInsets: viewport.safeInsets,
     );
 
     return Stack(

@@ -612,6 +612,10 @@ class _RenderTapTargetPadding extends RenderShiftedBox {
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
     if (!size.contains(position)) return false;
+    // Test the painted button at the real pointer position first. A stretched
+    // focus-ring Stack can be wider than its content-sized visual button, so
+    // forwarding every tap to the Stack's center can miss the InkWell.
+    if (super.hitTest(result, position: position)) return true;
     final Offset center = child!.size.center(Offset.zero);
     return result.addWithRawTransform(
       transform: MatrixUtils.forceToPoint(center),

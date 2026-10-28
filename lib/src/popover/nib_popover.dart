@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
@@ -276,11 +277,16 @@ class _NibPopoverState extends State<NibPopover> {
   Widget _buildOverlay(BuildContext overlayContext) {
     final box = context.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return const SizedBox.shrink();
-    final target = box.localToGlobal(Offset.zero) & box.size;
+    final viewport = NibOverlayViewport(
+      Overlay.of(context),
+      MediaQuery.of(overlayContext),
+    );
+    final target = viewport.targetBounds(box);
 
     return _NibPopoverOverlay(
       link: _link,
       target: target,
+      viewport: viewport,
       placement: _toOverlayPlacement(widget.placement),
       gap: widget.gap,
       showArrow: widget.showArrow,
@@ -328,6 +334,7 @@ class _NibPopoverOverlay extends StatefulWidget {
   const _NibPopoverOverlay({
     required this.link,
     required this.target,
+    required this.viewport,
     required this.placement,
     required this.gap,
     required this.showArrow,
@@ -346,6 +353,7 @@ class _NibPopoverOverlay extends StatefulWidget {
 
   final LayerLink link;
   final Rect target;
+  final NibOverlayViewport viewport;
   final NibOverlayPlacement placement;
   final double gap;
   final bool showArrow;
@@ -421,10 +429,32 @@ class _NibPopoverOverlayState extends State<_NibPopoverOverlay> {
     return NibPresence(children: widget.closing ? const [] : [motion]);
   }
 
+  bool get _horizontalPlacement =>
+      widget.placement == NibOverlayPlacement.start ||
+      widget.placement == NibOverlayPlacement.end;
+
   Widget _buildCard() {
     final theme = widget.theme;
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: widget.maxWidth),
+      constraints: BoxConstraints(
+        maxWidth: math.min(
+          widget.maxWidth,
+          math.max(
+            0,
+            widget.viewport.size.width -
+                widget.viewport.safeInsets.horizontal -
+                16 -
+                (widget.showArrow && _horizontalPlacement ? 7 : 0),
+          ),
+        ),
+        maxHeight: math.max(
+          0,
+          widget.viewport.size.height -
+              widget.viewport.safeInsets.vertical -
+              16 -
+              (widget.showArrow && !_horizontalPlacement ? 7 : 0),
+        ),
+      ),
       child: Material(
         color: theme.card,
         elevation: 8,
@@ -435,7 +465,8 @@ class _NibPopoverOverlayState extends State<_NibPopoverOverlay> {
             border: Border.all(color: theme.border),
             borderRadius: BorderRadius.circular(theme.radiusLg),
           ),
-          child: Padding(
+          child: SingleChildScrollView(
+            primary: false,
             padding: const EdgeInsets.all(14),
             child: widget.child,
           ),
@@ -506,13 +537,17 @@ class _NibPopoverOverlayState extends State<_NibPopoverOverlay> {
       );
     }
 
-    final mq = MediaQuery.of(context);
+    final arrowExtent = widget.showArrow ? 7.0 : 0.0;
+    final content = Size(
+      _contentSize!.width + (_horizontalPlacement ? arrowExtent : 0),
+      _contentSize!.height + (_horizontalPlacement ? 0 : arrowExtent),
+    );
     final geo = resolveOverlayGeometry(
       placement: widget.placement,
       target: widget.target,
-      content: _contentSize!,
-      screen: mq.size,
-      safeInsets: nibOverlaySafeInsets(mq),
+      content: content,
+      screen: widget.viewport.size,
+      safeInsets: widget.viewport.safeInsets,
       gap: widget.gap,
     );
     final side = geo.side;

@@ -178,7 +178,7 @@ class _MenuPanel extends StatefulWidget {
   /// Level 0: the pointer point the root menu positions itself at.
   final Offset? rootPosition;
 
-  /// Submenu levels: the parent item's link + global rect for anchoring.
+  /// Submenu levels: the parent item's link + overlay-local rect for anchoring.
   final LayerLink? anchorLink;
   final Rect? anchorRect;
 
@@ -241,7 +241,11 @@ class _MenuPanelState extends State<_MenuPanel> {
   void _openSubmenu(int index, NibMenuItem item) {
     final box = _keyFor(index).currentContext?.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
-    final rect = box.localToGlobal(Offset.zero) & box.size;
+    final viewport = NibOverlayViewport(
+      widget.session.overlay,
+      MediaQuery.of(context),
+    );
+    final rect = viewport.targetBounds(box);
     setState(() => _highlight = index);
     widget.session.openSubmenu(
       widget.level,
@@ -373,8 +377,16 @@ class _MenuPanelState extends State<_MenuPanel> {
 
   Widget _buildCard() {
     final theme = _theme;
+    final viewport = NibOverlayViewport(
+      widget.session.overlay,
+      MediaQuery.of(context),
+    );
     Widget card = ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 180, maxWidth: 300),
+      constraints: BoxConstraints(
+        minWidth: 180.clamp(0, viewport.usableSize.width).toDouble(),
+        maxWidth: 300.clamp(0, viewport.usableSize.width).toDouble(),
+        maxHeight: viewport.usableSize.height,
+      ),
       child: Material(
         color: theme.card,
         elevation: 8,
@@ -385,7 +397,8 @@ class _MenuPanelState extends State<_MenuPanel> {
             border: Border.all(color: theme.border),
             borderRadius: BorderRadius.circular(theme.radiusDefault),
           ),
-          child: Padding(
+          child: SingleChildScrollView(
+            primary: false,
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -454,15 +467,18 @@ class _MenuPanelState extends State<_MenuPanel> {
   // --- Positioning -----------------------------------------------------------
 
   Widget _positioned(Widget card) {
+    final viewport = NibOverlayViewport(
+      widget.session.overlay,
+      MediaQuery.of(context),
+    );
     if (widget.rootPosition != null) {
       // Root: place the card at the pointer, clamped inside the *usable*
       // viewport (screen minus the status bar / nav bar / keyboard insets).
-      final mq = MediaQuery.of(context);
       return CustomSingleChildLayout(
         delegate: _MenuPositionDelegate(
-          widget.rootPosition!,
+          viewport.box.globalToLocal(widget.rootPosition!),
           _screenPad,
-          nibOverlaySafeInsets(mq),
+          viewport.safeInsets,
         ),
         child: card,
       );
@@ -483,13 +499,12 @@ class _MenuPanelState extends State<_MenuPanel> {
         child: Opacity(opacity: 0, child: measured),
       );
     }
-    final mq = MediaQuery.of(context);
     final geo = resolveOverlayGeometry(
       placement: NibOverlayPlacement.end,
       target: widget.anchorRect!,
       content: _cardSize!,
-      screen: mq.size,
-      safeInsets: nibOverlaySafeInsets(mq),
+      screen: viewport.size,
+      safeInsets: viewport.safeInsets,
     );
     return CompositedTransformFollower(
       link: widget.anchorLink!,

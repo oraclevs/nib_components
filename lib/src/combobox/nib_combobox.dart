@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
@@ -6,6 +7,7 @@ import 'package:nib_motion/nib_motion.dart'
     show NibAnim, NibMotion, NibTransition;
 
 import '../theme/nib_theme.dart';
+import '../overlay/overlay_positioning.dart';
 import 'nib_combobox_controller.dart';
 import 'nib_combobox_filter.dart';
 import 'nib_combobox_option.dart';
@@ -249,18 +251,20 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
 
   // --- Open / close ---------------------------------------------------------
 
-  void _open() {
+  void _open({bool fromTyping = false}) {
     if (widget.disabled || _controller.isOpen) return;
     if (_isAsync) {
       _visibleOptions = const [];
-      _runAsyncLoad('');
+      _runAsyncLoad(fromTyping ? _textController.text : '');
+    } else if (fromTyping) {
+      _recomputeSyncVisible();
     } else {
       _recomputeAllVisible();
     }
     _focusNode.requestFocus();
     // Select-all so the first keystroke replaces any reverted label and the
     // freshly-opened list shows everything rather than filtering by it.
-    if (_textController.text.isNotEmpty) {
+    if (!fromTyping && _textController.text.isNotEmpty) {
       _textController.selection = TextSelection(
         baseOffset: 0,
         extentOffset: _textController.text.length,
@@ -338,7 +342,7 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
   void _handleTextChanged(String text) {
     _controller.setQuery(text);
     if (!_controller.isOpen) {
-      _open();
+      _open(fromTyping: true);
       return;
     }
     if (_isAsync) {
@@ -448,32 +452,43 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
   Widget _buildDropdownOverlay(BuildContext overlayContext) {
     final theme = NibTheme.of(context);
     final box = context.findRenderObject() as RenderBox?;
-    final mq = MediaQuery.of(overlayContext);
-    final screen = mq.size;
-    // Keep the dropdown clear of the status bar (top), and of the system nav bar
-    // or on-screen keyboard (bottom) — otherwise on a phone it opens under them.
-    final safeTop = mq.padding.top;
-    final safeBottom = mq.padding.bottom > mq.viewInsets.bottom
-        ? mq.padding.bottom
-        : mq.viewInsets.bottom;
-
-    var fieldWidth = 240.0;
-    var available = widget.maxDropdownHeight;
+    final viewport = NibOverlayViewport(
+      Overlay.of(context),
+      MediaQuery.of(overlayContext),
+    );
+    final screen = viewport.size;
+    final safeTop = viewport.safeInsets.top;
+    final safeBottom = viewport.safeInsets.bottom;
+    var fieldWidth = math.min(240.0, viewport.usableSize.width);
+    var available = math.min(
+      widget.maxDropdownHeight,
+      viewport.usableSize.height,
+    );
     var openUp = false;
+    var horizontalOffset = 0.0;
     if (box != null && box.hasSize) {
-      fieldWidth = box.size.width;
-      final topLeft = box.localToGlobal(Offset.zero);
-      final spaceBelow =
-          screen.height - safeBottom - (topLeft.dy + box.size.height) - 8;
-      final spaceAbove = topLeft.dy - safeTop - 8;
+      final target = viewport.targetBounds(box);
+      fieldWidth = math.min(box.size.width, viewport.usableSize.width);
+      final spaceBelow = math.max(
+        0.0,
+        screen.height - safeBottom - target.bottom - 12,
+      );
+      final spaceAbove = math.max(0.0, target.top - safeTop - 12);
       openUp = spaceBelow < 160 && spaceAbove > spaceBelow;
-      available = (openUp ? spaceAbove : spaceBelow).clamp(
-        80.0,
+      available = math.min(
+        openUp ? spaceAbove : spaceBelow,
         widget.maxDropdownHeight,
       );
+      final left = target.left.clamp(
+        viewport.safeInsets.left + 8,
+        math.max(
+          viewport.safeInsets.left + 8,
+          screen.width - viewport.safeInsets.right - 8 - fieldWidth,
+        ),
+      );
+      horizontalOffset = left - target.left;
     }
-
-    final maxHeight = available.clamp(80.0, widget.maxDropdownHeight);
+    final maxHeight = math.max(0.0, available);
 
     final card = Material(
       color: widget.backgroundColor ?? theme.card,
@@ -502,7 +517,7 @@ class _NibComboboxState<T> extends State<NibCombobox<T>> {
           showWhenUnlinked: false,
           targetAnchor: openUp ? Alignment.topLeft : Alignment.bottomLeft,
           followerAnchor: openUp ? Alignment.bottomLeft : Alignment.topLeft,
-          offset: Offset(0, openUp ? -4 : 4),
+          offset: Offset(horizontalOffset, openUp ? -4 : 4),
           child: SizedBox(
             width: fieldWidth,
             child: widget.animated

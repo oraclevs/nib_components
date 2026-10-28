@@ -74,3 +74,5 @@ export 'src/validation/nib_validators.dart';
 export 'src/toast/nib_toast_types.dart';
 export 'src/toast/show_nib_toast.dart';
 export 'src/theme/nib_theme.dart';
+
+export 'src/liquid_glass/nib_water_glass.dart';

@@ -129,7 +129,12 @@ class _NibLiquidGlassState extends State<NibLiquidGlass> {
   @override
   void didUpdateWidget(covariant NibLiquidGlass oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!_pressed &&
+    if (oldWidget.interactive && !widget.interactive) {
+      // The pointer listener is removed below, so an outstanding press will
+      // no longer receive its release/cancel callback. Clear it here.
+      _pressed = false;
+      _light = widget.restLightDirection;
+    } else if (!_pressed &&
         widget.restLightDirection != oldWidget.restLightDirection) {
       _light = widget.restLightDirection;
     }
