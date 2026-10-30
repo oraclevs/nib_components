@@ -1,3 +1,14 @@
+## 0.2.3
+
+- Forward `NibWaterGlass.sampling`, `quality`, `material` and `sampleInterval`
+  to the shared NibMotion water surface. Existing callers keep legacy sampling.
+- Require `nib_motion: ^0.3.5` for live sampling, bounded device-relative quality,
+  material controls and the shared bubble emitter. Controllers supplied by the
+  caller retain ownership of their configuration and disposal.
+
+Water rendering remains experimental; browser parity and sustained performance
+across devices remain unverified.
+
 ## 0.2.2
 
 - Add experimental `NibWaterGlass`, with optional animation, reduced motion,

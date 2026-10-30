@@ -39,7 +39,7 @@ state, and several accept `animated: true` for state transitions.
 flutter pub add nib_components
 ```
 
-This also installs `nib_motion`. Version 0.2.2 requires Motion 0.3.4 or later
+This also installs `nib_motion`. Version 0.2.3 requires Motion 0.3.5 or later
 within the 0.3 series, including its water APIs. Keep this requirement in mind
 if your app pins or overrides Motion.
 
@@ -118,6 +118,11 @@ Card · Flip Card · Data Table · Accordion · Carousel · Resizable Panels
 
 **Feedback & effects**
 Skeleton · Circular Loader · Liquid Glass · Water Glass (experimental)
+
+`NibWaterGlass` forwards `sampling`, `quality`, `material` and `sampleInterval`
+to the shared NibMotion renderer. Choose `NibWaterSampling.live` for changing
+underwater content; the default preserves legacy snapshot sampling. Enable
+`animated: true` for waves and emitted bubbles.
 
 **Supporting APIs**
 `NibTheme` (design tokens) · `NibValidators` (form-field validation helpers)
