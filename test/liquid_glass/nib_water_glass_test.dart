@@ -67,6 +67,35 @@ Future<void> _unmount(WidgetTester tester) async {
 }
 
 void main() {
+  testWidgets('sampling policy and optics reach the shared surface', (
+    tester,
+  ) async {
+    const quality = NibWaterQuality(scale: .75, maxPixels: 200000);
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SizedBox(
+          width: 200,
+          height: 160,
+          child: NibWaterGlass(
+            background: ColoredBox(color: Colors.blue),
+            sampling: NibWaterSampling.throttled,
+            quality: quality,
+            sampleInterval: Duration(milliseconds: 80),
+            material: NibWaterMaterial.deep,
+          ),
+        ),
+      ),
+    );
+    final surface = tester.widget<NibWaterSurface>(
+      find.byType(NibWaterSurface),
+    );
+    expect(surface.sampling, NibWaterSampling.throttled);
+    expect(surface.quality, same(quality));
+    expect(surface.sampleInterval, const Duration(milliseconds: 80));
+    expect(surface.material, same(NibWaterMaterial.deep));
+    await _unmount(tester);
+  });
+
   testWidgets(
     'default owned controller resolves motion statically and disposes on unmount',
     (tester) async {

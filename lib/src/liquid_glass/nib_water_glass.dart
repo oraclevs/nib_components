@@ -25,6 +25,10 @@ class NibWaterGlass extends StatefulWidget {
     this.reducedMotion = false,
     this.animated = false,
     this.captureScale = 1,
+    this.sampling = NibWaterSampling.legacy,
+    this.quality = const NibWaterQuality(),
+    this.material,
+    this.sampleInterval = const Duration(milliseconds: 33),
     this.borderRadius,
     this.onStatus,
     this.backgroundChanges,
@@ -64,8 +68,20 @@ class NibWaterGlass extends StatefulWidget {
   /// Enables evolving motion. False applies final states immediately.
   final bool animated;
 
-  /// Capture pixels/logical pixel, .5..2, capped to two million pixels.
+  /// Legacy capture pixels/logical pixel, .5..2, capped to two million pixels.
   final double captureScale;
+
+  /// Content policy; live samples current composited child layers.
+  final NibWaterSampling sampling;
+
+  /// Device-relative input budget for non-legacy sampling.
+  final NibWaterQuality quality;
+
+  /// Optional optics, independent of simulation and capture quality.
+  final NibWaterMaterial? material;
+
+  /// Minimum interval for throttled sampling.
+  final Duration sampleInterval;
 
   /// Optional radius; otherwise reads NibTheme.radiusDefault.
   final BorderRadius? borderRadius;
@@ -123,6 +139,10 @@ class _NibWaterGlassState extends State<NibWaterGlass> {
       paused: widget.paused,
       reducedMotion: widget.reducedMotion || !widget.animated,
       captureScale: widget.captureScale,
+      sampling: widget.sampling,
+      quality: widget.quality,
+      material: widget.material,
+      sampleInterval: widget.sampleInterval,
       onStatus: widget.onStatus,
       child: widget.child,
     ),
