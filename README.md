@@ -117,7 +117,7 @@ Tabs · Breadcrumb · Pagination · Navigation Menu
 Card · Flip Card · Data Table · Accordion · Carousel · Resizable Panels
 
 **Feedback & effects**
-Skeleton · Circular Loader · Liquid Glass · Water Glass (experimental)
+Skeleton · Circular Loader · Liquid Glass · Water Glass
 
 `NibWaterGlass` forwards `sampling`, `quality`, `material` and `sampleInterval`
 to the shared NibMotion renderer. Choose `NibWaterSampling.live` for changing

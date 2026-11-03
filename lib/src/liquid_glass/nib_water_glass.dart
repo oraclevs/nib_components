@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:nib_motion/nib_motion.dart';
 import '../theme/nib_theme.dart';
 
-/// Experimental water material with sharp, independently accessible content.
+/// Water material with sharp, independently accessible content.
 ///
 /// This additive component leaves NibLiquidGlass unchanged. It captures only
 /// [background] through NibMotion. Give it finite bounds. An external
